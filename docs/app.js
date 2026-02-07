@@ -129,10 +129,12 @@ function bindEventListeners() {
 
   document.getElementById("task-select").addEventListener("change", (e) => {
     currentTaskSelection = e.target.value;
-    if (isAggregateSelection(currentTaskSelection)) {
-      checkedTasks = new Set(getBenchmarksForSelection(currentTaskSelection));
-      syncCheckboxStates();
+    // Always pre-check the relevant benchmarks
+    const benchmarks = getBenchmarksForSelection(currentTaskSelection);
+    if (benchmarks.length > 0) {
+      checkedTasks = new Set(benchmarks);
     }
+    syncCheckboxStates();
     renderChart();
   });
 
@@ -178,6 +180,16 @@ function getBenchmarksForSelection(sel) {
     const nno = new Set(DATA.nno_benchmarks || []);
     return Object.keys(DATA.metrics_setup).filter((b) => !nno.has(b));
   }
+  // Individual task group
+  if (sel.startsWith("__group__")) {
+    const groupName = sel.slice(9);
+    const group = DATA.task_groups[groupName];
+    return group ? group.benchmarks : [];
+  }
+  // Standalone benchmark
+  if (DATA.metrics_setup[sel]) {
+    return [sel];
+  }
   return [];
 }
 
@@ -216,6 +228,11 @@ function buildCheckboxes() {
       checkbox.addEventListener("change", () => {
         if (checkbox.checked) checkedTasks.add(bench);
         else checkedTasks.delete(bench);
+        // If on an individual task view, switch to aggregate mode
+        if (!isAggregateSelection(currentTaskSelection)) {
+          currentTaskSelection = "__all__";
+          document.getElementById("task-select").value = "__all__";
+        }
         renderChart();
       });
 
@@ -336,7 +353,7 @@ function renderAggregateBarChart() {
   };
 
   const selLabel = getAggregateLabel();
-  const yMax = computeYMax(scores);
+  const yMax = computeAggregateYMaxAllShots(DATA.models, checkedTasks);
 
   const layout = {
     title: selLabel + " \u2014 Normalized Aggregate (" + currentShot + "-shot)",
@@ -358,12 +375,10 @@ function renderGroupedBarChart(groupName) {
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
 
-  const allValues = [];
   const traces = group.benchmarks.map((bench, i) => {
     const values = modelNames.map(
       (m) => DATA.models[m]?.[bench]?.[currentShot] ?? null
     );
-    allValues.push(...values.filter((v) => v !== null));
     return {
       x: labels,
       y: values,
@@ -377,7 +392,7 @@ function renderGroupedBarChart(groupName) {
   });
 
   const info = DATA.metrics_setup[group.benchmarks[0]];
-  const yMax = computeYMax(allValues);
+  const yMax = computeRawYMaxAllShots(DATA.models, group.benchmarks);
 
   const layout = {
     title:
@@ -400,7 +415,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
     (m) => DATA.models[m]?.[benchmark]?.[currentShot] ?? null
   );
 
-  const yMax = computeYMax(values.filter((v) => v !== null));
+  const yMax = computeRawYMaxAllShots(DATA.models, [benchmark]);
 
   const trace = {
     x: labels,
@@ -474,8 +489,7 @@ function renderAggregateProgressChart() {
   };
 
   const selLabel = getAggregateLabel();
-  const validScores = scores.filter((s) => s !== null);
-  const yMax = computeYMax(validScores);
+  const yMax = computeAggregateYMaxAllShots(DATA.progress, checkedTasks);
 
   const layout = {
     title:
@@ -496,13 +510,11 @@ function renderGroupProgressChart(groupName) {
   if (!group) return;
 
   const steps = getSteps();
-  const allValues = [];
 
   const traces = group.benchmarks.map((bench, i) => {
     const ys = steps.map(
       (s) => DATA.progress[s]?.[bench]?.[currentShot] ?? null
     );
-    allValues.push(...ys.filter((v) => v !== null));
     return {
       x: steps,
       y: ys,
@@ -516,7 +528,7 @@ function renderGroupProgressChart(groupName) {
   });
 
   const info = DATA.metrics_setup[group.benchmarks[0]];
-  const yMax = computeYMax(allValues);
+  const yMax = computeRawYMaxAllShots(DATA.progress, group.benchmarks);
 
   const layout = {
     title:
@@ -544,8 +556,7 @@ function renderSingleProgressChart(benchmark) {
     (s) => DATA.progress[s]?.[benchmark]?.[currentShot] ?? null
   );
 
-  const validYs = ys.filter((v) => v !== null);
-  const yMax = computeYMax(validYs);
+  const yMax = computeRawYMaxAllShots(DATA.progress, [benchmark]);
 
   const trace = {
     x: steps,
@@ -592,6 +603,42 @@ function computeYMax(values) {
   // Add 15% headroom, minimum 0.05 absolute padding
   const padding = Math.max(maxVal * 0.15, 0.05);
   return maxVal + padding;
+}
+
+const ALL_SHOTS = ["0", "1", "5"];
+
+// Compute stable y-max across all shot settings for aggregate comparison charts
+function computeAggregateYMaxAllShots(dataSource, benchmarks) {
+  const allAvgs = [];
+  const entities = Object.keys(dataSource);
+  for (const shot of ALL_SHOTS) {
+    for (const entity of entities) {
+      let sum = 0, count = 0;
+      for (const bench of benchmarks) {
+        const val = dataSource[entity]?.[bench]?.[shot];
+        if (val !== undefined) {
+          sum += normalizeScore(val, bench);
+          count++;
+        }
+      }
+      if (count > 0) allAvgs.push(sum / count);
+    }
+  }
+  return computeYMax(allAvgs);
+}
+
+// Compute stable y-max across all shot settings for raw benchmark values
+function computeRawYMaxAllShots(dataSource, benchmarks) {
+  const allVals = [];
+  for (const entity of Object.keys(dataSource)) {
+    for (const shot of ALL_SHOTS) {
+      for (const bench of benchmarks) {
+        const val = dataSource[entity]?.[bench]?.[shot];
+        if (val !== undefined && val !== null) allVals.push(val);
+      }
+    }
+  }
+  return computeYMax(allVals);
 }
 
 function getAggregateLabel() {
