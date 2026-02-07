@@ -1,0 +1,6923 @@
+{
+  "metrics_setup": {
+    "ask_gec": {
+      "pretty_name": "grammar correction",
+      "main_metric": "errant_f05",
+      "random_baseline": 0.0,
+      "max_performance": 1.0,
+      "category": "Generation & Summarization"
+    },
+    "ncb": {
+      "pretty_name": "comma benchmark",
+      "main_metric": "acc",
+      "random_baseline": 0.5,
+      "max_performance": 1.0,
+      "category": "Language Understanding"
+    },
+    "nocola": {
+      "pretty_name": "linguistic acceptability",
+      "main_metric": "acc",
+      "random_baseline": 0.5,
+      "max_performance": 1.0,
+      "category": "Language Understanding"
+    },
+    "norbelebele": {
+      "pretty_name": "reading comprehension (belebele)",
+      "main_metric": "acc",
+      "random_baseline": 0.25,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "norcommonsenseqa_nno": {
+      "pretty_name": "commonsense QA",
+      "main_metric": "acc",
+      "random_baseline": 0.2,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "norcommonsenseqa_nob": {
+      "pretty_name": "commonsense QA",
+      "main_metric": "acc",
+      "random_baseline": 0.2,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "norec_document": {
+      "pretty_name": "sentiment analysis (document)",
+      "main_metric": "f1",
+      "random_baseline": 0.5,
+      "max_performance": 1.0,
+      "category": "Sentiment Analysis"
+    },
+    "norec_sentence": {
+      "pretty_name": "sentiment analysis (sentence)",
+      "main_metric": "f1",
+      "random_baseline": 0.5,
+      "max_performance": 1.0,
+      "category": "Sentiment Analysis"
+    },
+    "noridiom_nno": {
+      "pretty_name": "idiom completion",
+      "main_metric": "em",
+      "random_baseline": 0.0,
+      "max_performance": 1.0,
+      "category": "Generation & Summarization"
+    },
+    "noridiom_nob": {
+      "pretty_name": "idiom completion",
+      "main_metric": "em",
+      "random_baseline": 0.0,
+      "max_performance": 1.0,
+      "category": "Generation & Summarization"
+    },
+    "noropenbookqa_nno": {
+      "pretty_name": "reading comprehension (openbookqa)",
+      "main_metric": "acc",
+      "random_baseline": 0.25,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "noropenbookqa_nob": {
+      "pretty_name": "reading comprehension (openbookqa)",
+      "main_metric": "acc",
+      "random_baseline": 0.25,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "noropenbookqa_no_fact_nno": {
+      "pretty_name": "openbook QA",
+      "main_metric": "acc",
+      "random_baseline": 0.25,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "noropenbookqa_no_fact_nob": {
+      "pretty_name": "openbook QA",
+      "main_metric": "acc",
+      "random_baseline": 0.25,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "norquad": {
+      "pretty_name": "reading comprehension (norquad)",
+      "main_metric": "f1",
+      "random_baseline": 0.0,
+      "max_performance": 1.0,
+      "category": "Language Understanding"
+    },
+    "norrewrite_instruct": {
+      "pretty_name": "instruction-following",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Generation & Summarization"
+    },
+    "norsummarize_instruct": {
+      "pretty_name": "summarization (instructed)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Generation & Summarization"
+    },
+    "norsumm_nob": {
+      "pretty_name": "summarization",
+      "main_metric": "rougeL_max",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Generation & Summarization"
+    },
+    "norsumm_nno": {
+      "pretty_name": "summarization",
+      "main_metric": "rougeL_max",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Generation & Summarization"
+    },
+    "norsumm_nob_nno_translation": {
+      "pretty_name": "translation (NOB-NNO)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "norsumm_nno_nob_translation": {
+      "pretty_name": "translation (NOB-NNO)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "nortruthfulqa_gen_nno": {
+      "pretty_name": "truthful QA (generative)",
+      "main_metric": "rougeL_max",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Generation & Summarization"
+    },
+    "nortruthfulqa_gen_nob": {
+      "pretty_name": "truthful QA (generative)",
+      "main_metric": "rougeL_max",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Generation & Summarization"
+    },
+    "nortruthfulqa_mc_nno": {
+      "pretty_name": "truthful QA",
+      "main_metric": "acc",
+      "random_baseline": 0.23311814890762259,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "nortruthfulqa_mc_nob": {
+      "pretty_name": "truthful QA",
+      "main_metric": "acc",
+      "random_baseline": 0.23170337745132827,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "nrk_quiz_qa_nno": {
+      "pretty_name": "NRK quiz",
+      "main_metric": "acc",
+      "random_baseline": 0.27884711779448623,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "nrk_quiz_qa_nob": {
+      "pretty_name": "NRK quiz",
+      "main_metric": "acc",
+      "random_baseline": 0.2836296296296296,
+      "max_performance": 1.0,
+      "category": "Knowledge & Reasoning"
+    },
+    "slide": {
+      "pretty_name": "Scandinavian LID",
+      "main_metric": "acc",
+      "random_baseline": 0.21289208633093526,
+      "max_performance": 1.0,
+      "category": "Language ID"
+    },
+    "tatoeba_eng_nno": {
+      "pretty_name": "translation (ENG-NNO)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "tatoeba_eng_nob": {
+      "pretty_name": "translation (ENG-NOB)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "tatoeba_nno_eng": {
+      "pretty_name": "translation (NNO-ENG)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "tatoeba_nob_eng": {
+      "pretty_name": "translation (NOB-ENG)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "tatoeba_nob_sme": {
+      "pretty_name": "translation (NOB-SME)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    },
+    "tatoeba_sme_nob": {
+      "pretty_name": "translation (SME-NOB)",
+      "main_metric": "bleu",
+      "random_baseline": 0.0,
+      "max_performance": 100.0,
+      "category": "Translation"
+    }
+  },
+  "task_groups": {
+    "Commonsense QA": {
+      "benchmarks": [
+        "norcommonsenseqa_nob",
+        "norcommonsenseqa_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "Reading Comprehension (OpenBookQA)": {
+      "benchmarks": [
+        "noropenbookqa_nob",
+        "noropenbookqa_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "OpenBook QA (no fact)": {
+      "benchmarks": [
+        "noropenbookqa_no_fact_nob",
+        "noropenbookqa_no_fact_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "Truthful QA (MC)": {
+      "benchmarks": [
+        "nortruthfulqa_mc_nob",
+        "nortruthfulqa_mc_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "Truthful QA (Generative)": {
+      "benchmarks": [
+        "nortruthfulqa_gen_nob",
+        "nortruthfulqa_gen_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "NRK Quiz": {
+      "benchmarks": [
+        "nrk_quiz_qa_nob",
+        "nrk_quiz_qa_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "Idiom Completion": {
+      "benchmarks": [
+        "noridiom_nob",
+        "noridiom_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "Summarization": {
+      "benchmarks": [
+        "norsumm_nob",
+        "norsumm_nno"
+      ],
+      "labels": [
+        "NOB",
+        "NNO"
+      ]
+    },
+    "Translation (ENG↔NOB)": {
+      "benchmarks": [
+        "tatoeba_nob_eng",
+        "tatoeba_eng_nob"
+      ],
+      "labels": [
+        "NOB→ENG",
+        "ENG→NOB"
+      ]
+    },
+    "Translation (ENG↔NNO)": {
+      "benchmarks": [
+        "tatoeba_nno_eng",
+        "tatoeba_eng_nno"
+      ],
+      "labels": [
+        "NNO→ENG",
+        "ENG→NNO"
+      ]
+    },
+    "Translation (NOB↔SME)": {
+      "benchmarks": [
+        "tatoeba_nob_sme",
+        "tatoeba_sme_nob"
+      ],
+      "labels": [
+        "NOB→SME",
+        "SME→NOB"
+      ]
+    },
+    "Translation (NOB↔NNO)": {
+      "benchmarks": [
+        "norsumm_nob_nno_translation",
+        "norsumm_nno_nob_translation"
+      ],
+      "labels": [
+        "NOB→NNO",
+        "NNO→NOB"
+      ]
+    }
+  },
+  "standalone_benchmarks": [
+    "norbelebele",
+    "norquad",
+    "norec_sentence",
+    "norec_document",
+    "norsummarize_instruct",
+    "norrewrite_instruct",
+    "ask_gec",
+    "ncb",
+    "nocola",
+    "slide"
+  ],
+  "model_display_names": {
+    "NorOLMo-13b": "NorOLMo 13B",
+    "normistral-7b-warm": "NorMistral 7B",
+    "normistral-11b-warm": "NorMistral 11B",
+    "normistral-11b-long": "NorMistral 11B Long",
+    "olmo-2-13B-stage1": "OLMo-2 13B Stage1"
+  },
+  "models": {
+    "NorOLMo-13b": {
+      "ask_gec": {
+        "0": 0.15654,
+        "1": 0.38026,
+        "5": 0.468
+      },
+      "ncb": {
+        "0": 0.778571,
+        "1": 0.811905,
+        "5": 0.882143
+      },
+      "nocola": {
+        "0": 0.128506,
+        "1": 0.123461,
+        "5": 0.127588
+      },
+      "norbelebele": {
+        "0": 0.289556,
+        "1": 0.345556,
+        "5": 0.419333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.309474,
+        "1": 0.389474,
+        "5": 0.52
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.337876,
+        "1": 0.482966,
+        "5": 0.560721
+      },
+      "norec_document": {
+        "0": 0.494506,
+        "1": 0.840032,
+        "5": 0.926518
+      },
+      "norec_sentence": {
+        "0": 0.462489,
+        "1": 0.695248,
+        "5": 0.84965
+      },
+      "noridiom_nno": {
+        "0": 0.566292,
+        "1": 0.620225,
+        "5": 0.485393
+      },
+      "noridiom_nob": {
+        "0": 0.312366,
+        "1": 0.313312,
+        "5": 0.204416
+      },
+      "noropenbookqa_nno": {
+        "0": 0.417778,
+        "1": 0.517778,
+        "5": 0.553333
+      },
+      "noropenbookqa_nob": {
+        "0": 0.468449,
+        "1": 0.588235,
+        "5": 0.62246
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.297778,
+        "1": 0.357778,
+        "5": 0.377778
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.33262,
+        "1": 0.434225,
+        "5": 0.462567
+      },
+      "norquad": {
+        "0": 0.440099,
+        "1": 0.690559,
+        "5": 0.767836
+      },
+      "norrewrite_instruct": {
+        "0": 1.483324,
+        "1": 3.103293,
+        "5": 10.26385
+      },
+      "norsummarize_instruct": {
+        "0": 1.303908,
+        "1": 2.006848,
+        "5": 4.135302
+      },
+      "norsumm_nob": {
+        "0": 16.386685,
+        "1": 25.017365,
+        "5": 35.016363
+      },
+      "norsumm_nno": {
+        "0": 14.533345,
+        "1": 22.482997,
+        "5": 32.155172
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 60.028872,
+        "1": 71.951431,
+        "5": 73.901343
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 67.85212,
+        "1": 78.720753,
+        "5": 82.834196
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.46427,
+        "1": 0.029091,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.527273,
+        "1": 0.013424,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.378947,
+        "1": 0.329825,
+        "5": 0.326316
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.413934,
+        "1": 0.318443,
+        "5": 0.340164
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.432932,
+        "1": 0.519699,
+        "5": 0.562256
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.409111,
+        "1": 0.4685,
+        "5": 0.498111
+      },
+      "slide": {
+        "0": 0.496403,
+        "1": 0.424547,
+        "5": 0.571741
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.755966,
+        "1": 45.292109,
+        "5": 46.103688
+      },
+      "tatoeba_eng_nob": {
+        "0": 42.534687,
+        "1": 57.128493,
+        "5": 58.013791
+      },
+      "tatoeba_nno_eng": {
+        "0": 49.207546,
+        "1": 55.386167,
+        "5": 56.725888
+      },
+      "tatoeba_nob_eng": {
+        "0": 34.78155,
+        "1": 57.479086,
+        "5": 59.117212
+      },
+      "tatoeba_nob_sme": {
+        "0": 14.514082,
+        "1": 25.445265,
+        "5": 34.828515
+      },
+      "tatoeba_sme_nob": {
+        "0": 29.773451,
+        "1": 50.661988,
+        "5": 57.120845
+      }
+    },
+    "normistral-11b-long": {
+      "ask_gec": {
+        "0": 0.28114,
+        "1": 0.44266,
+        "5": 0.49558
+      },
+      "ncb": {
+        "0": 0.811905,
+        "1": 0.780952,
+        "5": 0.854762
+      },
+      "nocola": {
+        "0": 0.123239,
+        "1": 0.140663,
+        "5": 0.131432
+      },
+      "norbelebele": {
+        "0": 0.389111,
+        "1": 0.452444,
+        "5": 0.505778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.412632,
+        "1": 0.461053,
+        "5": 0.593684
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.493988,
+        "1": 0.611222,
+        "5": 0.686974
+      },
+      "norec_document": {
+        "0": 0.447351,
+        "1": 0.84944,
+        "5": 0.911376
+      },
+      "norec_sentence": {
+        "0": 0.496287,
+        "1": 0.658201,
+        "5": 0.854023
+      },
+      "noridiom_nno": {
+        "0": 0.640449,
+        "1": 0.707865,
+        "5": 0.323596
+      },
+      "noridiom_nob": {
+        "0": 0.331861,
+        "1": 0.335584,
+        "5": 0.145804
+      },
+      "noropenbookqa_nno": {
+        "0": 0.517778,
+        "1": 0.637778,
+        "5": 0.668889
+      },
+      "noropenbookqa_nob": {
+        "0": 0.584492,
+        "1": 0.674866,
+        "5": 0.691444
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.38,
+        "1": 0.464444,
+        "5": 0.515556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.388235,
+        "1": 0.519786,
+        "5": 0.566845
+      },
+      "norquad": {
+        "0": 0.560488,
+        "1": 0.751152,
+        "5": 0.800471
+      },
+      "norrewrite_instruct": {
+        "0": 2.046533,
+        "1": 1.883723,
+        "5": 8.881413
+      },
+      "norsummarize_instruct": {
+        "0": 1.384216,
+        "1": 2.70346,
+        "5": 4.024596
+      },
+      "norsumm_nob": {
+        "0": 11.16253,
+        "1": 24.9189,
+        "5": 32.791199
+      },
+      "norsumm_nno": {
+        "0": 8.036534,
+        "1": 21.933987,
+        "5": 30.577044
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 69.204564,
+        "1": 72.525381,
+        "5": 74.464097
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 75.719349,
+        "1": 82.945781,
+        "5": 84.470216
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.012845,
+        "1": 0.005424,
+        "5": 0.064
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 17.569552,
+        "1": 0.0,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.449123,
+        "1": 0.449123,
+        "5": 0.505263
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.401639,
+        "1": 0.392623,
+        "5": 0.473361
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.589173,
+        "1": 0.659098,
+        "5": 0.687669
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.529167,
+        "1": 0.603389,
+        "5": 0.625222
+      },
+      "slide": {
+        "0": 0.591827,
+        "1": 0.625007,
+        "5": 0.788144
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.130734,
+        "1": 47.69506,
+        "5": 47.320924
+      },
+      "tatoeba_eng_nob": {
+        "0": 55.845848,
+        "1": 58.809699,
+        "5": 58.92085
+      },
+      "tatoeba_nno_eng": {
+        "0": 52.229006,
+        "1": 58.831444,
+        "5": 60.634005
+      },
+      "tatoeba_nob_eng": {
+        "0": 56.046614,
+        "1": 60.150726,
+        "5": 60.828003
+      },
+      "tatoeba_nob_sme": {
+        "0": 33.923896,
+        "1": 37.173107,
+        "5": 42.081328
+      },
+      "tatoeba_sme_nob": {
+        "0": 49.73179,
+        "1": 61.259732,
+        "5": 65.89941
+      }
+    },
+    "normistral-11b-warm": {
+      "ask_gec": {
+        "0": 0.13104,
+        "1": 0.36638,
+        "5": 0.48712
+      },
+      "ncb": {
+        "0": 0.833333,
+        "1": 0.825,
+        "5": 0.869048
+      },
+      "nocola": {
+        "0": 0.117438,
+        "1": 0.130534,
+        "5": 0.127669
+      },
+      "norbelebele": {
+        "0": 0.397111,
+        "1": 0.478889,
+        "5": 0.516889
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.450526,
+        "1": 0.494737,
+        "5": 0.604211
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.547094,
+        "1": 0.644489,
+        "5": 0.698397
+      },
+      "norec_document": {
+        "0": 0.450867,
+        "1": 0.881947,
+        "5": 0.896844
+      },
+      "norec_sentence": {
+        "0": 0.443203,
+        "1": 0.676412,
+        "5": 0.854182
+      },
+      "noridiom_nno": {
+        "0": 0.667416,
+        "1": 0.707865,
+        "5": 0.411236
+      },
+      "noridiom_nob": {
+        "0": 0.347634,
+        "1": 0.34347,
+        "5": 0.174069
+      },
+      "noropenbookqa_nno": {
+        "0": 0.557778,
+        "1": 0.626667,
+        "5": 0.66
+      },
+      "noropenbookqa_nob": {
+        "0": 0.61123,
+        "1": 0.67754,
+        "5": 0.698396
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.413333,
+        "1": 0.451111,
+        "5": 0.502222
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.438503,
+        "1": 0.531551,
+        "5": 0.57861
+      },
+      "norquad": {
+        "0": 0.513546,
+        "1": 0.748145,
+        "5": 0.789708
+      },
+      "norrewrite_instruct": {
+        "0": 2.168388,
+        "1": 2.269822,
+        "5": 7.755342
+      },
+      "norsummarize_instruct": {
+        "0": 1.304033,
+        "1": 2.409409,
+        "5": 3.35182
+      },
+      "norsumm_nob": {
+        "0": 18.907262,
+        "1": 26.586824,
+        "5": 35.732719
+      },
+      "norsumm_nno": {
+        "0": 15.825274,
+        "1": 22.608577,
+        "5": 33.738025
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 39.350232,
+        "1": 71.141069,
+        "5": 73.808984
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 46.791239,
+        "1": 75.944428,
+        "5": 83.590266
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 13.851018,
+        "1": 6.615102,
+        "5": 5.405167
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 15.307419,
+        "1": 9.137744,
+        "5": 6.749364
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.389474,
+        "1": 0.445614,
+        "5": 0.477193
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.363525,
+        "1": 0.392623,
+        "5": 0.461066
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.58797,
+        "1": 0.651429,
+        "5": 0.677293
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.536056,
+        "1": 0.601,
+        "5": 0.624167
+      },
+      "slide": {
+        "0": 0.649755,
+        "1": 0.66046,
+        "5": 0.835827
+      },
+      "tatoeba_eng_nno": {
+        "0": 2.123475,
+        "1": 14.573357,
+        "5": 46.573022
+      },
+      "tatoeba_eng_nob": {
+        "0": 19.313874,
+        "1": 20.907244,
+        "5": 58.756794
+      },
+      "tatoeba_nno_eng": {
+        "0": 6.674726,
+        "1": 17.991704,
+        "5": 58.084425
+      },
+      "tatoeba_nob_eng": {
+        "0": 17.259559,
+        "1": 25.496245,
+        "5": 60.983128
+      },
+      "tatoeba_nob_sme": {
+        "0": 12.966791,
+        "1": 13.992956,
+        "5": 34.077805
+      },
+      "tatoeba_sme_nob": {
+        "0": 21.323691,
+        "1": 27.360128,
+        "5": 60.328217
+      }
+    },
+    "normistral-7b-warm": {
+      "ask_gec": {
+        "0": 0.12728,
+        "1": 0.39688,
+        "5": 0.45968
+      },
+      "ncb": {
+        "0": 0.819048,
+        "1": 0.821429,
+        "5": 0.841667
+      },
+      "nocola": {
+        "0": 0.129353,
+        "1": 0.134378,
+        "5": 0.135679
+      },
+      "norbelebele": {
+        "0": 0.272,
+        "1": 0.276,
+        "5": 0.285778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.248421,
+        "1": 0.298947,
+        "5": 0.349474
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.302806,
+        "1": 0.352505,
+        "5": 0.373146
+      },
+      "norec_document": {
+        "0": 0.503171,
+        "1": 0.749723,
+        "5": 0.794945
+      },
+      "norec_sentence": {
+        "0": 0.519471,
+        "1": 0.650475,
+        "5": 0.710702
+      },
+      "noridiom_nno": {
+        "0": 0.534831,
+        "1": 0.595506,
+        "5": 0.501124
+      },
+      "noridiom_nob": {
+        "0": 0.302524,
+        "1": 0.329653,
+        "5": 0.162082
+      },
+      "noropenbookqa_nno": {
+        "0": 0.308889,
+        "1": 0.357778,
+        "5": 0.357778
+      },
+      "noropenbookqa_nob": {
+        "0": 0.373797,
+        "1": 0.413369,
+        "5": 0.434225
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.242222,
+        "1": 0.262222,
+        "5": 0.282222
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.290909,
+        "1": 0.334225,
+        "5": 0.326738
+      },
+      "norquad": {
+        "0": 0.309454,
+        "1": 0.64137,
+        "5": 0.672425
+      },
+      "norrewrite_instruct": {
+        "0": 0.095369,
+        "1": 0.056978,
+        "5": 6.008609
+      },
+      "norsummarize_instruct": {
+        "0": 0.415541,
+        "1": 0.288083,
+        "5": 4.647282
+      },
+      "norsumm_nob": {
+        "0": 5.443775,
+        "1": 17.062618,
+        "5": 22.929338
+      },
+      "norsumm_nno": {
+        "0": 3.827216,
+        "1": 16.695973,
+        "5": 19.786475
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 36.620074,
+        "1": 71.480037,
+        "5": 73.085201
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 32.257873,
+        "1": 81.786933,
+        "5": 82.726667
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 10.915692,
+        "1": 0.336117,
+        "5": 0.0
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 14.548649,
+        "1": 0.85247,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.385965,
+        "1": 0.438596,
+        "5": 0.498246
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.402459,
+        "1": 0.477049,
+        "5": 0.552049
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.423459,
+        "1": 0.450677,
+        "5": 0.460752
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.412,
+        "1": 0.423389,
+        "5": 0.430444
+      },
+      "slide": {
+        "0": 0.557755,
+        "1": 0.487597,
+        "5": 0.651511
+      },
+      "tatoeba_eng_nno": {
+        "0": 24.949623,
+        "1": 43.780652,
+        "5": 44.961421
+      },
+      "tatoeba_eng_nob": {
+        "0": 39.781236,
+        "1": 56.220402,
+        "5": 56.722683
+      },
+      "tatoeba_nno_eng": {
+        "0": 28.894447,
+        "1": 54.307266,
+        "5": 54.264573
+      },
+      "tatoeba_nob_eng": {
+        "0": 52.303554,
+        "1": 56.575258,
+        "5": 57.650514
+      },
+      "tatoeba_nob_sme": {
+        "0": 2.590606,
+        "1": 9.737529,
+        "5": 17.83989
+      },
+      "tatoeba_sme_nob": {
+        "0": 17.253774,
+        "1": 31.136091,
+        "5": 39.4581
+      }
+    },
+    "olmo-2-13B-stage1": {
+      "ask_gec": {
+        "0": 0.0905,
+        "1": 0.2151,
+        "5": 0.25878
+      },
+      "ncb": {
+        "0": 0.647619,
+        "1": 0.725,
+        "5": 0.788095
+      },
+      "nocola": {
+        "0": 0.258092,
+        "1": 0.228883,
+        "5": 0.221407
+      },
+      "norbelebele": {
+        "0": 0.299778,
+        "1": 0.390667,
+        "5": 0.447333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.227368,
+        "1": 0.263158,
+        "5": 0.374737
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.250501,
+        "1": 0.338477,
+        "5": 0.402004
+      },
+      "norec_document": {
+        "0": 0.496416,
+        "1": 0.814069,
+        "5": 0.844391
+      },
+      "norec_sentence": {
+        "0": 0.531474,
+        "1": 0.672152,
+        "5": 0.770731
+      },
+      "noridiom_nno": {
+        "0": 0.053933,
+        "1": 0.051685,
+        "5": 0.049438
+      },
+      "noridiom_nob": {
+        "0": 0.027003,
+        "1": 0.031546,
+        "5": 0.017476
+      },
+      "noropenbookqa_nno": {
+        "0": 0.34,
+        "1": 0.431111,
+        "5": 0.451111
+      },
+      "noropenbookqa_nob": {
+        "0": 0.375401,
+        "1": 0.49893,
+        "5": 0.563636
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.244444,
+        "1": 0.313333,
+        "5": 0.351111
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.265241,
+        "1": 0.320856,
+        "5": 0.371123
+      },
+      "norquad": {
+        "0": 0.362426,
+        "1": 0.542844,
+        "5": 0.624792
+      },
+      "norrewrite_instruct": {
+        "0": 1.867517,
+        "1": 2.566301,
+        "5": 8.7548
+      },
+      "norsummarize_instruct": {
+        "0": 1.436513,
+        "1": 1.926055,
+        "5": 3.140935
+      },
+      "norsumm_nob": {
+        "0": 16.601204,
+        "1": 24.254755,
+        "5": 31.37844
+      },
+      "norsumm_nno": {
+        "0": 12.493762,
+        "1": 20.841941,
+        "5": 24.92025
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 35.15956,
+        "1": 42.078946,
+        "5": 45.287832
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 30.988927,
+        "1": 49.164347,
+        "5": 53.395405
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 15.426433,
+        "1": 0.097061,
+        "5": 0.0
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 17.180329,
+        "1": 0.351447,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.312281,
+        "1": 0.329825,
+        "5": 0.315789
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.331557,
+        "1": 0.32459,
+        "5": 0.382787
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.318045,
+        "1": 0.378647,
+        "5": 0.416692
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.366278,
+        "1": 0.439222,
+        "5": 0.468444
+      },
+      "slide": {
+        "0": 0.311022,
+        "1": 0.320777,
+        "5": 0.375712
+      },
+      "tatoeba_eng_nno": {
+        "0": 12.2466,
+        "1": 15.363285,
+        "5": 17.847116
+      },
+      "tatoeba_eng_nob": {
+        "0": 30.365771,
+        "1": 35.666289,
+        "5": 36.397173
+      },
+      "tatoeba_nno_eng": {
+        "0": 29.738955,
+        "1": 45.136935,
+        "5": 47.922237
+      },
+      "tatoeba_nob_eng": {
+        "0": 41.654167,
+        "1": 54.179745,
+        "5": 55.771332
+      },
+      "tatoeba_nob_sme": {
+        "0": 0.314133,
+        "1": 0.930918,
+        "5": 6.631181
+      },
+      "tatoeba_sme_nob": {
+        "0": 0.91421,
+        "1": 1.916316,
+        "5": 10.260927
+      }
+    }
+  },
+  "progress": {
+    "1000": {
+      "ask_gec": {
+        "0": 0.04438,
+        "1": 0.15474,
+        "5": 0.25942
+      },
+      "ncb": {
+        "0": 0.679762,
+        "1": 0.75,
+        "5": 0.794048
+      },
+      "nocola": {
+        "0": 0.225171,
+        "1": 0.186448,
+        "5": 0.180223
+      },
+      "norbelebele": {
+        "0": 0.274667,
+        "1": 0.268,
+        "5": 0.316
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.231579,
+        "1": 0.227368,
+        "5": 0.324211
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.258717,
+        "1": 0.305812,
+        "5": 0.324248
+      },
+      "norec_document": {
+        "0": 0.484974,
+        "1": 0.649499,
+        "5": 0.770945
+      },
+      "norec_sentence": {
+        "0": 0.353708,
+        "1": 0.512764,
+        "5": 0.665452
+      },
+      "noridiom_nno": {
+        "0": 0.065169,
+        "1": 0.074157,
+        "5": 0.062921
+      },
+      "noridiom_nob": {
+        "0": 0.041009,
+        "1": 0.048454,
+        "5": 0.041703
+      },
+      "noropenbookqa_nno": {
+        "0": 0.262222,
+        "1": 0.304444,
+        "5": 0.331111
+      },
+      "noropenbookqa_nob": {
+        "0": 0.307487,
+        "1": 0.358289,
+        "5": 0.397861
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.226667,
+        "1": 0.244444,
+        "5": 0.286667
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.252406,
+        "1": 0.265775,
+        "5": 0.295187
+      },
+      "norquad": {
+        "0": 0.268495,
+        "1": 0.487375,
+        "5": 0.596002
+      },
+      "norrewrite_instruct": {
+        "0": 0.89742,
+        "1": 1.396872,
+        "5": 5.356955
+      },
+      "norsummarize_instruct": {
+        "0": 1.083545,
+        "1": 1.422693,
+        "5": 2.324944
+      },
+      "norsumm_nob": {
+        "0": 11.528968,
+        "1": 21.175744,
+        "5": 27.822552
+      },
+      "norsumm_nno": {
+        "0": 9.035065,
+        "1": 17.047549,
+        "5": 23.27417
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 18.647675,
+        "1": 45.711674,
+        "5": 55.536735
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 3.879407,
+        "1": 43.260692,
+        "5": 53.232876
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 13.981745,
+        "1": 13.927786,
+        "5": 4.579669
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 15.457488,
+        "1": 14.148364,
+        "5": 5.151471
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.322807,
+        "1": 0.368421,
+        "5": 0.361404
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.366803,
+        "1": 0.389344,
+        "5": 0.434836
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.295489,
+        "1": 0.298346,
+        "5": 0.311729
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.294722,
+        "1": 0.292556,
+        "5": 0.301
+      },
+      "slide": {
+        "0": 0.280748,
+        "1": 0.33059,
+        "5": 0.383424
+      },
+      "tatoeba_eng_nno": {
+        "0": 0.707289,
+        "1": 3.179139,
+        "5": 11.643064
+      },
+      "tatoeba_eng_nob": {
+        "0": 0.194441,
+        "1": 4.261067,
+        "5": 15.50113
+      },
+      "tatoeba_nno_eng": {
+        "0": 1.46423,
+        "1": 2.914849,
+        "5": 14.64526
+      },
+      "tatoeba_nob_eng": {
+        "0": 0.648814,
+        "1": 3.471988,
+        "5": 21.331504
+      },
+      "tatoeba_nob_sme": {
+        "0": 0.092042,
+        "1": 0.111278,
+        "5": 0.58945
+      },
+      "tatoeba_sme_nob": {
+        "0": 0.206667,
+        "1": 0.427319,
+        "5": 3.758792
+      }
+    },
+    "10000": {
+      "ask_gec": {
+        "0": 0.16636,
+        "1": 0.42824,
+        "5": 0.47428
+      },
+      "ncb": {
+        "0": 0.803571,
+        "1": 0.810714,
+        "5": 0.870238
+      },
+      "nocola": {
+        "0": 0.124571,
+        "1": 0.123381,
+        "5": 0.127901
+      },
+      "norbelebele": {
+        "0": 0.296444,
+        "1": 0.353333,
+        "5": 0.392444
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.301053,
+        "1": 0.362105,
+        "5": 0.471579
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.35511,
+        "1": 0.476353,
+        "5": 0.535471
+      },
+      "norec_document": {
+        "0": 0.482343,
+        "1": 0.765695,
+        "5": 0.834415
+      },
+      "norec_sentence": {
+        "0": 0.442883,
+        "1": 0.67414,
+        "5": 0.64758
+      },
+      "noridiom_nno": {
+        "0": 0.550562,
+        "1": 0.579775,
+        "5": 0.45618
+      },
+      "noridiom_nob": {
+        "0": 0.282524,
+        "1": 0.284101,
+        "5": 0.192303
+      },
+      "noropenbookqa_nno": {
+        "0": 0.408889,
+        "1": 0.513333,
+        "5": 0.548889
+      },
+      "noropenbookqa_nob": {
+        "0": 0.473797,
+        "1": 0.571123,
+        "5": 0.606952
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.286667,
+        "1": 0.32,
+        "5": 0.368889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.312834,
+        "1": 0.425134,
+        "5": 0.459358
+      },
+      "norquad": {
+        "0": 0.467703,
+        "1": 0.685249,
+        "5": 0.751346
+      },
+      "norrewrite_instruct": {
+        "0": 1.433665,
+        "1": 2.638196,
+        "5": 7.605907
+      },
+      "norsummarize_instruct": {
+        "0": 1.09046,
+        "1": 1.515311,
+        "5": 3.365828
+      },
+      "norsumm_nob": {
+        "0": 18.957096,
+        "1": 23.583457,
+        "5": 33.04731
+      },
+      "norsumm_nno": {
+        "0": 16.197302,
+        "1": 21.855805,
+        "5": 29.214958
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 66.584077,
+        "1": 71.103388,
+        "5": 72.7995
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 76.370708,
+        "1": 80.074358,
+        "5": 82.563675
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.552527,
+        "1": 0.809368,
+        "5": 0.068638
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.758288,
+        "1": 1.197294,
+        "5": 0.115607
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.392982,
+        "1": 0.389474,
+        "5": 0.414035
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.387295,
+        "1": 0.377049,
+        "5": 0.438934
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.428271,
+        "1": 0.512782,
+        "5": 0.542256
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.407889,
+        "1": 0.4665,
+        "5": 0.486167
+      },
+      "slide": {
+        "0": 0.455022,
+        "1": 0.391482,
+        "5": 0.527022
+      },
+      "tatoeba_eng_nno": {
+        "0": 39.097218,
+        "1": 44.768159,
+        "5": 45.121692
+      },
+      "tatoeba_eng_nob": {
+        "0": 50.8418,
+        "1": 56.422418,
+        "5": 57.147436
+      },
+      "tatoeba_nno_eng": {
+        "0": 49.913016,
+        "1": 55.601506,
+        "5": 57.870853
+      },
+      "tatoeba_nob_eng": {
+        "0": 37.470719,
+        "1": 57.606566,
+        "5": 59.047253
+      },
+      "tatoeba_nob_sme": {
+        "0": 11.984483,
+        "1": 13.605563,
+        "5": 24.064763
+      },
+      "tatoeba_sme_nob": {
+        "0": 30.102795,
+        "1": 43.685664,
+        "5": 55.664993
+      }
+    },
+    "11000": {
+      "ask_gec": {
+        "0": 0.1831,
+        "1": 0.40698,
+        "5": 0.4729
+      },
+      "ncb": {
+        "0": 0.813095,
+        "1": 0.827381,
+        "5": 0.864286
+      },
+      "nocola": {
+        "0": 0.11991,
+        "1": 0.122099,
+        "5": 0.129575
+      },
+      "norbelebele": {
+        "0": 0.311111,
+        "1": 0.334222,
+        "5": 0.403333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.334737,
+        "1": 0.389474,
+        "5": 0.475789
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.361523,
+        "1": 0.471743,
+        "5": 0.552505
+      },
+      "norec_document": {
+        "0": 0.448702,
+        "1": 0.816541,
+        "5": 0.924158
+      },
+      "norec_sentence": {
+        "0": 0.451296,
+        "1": 0.708724,
+        "5": 0.774449
+      },
+      "noridiom_nno": {
+        "0": 0.566292,
+        "1": 0.588764,
+        "5": 0.485393
+      },
+      "noridiom_nob": {
+        "0": 0.309338,
+        "1": 0.314322,
+        "5": 0.197413
+      },
+      "noropenbookqa_nno": {
+        "0": 0.413333,
+        "1": 0.48,
+        "5": 0.531111
+      },
+      "noropenbookqa_nob": {
+        "0": 0.449198,
+        "1": 0.541711,
+        "5": 0.603743
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.277778,
+        "1": 0.324444,
+        "5": 0.388889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.300535,
+        "1": 0.392513,
+        "5": 0.448128
+      },
+      "norquad": {
+        "0": 0.460788,
+        "1": 0.663725,
+        "5": 0.749903
+      },
+      "norrewrite_instruct": {
+        "0": 1.565764,
+        "1": 2.26708,
+        "5": 9.183914
+      },
+      "norsummarize_instruct": {
+        "0": 1.109789,
+        "1": 1.877671,
+        "5": 3.770291
+      },
+      "norsumm_nob": {
+        "0": 18.156623,
+        "1": 24.31036,
+        "5": 32.908384
+      },
+      "norsumm_nno": {
+        "0": 14.958142,
+        "1": 21.256261,
+        "5": 30.207148
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 66.074358,
+        "1": 71.891678,
+        "5": 73.674428
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 71.713332,
+        "1": 80.629617,
+        "5": 83.738396
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.141411,
+        "1": 0.299212,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 21.064122,
+        "1": 0.493686,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.378947,
+        "1": 0.407018,
+        "5": 0.431579
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.384836,
+        "1": 0.370902,
+        "5": 0.455328
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.444361,
+        "1": 0.507368,
+        "5": 0.541353
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.405278,
+        "1": 0.450278,
+        "5": 0.475167
+      },
+      "slide": {
+        "0": 0.492403,
+        "1": 0.364633,
+        "5": 0.572547
+      },
+      "tatoeba_eng_nno": {
+        "0": 45.147454,
+        "1": 45.351557,
+        "5": 45.64325
+      },
+      "tatoeba_eng_nob": {
+        "0": 50.473893,
+        "1": 57.080073,
+        "5": 57.569402
+      },
+      "tatoeba_nno_eng": {
+        "0": 44.435389,
+        "1": 55.322248,
+        "5": 56.606214
+      },
+      "tatoeba_nob_eng": {
+        "0": 48.686696,
+        "1": 57.076316,
+        "5": 58.962303
+      },
+      "tatoeba_nob_sme": {
+        "0": 10.565672,
+        "1": 17.760557,
+        "5": 27.808167
+      },
+      "tatoeba_sme_nob": {
+        "0": 30.58397,
+        "1": 45.127037,
+        "5": 55.373917
+      }
+    },
+    "12000": {
+      "ask_gec": {
+        "0": 0.172,
+        "1": 0.38314,
+        "5": 0.4664
+      },
+      "ncb": {
+        "0": 0.839286,
+        "1": 0.817857,
+        "5": 0.871429
+      },
+      "nocola": {
+        "0": 0.120475,
+        "1": 0.120455,
+        "5": 0.127225
+      },
+      "norbelebele": {
+        "0": 0.317111,
+        "1": 0.370222,
+        "5": 0.406667
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.336842,
+        "1": 0.423158,
+        "5": 0.511579
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.356313,
+        "1": 0.495391,
+        "5": 0.556112
+      },
+      "norec_document": {
+        "0": 0.459901,
+        "1": 0.82134,
+        "5": 0.878463
+      },
+      "norec_sentence": {
+        "0": 0.507183,
+        "1": 0.649669,
+        "5": 0.787268
+      },
+      "noridiom_nno": {
+        "0": 0.54382,
+        "1": 0.575281,
+        "5": 0.465169
+      },
+      "noridiom_nob": {
+        "0": 0.297981,
+        "1": 0.318991,
+        "5": 0.212555
+      },
+      "noropenbookqa_nno": {
+        "0": 0.404444,
+        "1": 0.493333,
+        "5": 0.52
+      },
+      "noropenbookqa_nob": {
+        "0": 0.460963,
+        "1": 0.56631,
+        "5": 0.591444
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.268889,
+        "1": 0.364444,
+        "5": 0.368889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.312299,
+        "1": 0.408556,
+        "5": 0.457754
+      },
+      "norquad": {
+        "0": 0.47183,
+        "1": 0.664959,
+        "5": 0.725302
+      },
+      "norrewrite_instruct": {
+        "0": 1.167679,
+        "1": 2.593634,
+        "5": 9.430982
+      },
+      "norsummarize_instruct": {
+        "0": 0.979646,
+        "1": 1.693139,
+        "5": 3.871911
+      },
+      "norsumm_nob": {
+        "0": 17.576568,
+        "1": 24.73912,
+        "5": 32.660527
+      },
+      "norsumm_nno": {
+        "0": 14.184542,
+        "1": 21.542137,
+        "5": 27.917559
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 65.40572,
+        "1": 71.1909,
+        "5": 73.043166
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 74.375644,
+        "1": 81.178273,
+        "5": 83.012063
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.301627,
+        "1": 0.356548,
+        "5": 0.0
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.649891,
+        "1": 0.343062,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.392982,
+        "1": 0.396491,
+        "5": 0.42807
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.381967,
+        "1": 0.377049,
+        "5": 0.428689
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.441955,
+        "1": 0.517594,
+        "5": 0.554586
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.409778,
+        "1": 0.465056,
+        "5": 0.480944
+      },
+      "slide": {
+        "0": 0.506446,
+        "1": 0.420518,
+        "5": 0.585496
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.58568,
+        "1": 44.868306,
+        "5": 45.793488
+      },
+      "tatoeba_eng_nob": {
+        "0": 43.841633,
+        "1": 57.193905,
+        "5": 57.645832
+      },
+      "tatoeba_nno_eng": {
+        "0": 49.571991,
+        "1": 55.354841,
+        "5": 56.959274
+      },
+      "tatoeba_nob_eng": {
+        "0": 49.823032,
+        "1": 57.247491,
+        "5": 58.626014
+      },
+      "tatoeba_nob_sme": {
+        "0": 13.828055,
+        "1": 19.569114,
+        "5": 27.293428
+      },
+      "tatoeba_sme_nob": {
+        "0": 30.63351,
+        "1": 43.44618,
+        "5": 54.624348
+      }
+    },
+    "13000": {
+      "ask_gec": {
+        "0": 0.13106,
+        "1": 0.3241,
+        "5": 0.45338
+      },
+      "ncb": {
+        "0": 0.791667,
+        "1": 0.820238,
+        "5": 0.867857
+      },
+      "nocola": {
+        "0": 0.124248,
+        "1": 0.122452,
+        "5": 0.130635
+      },
+      "norbelebele": {
+        "0": 0.312444,
+        "1": 0.343333,
+        "5": 0.398889
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.301053,
+        "1": 0.393684,
+        "5": 0.452632
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.365932,
+        "1": 0.476353,
+        "5": 0.530461
+      },
+      "norec_document": {
+        "0": 0.44117,
+        "1": 0.800611,
+        "5": 0.856036
+      },
+      "norec_sentence": {
+        "0": 0.494814,
+        "1": 0.674555,
+        "5": 0.801646
+      },
+      "noridiom_nno": {
+        "0": 0.557303,
+        "1": 0.606742,
+        "5": 0.424719
+      },
+      "noridiom_nob": {
+        "0": 0.297413,
+        "1": 0.30082,
+        "5": 0.165426
+      },
+      "noropenbookqa_nno": {
+        "0": 0.404444,
+        "1": 0.513333,
+        "5": 0.562222
+      },
+      "noropenbookqa_nob": {
+        "0": 0.465775,
+        "1": 0.562567,
+        "5": 0.593048
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.273333,
+        "1": 0.348889,
+        "5": 0.377778
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.324599,
+        "1": 0.411765,
+        "5": 0.458289
+      },
+      "norquad": {
+        "0": 0.474864,
+        "1": 0.675953,
+        "5": 0.730367
+      },
+      "norrewrite_instruct": {
+        "0": 1.906801,
+        "1": 3.676693,
+        "5": 10.221424
+      },
+      "norsummarize_instruct": {
+        "0": 1.423515,
+        "1": 2.02207,
+        "5": 4.600228
+      },
+      "norsumm_nob": {
+        "0": 18.004263,
+        "1": 25.755872,
+        "5": 34.007817
+      },
+      "norsumm_nno": {
+        "0": 15.552318,
+        "1": 22.865975,
+        "5": 29.471086
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 64.865108,
+        "1": 71.232004,
+        "5": 72.966323
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 70.497255,
+        "1": 80.090478,
+        "5": 83.183934
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.160604,
+        "1": 0.162986,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.511161,
+        "1": 0.230766,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.37193,
+        "1": 0.396491,
+        "5": 0.414035
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.406557,
+        "1": 0.39959,
+        "5": 0.459836
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.436692,
+        "1": 0.501654,
+        "5": 0.523759
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.414389,
+        "1": 0.449056,
+        "5": 0.472889
+      },
+      "slide": {
+        "0": 0.413899,
+        "1": 0.35154,
+        "5": 0.53905
+      },
+      "tatoeba_eng_nno": {
+        "0": 41.646075,
+        "1": 46.021643,
+        "5": 46.646623
+      },
+      "tatoeba_eng_nob": {
+        "0": 44.391073,
+        "1": 57.036304,
+        "5": 57.775968
+      },
+      "tatoeba_nno_eng": {
+        "0": 52.515456,
+        "1": 55.514717,
+        "5": 57.644722
+      },
+      "tatoeba_nob_eng": {
+        "0": 47.084239,
+        "1": 57.150008,
+        "5": 59.039627
+      },
+      "tatoeba_nob_sme": {
+        "0": 14.972225,
+        "1": 22.018836,
+        "5": 29.378775
+      },
+      "tatoeba_sme_nob": {
+        "0": 28.779491,
+        "1": 46.079878,
+        "5": 56.331248
+      }
+    },
+    "14000": {
+      "ask_gec": {
+        "0": 0.14736,
+        "1": 0.39026,
+        "5": 0.47458
+      },
+      "ncb": {
+        "0": 0.786905,
+        "1": 0.820238,
+        "5": 0.87619
+      },
+      "nocola": {
+        "0": 0.128567,
+        "1": 0.124733,
+        "5": 0.127376
+      },
+      "norbelebele": {
+        "0": 0.306889,
+        "1": 0.344,
+        "5": 0.388667
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.292632,
+        "1": 0.389474,
+        "5": 0.467368
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.349499,
+        "1": 0.480762,
+        "5": 0.52986
+      },
+      "norec_document": {
+        "0": 0.515304,
+        "1": 0.777512,
+        "5": 0.863076
+      },
+      "norec_sentence": {
+        "0": 0.449223,
+        "1": 0.670345,
+        "5": 0.819631
+      },
+      "noridiom_nno": {
+        "0": 0.564045,
+        "1": 0.593258,
+        "5": 0.413483
+      },
+      "noridiom_nob": {
+        "0": 0.31041,
+        "1": 0.30877,
+        "5": 0.147571
+      },
+      "noropenbookqa_nno": {
+        "0": 0.402222,
+        "1": 0.471111,
+        "5": 0.508889
+      },
+      "noropenbookqa_nob": {
+        "0": 0.485561,
+        "1": 0.552406,
+        "5": 0.571123
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.255556,
+        "1": 0.324444,
+        "5": 0.335556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.335294,
+        "1": 0.382888,
+        "5": 0.416578
+      },
+      "norquad": {
+        "0": 0.488597,
+        "1": 0.68631,
+        "5": 0.755717
+      },
+      "norrewrite_instruct": {
+        "0": 1.708937,
+        "1": 2.841544,
+        "5": 11.081156
+      },
+      "norsummarize_instruct": {
+        "0": 1.129033,
+        "1": 1.7737,
+        "5": 3.970585
+      },
+      "norsumm_nob": {
+        "0": 16.146588,
+        "1": 24.086894,
+        "5": 31.652775
+      },
+      "norsumm_nno": {
+        "0": 14.533096,
+        "1": 22.205201,
+        "5": 29.583865
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 55.974549,
+        "1": 71.492223,
+        "5": 72.862157
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 62.894476,
+        "1": 80.675893,
+        "5": 83.046142
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 16.796071,
+        "1": 0.847375,
+        "5": 0.109091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 18.381987,
+        "1": 0.682417,
+        "5": 0.014451
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.354386,
+        "1": 0.392982,
+        "5": 0.421053
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.365164,
+        "1": 0.392213,
+        "5": 0.445492
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.438346,
+        "1": 0.527368,
+        "5": 0.535789
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.418167,
+        "1": 0.474111,
+        "5": 0.486444
+      },
+      "slide": {
+        "0": 0.434446,
+        "1": 0.354216,
+        "5": 0.511626
+      },
+      "tatoeba_eng_nno": {
+        "0": 44.425899,
+        "1": 45.277935,
+        "5": 44.728976
+      },
+      "tatoeba_eng_nob": {
+        "0": 31.590268,
+        "1": 56.572298,
+        "5": 57.545893
+      },
+      "tatoeba_nno_eng": {
+        "0": 49.917488,
+        "1": 54.992335,
+        "5": 58.019806
+      },
+      "tatoeba_nob_eng": {
+        "0": 43.586239,
+        "1": 57.256546,
+        "5": 59.522897
+      },
+      "tatoeba_nob_sme": {
+        "0": 10.622039,
+        "1": 14.920847,
+        "5": 24.302673
+      },
+      "tatoeba_sme_nob": {
+        "0": 20.580107,
+        "1": 45.473009,
+        "5": 54.446137
+      }
+    },
+    "15000": {
+      "ask_gec": {
+        "0": 0.10212,
+        "1": 0.33182,
+        "5": 0.45178
+      },
+      "ncb": {
+        "0": 0.794048,
+        "1": 0.810714,
+        "5": 0.861905
+      },
+      "nocola": {
+        "0": 0.123663,
+        "1": 0.121958,
+        "5": 0.128476
+      },
+      "norbelebele": {
+        "0": 0.317333,
+        "1": 0.340444,
+        "5": 0.361556
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.313684,
+        "1": 0.395789,
+        "5": 0.509474
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.367335,
+        "1": 0.480561,
+        "5": 0.556513
+      },
+      "norec_document": {
+        "0": 0.572415,
+        "1": 0.78977,
+        "5": 0.839696
+      },
+      "norec_sentence": {
+        "0": 0.507322,
+        "1": 0.678734,
+        "5": 0.665394
+      },
+      "noridiom_nno": {
+        "0": 0.575281,
+        "1": 0.611236,
+        "5": 0.438202
+      },
+      "noridiom_nob": {
+        "0": 0.320379,
+        "1": 0.337035,
+        "5": 0.216088
+      },
+      "noropenbookqa_nno": {
+        "0": 0.44,
+        "1": 0.482222,
+        "5": 0.517778
+      },
+      "noropenbookqa_nob": {
+        "0": 0.504813,
+        "1": 0.564171,
+        "5": 0.575401
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.268889,
+        "1": 0.32,
+        "5": 0.348889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.347059,
+        "1": 0.404813,
+        "5": 0.437968
+      },
+      "norquad": {
+        "0": 0.497561,
+        "1": 0.702847,
+        "5": 0.767398
+      },
+      "norrewrite_instruct": {
+        "0": 2.1393,
+        "1": 2.627344,
+        "5": 10.132027
+      },
+      "norsummarize_instruct": {
+        "0": 1.414696,
+        "1": 2.299472,
+        "5": 4.043569
+      },
+      "norsumm_nob": {
+        "0": 17.349511,
+        "1": 22.186664,
+        "5": 29.046668
+      },
+      "norsumm_nno": {
+        "0": 15.070324,
+        "1": 19.573373,
+        "5": 25.849472
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 57.329741,
+        "1": 71.393998,
+        "5": 73.382889
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 60.062289,
+        "1": 80.056025,
+        "5": 82.409374
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 16.643561,
+        "1": 2.194679,
+        "5": 0.082424
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 18.928351,
+        "1": 1.717251,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.319298,
+        "1": 0.319298,
+        "5": 0.378947
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.305328,
+        "1": 0.263525,
+        "5": 0.341393
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.439248,
+        "1": 0.502406,
+        "5": 0.537293
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.423389,
+        "1": 0.465444,
+        "5": 0.481222
+      },
+      "slide": {
+        "0": 0.456604,
+        "1": 0.381698,
+        "5": 0.591655
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.328651,
+        "1": 45.98768,
+        "5": 45.669156
+      },
+      "tatoeba_eng_nob": {
+        "0": 43.213785,
+        "1": 56.76125,
+        "5": 57.287482
+      },
+      "tatoeba_nno_eng": {
+        "0": 50.988892,
+        "1": 55.258851,
+        "5": 57.364087
+      },
+      "tatoeba_nob_eng": {
+        "0": 41.93532,
+        "1": 57.158643,
+        "5": 59.17444
+      },
+      "tatoeba_nob_sme": {
+        "0": 16.119275,
+        "1": 22.235829,
+        "5": 28.961121
+      },
+      "tatoeba_sme_nob": {
+        "0": 28.172526,
+        "1": 47.012663,
+        "5": 56.981416
+      }
+    },
+    "16000": {
+      "ask_gec": {
+        "0": 0.08974,
+        "1": 0.29614,
+        "5": 0.41836
+      },
+      "ncb": {
+        "0": 0.780952,
+        "1": 0.8,
+        "5": 0.861905
+      },
+      "nocola": {
+        "0": 0.125832,
+        "1": 0.123068,
+        "5": 0.130241
+      },
+      "norbelebele": {
+        "0": 0.305778,
+        "1": 0.349778,
+        "5": 0.390222
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.307368,
+        "1": 0.418947,
+        "5": 0.505263
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.33487,
+        "1": 0.471142,
+        "5": 0.55491
+      },
+      "norec_document": {
+        "0": 0.517607,
+        "1": 0.881613,
+        "5": 0.896966
+      },
+      "norec_sentence": {
+        "0": 0.486293,
+        "1": 0.654845,
+        "5": 0.780847
+      },
+      "noridiom_nno": {
+        "0": 0.573034,
+        "1": 0.629213,
+        "5": 0.489888
+      },
+      "noridiom_nob": {
+        "0": 0.302019,
+        "1": 0.313628,
+        "5": 0.187634
+      },
+      "noropenbookqa_nno": {
+        "0": 0.406667,
+        "1": 0.471111,
+        "5": 0.526667
+      },
+      "noropenbookqa_nob": {
+        "0": 0.463102,
+        "1": 0.570053,
+        "5": 0.597326
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.286667,
+        "1": 0.326667,
+        "5": 0.364444
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.308021,
+        "1": 0.420321,
+        "5": 0.464171
+      },
+      "norquad": {
+        "0": 0.486346,
+        "1": 0.691079,
+        "5": 0.737826
+      },
+      "norrewrite_instruct": {
+        "0": 1.865492,
+        "1": 3.713602,
+        "5": 10.280354
+      },
+      "norsummarize_instruct": {
+        "0": 1.137043,
+        "1": 2.33588,
+        "5": 4.738299
+      },
+      "norsumm_nob": {
+        "0": 16.919916,
+        "1": 24.06418,
+        "5": 34.414144
+      },
+      "norsumm_nno": {
+        "0": 13.867388,
+        "1": 21.566771,
+        "5": 30.73803
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 61.023179,
+        "1": 71.209967,
+        "5": 72.814744
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 67.429522,
+        "1": 79.500196,
+        "5": 81.895106
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.867447,
+        "1": 1.758952,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.730836,
+        "1": 2.215592,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.4,
+        "1": 0.403509,
+        "5": 0.449123
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.356148,
+        "1": 0.375,
+        "5": 0.440574
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.427368,
+        "1": 0.510526,
+        "5": 0.548571
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.413056,
+        "1": 0.477333,
+        "5": 0.501333
+      },
+      "slide": {
+        "0": 0.47436,
+        "1": 0.355827,
+        "5": 0.544863
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.109794,
+        "1": 45.507638,
+        "5": 45.852668
+      },
+      "tatoeba_eng_nob": {
+        "0": 41.500556,
+        "1": 57.226521,
+        "5": 57.775511
+      },
+      "tatoeba_nno_eng": {
+        "0": 42.823686,
+        "1": 56.820029,
+        "5": 56.980212
+      },
+      "tatoeba_nob_eng": {
+        "0": 33.496734,
+        "1": 57.246896,
+        "5": 58.879209
+      },
+      "tatoeba_nob_sme": {
+        "0": 18.216376,
+        "1": 26.113655,
+        "5": 31.06195
+      },
+      "tatoeba_sme_nob": {
+        "0": 27.099337,
+        "1": 49.216113,
+        "5": 58.200614
+      }
+    },
+    "17000": {
+      "ask_gec": {
+        "0": 0.13226,
+        "1": 0.36576,
+        "5": 0.45932
+      },
+      "ncb": {
+        "0": 0.788095,
+        "1": 0.8,
+        "5": 0.855952
+      },
+      "nocola": {
+        "0": 0.124339,
+        "1": 0.120808,
+        "5": 0.125338
+      },
+      "norbelebele": {
+        "0": 0.308,
+        "1": 0.377778,
+        "5": 0.397778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.305263,
+        "1": 0.402105,
+        "5": 0.522105
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.358918,
+        "1": 0.47976,
+        "5": 0.564128
+      },
+      "norec_document": {
+        "0": 0.486886,
+        "1": 0.824898,
+        "5": 0.893815
+      },
+      "norec_sentence": {
+        "0": 0.492931,
+        "1": 0.659151,
+        "5": 0.80461
+      },
+      "noridiom_nno": {
+        "0": 0.561798,
+        "1": 0.647191,
+        "5": 0.530337
+      },
+      "noridiom_nob": {
+        "0": 0.314574,
+        "1": 0.331167,
+        "5": 0.225678
+      },
+      "noropenbookqa_nno": {
+        "0": 0.44,
+        "1": 0.491111,
+        "5": 0.562222
+      },
+      "noropenbookqa_nob": {
+        "0": 0.460428,
+        "1": 0.583957,
+        "5": 0.612299
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.3,
+        "1": 0.346667,
+        "5": 0.397778
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.330481,
+        "1": 0.405882,
+        "5": 0.477005
+      },
+      "norquad": {
+        "0": 0.458734,
+        "1": 0.668706,
+        "5": 0.737083
+      },
+      "norrewrite_instruct": {
+        "0": 1.73549,
+        "1": 2.622228,
+        "5": 9.685984
+      },
+      "norsummarize_instruct": {
+        "0": 1.076689,
+        "1": 2.034731,
+        "5": 4.502167
+      },
+      "norsumm_nob": {
+        "0": 17.962768,
+        "1": 24.105754,
+        "5": 32.582361
+      },
+      "norsumm_nno": {
+        "0": 14.501081,
+        "1": 22.946171,
+        "5": 29.847718
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 65.818248,
+        "1": 72.142299,
+        "5": 73.562575
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 67.263643,
+        "1": 79.57692,
+        "5": 82.175596
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.462612,
+        "1": 0.683981,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.696384,
+        "1": 0.877325,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.364912,
+        "1": 0.407018,
+        "5": 0.42807
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.381967,
+        "1": 0.364754,
+        "5": 0.44959
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.464511,
+        "1": 0.533684,
+        "5": 0.567068
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.417222,
+        "1": 0.475722,
+        "5": 0.495611
+      },
+      "slide": {
+        "0": 0.486647,
+        "1": 0.390849,
+        "5": 0.616259
+      },
+      "tatoeba_eng_nno": {
+        "0": 44.783849,
+        "1": 46.946264,
+        "5": 47.040561
+      },
+      "tatoeba_eng_nob": {
+        "0": 47.129735,
+        "1": 57.048897,
+        "5": 57.494835
+      },
+      "tatoeba_nno_eng": {
+        "0": 45.474989,
+        "1": 57.995402,
+        "5": 59.353341
+      },
+      "tatoeba_nob_eng": {
+        "0": 28.154684,
+        "1": 58.501702,
+        "5": 59.811748
+      },
+      "tatoeba_nob_sme": {
+        "0": 18.823882,
+        "1": 24.405083,
+        "5": 31.17618
+      },
+      "tatoeba_sme_nob": {
+        "0": 31.225497,
+        "1": 48.440863,
+        "5": 59.051949
+      }
+    },
+    "18000": {
+      "ask_gec": {
+        "0": 0.15458,
+        "1": 0.37,
+        "5": 0.46588
+      },
+      "ncb": {
+        "0": 0.786905,
+        "1": 0.80119,
+        "5": 0.882143
+      },
+      "nocola": {
+        "0": 0.125661,
+        "1": 0.122422,
+        "5": 0.125772
+      },
+      "norbelebele": {
+        "0": 0.319556,
+        "1": 0.354222,
+        "5": 0.379778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.301053,
+        "1": 0.395789,
+        "5": 0.477895
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.376353,
+        "1": 0.468136,
+        "5": 0.531263
+      },
+      "norec_document": {
+        "0": 0.46021,
+        "1": 0.779555,
+        "5": 0.837926
+      },
+      "norec_sentence": {
+        "0": 0.508736,
+        "1": 0.644106,
+        "5": 0.702061
+      },
+      "noridiom_nno": {
+        "0": 0.548315,
+        "1": 0.617978,
+        "5": 0.451685
+      },
+      "noridiom_nob": {
+        "0": 0.321577,
+        "1": 0.33205,
+        "5": 0.205489
+      },
+      "noropenbookqa_nno": {
+        "0": 0.415556,
+        "1": 0.451111,
+        "5": 0.515556
+      },
+      "noropenbookqa_nob": {
+        "0": 0.475936,
+        "1": 0.520856,
+        "5": 0.547594
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.3,
+        "1": 0.304444,
+        "5": 0.331111
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.323529,
+        "1": 0.371123,
+        "5": 0.42246
+      },
+      "norquad": {
+        "0": 0.464353,
+        "1": 0.65845,
+        "5": 0.719234
+      },
+      "norrewrite_instruct": {
+        "0": 1.657477,
+        "1": 2.742753,
+        "5": 8.990704
+      },
+      "norsummarize_instruct": {
+        "0": 1.192876,
+        "1": 2.067882,
+        "5": 4.269355
+      },
+      "norsumm_nob": {
+        "0": 17.163044,
+        "1": 24.318646,
+        "5": 31.247424
+      },
+      "norsumm_nno": {
+        "0": 15.876564,
+        "1": 22.109392,
+        "5": 28.383963
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 68.273295,
+        "1": 72.918912,
+        "5": 74.061003
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 72.495527,
+        "1": 81.990985,
+        "5": 83.295148
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.082237,
+        "1": 0.336474,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.611261,
+        "1": 0.437794,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.37193,
+        "1": 0.392982,
+        "5": 0.37193
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.369672,
+        "1": 0.406557,
+        "5": 0.485246
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.468571,
+        "1": 0.514135,
+        "5": 0.535338
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.438111,
+        "1": 0.464222,
+        "5": 0.481556
+      },
+      "slide": {
+        "0": 0.464058,
+        "1": 0.41718,
+        "5": 0.54
+      },
+      "tatoeba_eng_nno": {
+        "0": 38.842389,
+        "1": 46.894196,
+        "5": 47.184455
+      },
+      "tatoeba_eng_nob": {
+        "0": 47.306354,
+        "1": 57.376586,
+        "5": 57.805036
+      },
+      "tatoeba_nno_eng": {
+        "0": 33.457483,
+        "1": 56.661003,
+        "5": 58.040393
+      },
+      "tatoeba_nob_eng": {
+        "0": 31.670259,
+        "1": 57.838635,
+        "5": 59.488337
+      },
+      "tatoeba_nob_sme": {
+        "0": 18.664364,
+        "1": 19.634773,
+        "5": 28.497688
+      },
+      "tatoeba_sme_nob": {
+        "0": 33.617618,
+        "1": 49.933271,
+        "5": 57.745209
+      }
+    },
+    "19000": {
+      "ask_gec": {
+        "0": 0.23994,
+        "1": 0.4171,
+        "5": 0.47646
+      },
+      "ncb": {
+        "0": 0.782143,
+        "1": 0.807143,
+        "5": 0.870238
+      },
+      "nocola": {
+        "0": 0.126801,
+        "1": 0.122685,
+        "5": 0.126226
+      },
+      "norbelebele": {
+        "0": 0.292889,
+        "1": 0.354222,
+        "5": 0.392
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.296842,
+        "1": 0.391579,
+        "5": 0.494737
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.334669,
+        "1": 0.482365,
+        "5": 0.536273
+      },
+      "norec_document": {
+        "0": 0.505488,
+        "1": 0.833288,
+        "5": 0.853279
+      },
+      "norec_sentence": {
+        "0": 0.495156,
+        "1": 0.697175,
+        "5": 0.759478
+      },
+      "noridiom_nno": {
+        "0": 0.597753,
+        "1": 0.635955,
+        "5": 0.438202
+      },
+      "noridiom_nob": {
+        "0": 0.321956,
+        "1": 0.330536,
+        "5": 0.220252
+      },
+      "noropenbookqa_nno": {
+        "0": 0.424444,
+        "1": 0.451111,
+        "5": 0.515556
+      },
+      "noropenbookqa_nob": {
+        "0": 0.440642,
+        "1": 0.570053,
+        "5": 0.607487
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.282222,
+        "1": 0.32,
+        "5": 0.348889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.323529,
+        "1": 0.411765,
+        "5": 0.459358
+      },
+      "norquad": {
+        "0": 0.49108,
+        "1": 0.679028,
+        "5": 0.737936
+      },
+      "norrewrite_instruct": {
+        "0": 1.977187,
+        "1": 3.215626,
+        "5": 9.270314
+      },
+      "norsummarize_instruct": {
+        "0": 1.096164,
+        "1": 1.873887,
+        "5": 3.747084
+      },
+      "norsumm_nob": {
+        "0": 18.141256,
+        "1": 23.462647,
+        "5": 31.863973
+      },
+      "norsumm_nno": {
+        "0": 16.181427,
+        "1": 21.12087,
+        "5": 29.736289
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 66.692797,
+        "1": 72.940718,
+        "5": 74.429426
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 75.652668,
+        "1": 80.897853,
+        "5": 83.007025
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.573731,
+        "1": 0.860006,
+        "5": 0.050424
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.165036,
+        "1": 0.796368,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.403509,
+        "1": 0.340351,
+        "5": 0.438596
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.39877,
+        "1": 0.378689,
+        "5": 0.45041
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.454286,
+        "1": 0.525865,
+        "5": 0.563008
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.416222,
+        "1": 0.471833,
+        "5": 0.496
+      },
+      "slide": {
+        "0": 0.386532,
+        "1": 0.392518,
+        "5": 0.588604
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.632134,
+        "1": 45.715925,
+        "5": 46.757936
+      },
+      "tatoeba_eng_nob": {
+        "0": 53.361584,
+        "1": 56.993122,
+        "5": 57.866352
+      },
+      "tatoeba_nno_eng": {
+        "0": 43.860024,
+        "1": 57.752789,
+        "5": 58.691882
+      },
+      "tatoeba_nob_eng": {
+        "0": 48.701563,
+        "1": 58.011803,
+        "5": 59.425896
+      },
+      "tatoeba_nob_sme": {
+        "0": 15.665146,
+        "1": 21.08519,
+        "5": 29.450772
+      },
+      "tatoeba_sme_nob": {
+        "0": 29.537656,
+        "1": 47.716315,
+        "5": 56.699358
+      }
+    },
+    "2000": {
+      "ask_gec": {
+        "0": 0.25756,
+        "1": 0.39132,
+        "5": 0.43902
+      },
+      "ncb": {
+        "0": 0.789286,
+        "1": 0.815476,
+        "5": 0.844048
+      },
+      "nocola": {
+        "0": 0.129646,
+        "1": 0.127073,
+        "5": 0.122937
+      },
+      "norbelebele": {
+        "0": 0.395556,
+        "1": 0.507778,
+        "5": 0.548889
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.301053,
+        "1": 0.4,
+        "5": 0.543158
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.400401,
+        "1": 0.55992,
+        "5": 0.618637
+      },
+      "norec_document": {
+        "0": 0.485188,
+        "1": 0.918735,
+        "5": 0.948551
+      },
+      "norec_sentence": {
+        "0": 0.425231,
+        "1": 0.591617,
+        "5": 0.760602
+      },
+      "noridiom_nno": {
+        "0": 0.325843,
+        "1": 0.359551,
+        "5": 0.364045
+      },
+      "noridiom_nob": {
+        "0": 0.229211,
+        "1": 0.232997,
+        "5": 0.186372
+      },
+      "noropenbookqa_nno": {
+        "0": 0.502222,
+        "1": 0.608889,
+        "5": 0.657778
+      },
+      "noropenbookqa_nob": {
+        "0": 0.586631,
+        "1": 0.655615,
+        "5": 0.68984
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.313333,
+        "1": 0.404444,
+        "5": 0.515556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.363102,
+        "1": 0.482888,
+        "5": 0.532086
+      },
+      "norquad": {
+        "0": 0.512449,
+        "1": 0.700425,
+        "5": 0.751072
+      },
+      "norrewrite_instruct": {
+        "0": 1.411313,
+        "1": 2.848547,
+        "5": 8.973893
+      },
+      "norsummarize_instruct": {
+        "0": 0.923554,
+        "1": 1.892853,
+        "5": 3.211038
+      },
+      "norsumm_nob": {
+        "0": 16.611597,
+        "1": 24.191907,
+        "5": 34.97236
+      },
+      "norsumm_nno": {
+        "0": 12.824449,
+        "1": 20.383262,
+        "5": 30.005763
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 52.725397,
+        "1": 67.986926,
+        "5": 70.705491
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 58.261619,
+        "1": 78.361999,
+        "5": 80.86672
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 15.498351,
+        "1": 0.224458,
+        "5": 0.021333
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 17.03606,
+        "1": 0.379484,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.382456,
+        "1": 0.407018,
+        "5": 0.45614
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.45,
+        "1": 0.406557,
+        "5": 0.496311
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.395639,
+        "1": 0.437744,
+        "5": 0.465865
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.395444,
+        "1": 0.434056,
+        "5": 0.454722
+      },
+      "slide": {
+        "0": 0.494705,
+        "1": 0.404892,
+        "5": 0.531108
+      },
+      "tatoeba_eng_nno": {
+        "0": 38.495839,
+        "1": 41.858453,
+        "5": 42.302535
+      },
+      "tatoeba_eng_nob": {
+        "0": 34.417868,
+        "1": 52.421731,
+        "5": 53.686856
+      },
+      "tatoeba_nno_eng": {
+        "0": 40.12586,
+        "1": 55.199245,
+        "5": 57.129875
+      },
+      "tatoeba_nob_eng": {
+        "0": 39.143097,
+        "1": 56.796176,
+        "5": 58.684421
+      },
+      "tatoeba_nob_sme": {
+        "0": 0.782721,
+        "1": 1.263895,
+        "5": 8.748251
+      },
+      "tatoeba_sme_nob": {
+        "0": 2.637245,
+        "1": 7.864304,
+        "5": 19.522854
+      }
+    },
+    "20000": {
+      "ask_gec": {
+        "0": 0.17708,
+        "1": 0.3915,
+        "5": 0.47066
+      },
+      "ncb": {
+        "0": 0.777381,
+        "1": 0.803571,
+        "5": 0.864286
+      },
+      "nocola": {
+        "0": 0.127437,
+        "1": 0.126145,
+        "5": 0.131866
+      },
+      "norbelebele": {
+        "0": 0.306222,
+        "1": 0.340889,
+        "5": 0.393778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.28,
+        "1": 0.395789,
+        "5": 0.482105
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.337275,
+        "1": 0.482365,
+        "5": 0.525251
+      },
+      "norec_document": {
+        "0": 0.453957,
+        "1": 0.836111,
+        "5": 0.86828
+      },
+      "norec_sentence": {
+        "0": 0.489966,
+        "1": 0.672827,
+        "5": 0.778222
+      },
+      "noridiom_nno": {
+        "0": 0.573034,
+        "1": 0.640449,
+        "5": 0.54382
+      },
+      "noridiom_nob": {
+        "0": 0.315899,
+        "1": 0.327571,
+        "5": 0.259432
+      },
+      "noropenbookqa_nno": {
+        "0": 0.422222,
+        "1": 0.424444,
+        "5": 0.448889
+      },
+      "noropenbookqa_nob": {
+        "0": 0.443316,
+        "1": 0.527807,
+        "5": 0.517647
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.295556,
+        "1": 0.3,
+        "5": 0.328889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.307487,
+        "1": 0.371123,
+        "5": 0.418182
+      },
+      "norquad": {
+        "0": 0.487816,
+        "1": 0.677988,
+        "5": 0.749882
+      },
+      "norrewrite_instruct": {
+        "0": 1.894633,
+        "1": 2.880307,
+        "5": 8.881356
+      },
+      "norsummarize_instruct": {
+        "0": 1.117362,
+        "1": 2.023006,
+        "5": 4.333042
+      },
+      "norsumm_nob": {
+        "0": 16.89119,
+        "1": 24.606729,
+        "5": 33.286859
+      },
+      "norsumm_nno": {
+        "0": 13.518969,
+        "1": 22.210456,
+        "5": 30.3257
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 60.288574,
+        "1": 72.016131,
+        "5": 73.509285
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 67.728091,
+        "1": 80.271928,
+        "5": 83.172355
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.128241,
+        "1": 0.123804,
+        "5": 0.093091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.871428,
+        "1": 0.321278,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.385965,
+        "1": 0.354386,
+        "5": 0.407018
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.411475,
+        "1": 0.339344,
+        "5": 0.392623
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.452331,
+        "1": 0.534737,
+        "5": 0.556391
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.418611,
+        "1": 0.463333,
+        "5": 0.487889
+      },
+      "slide": {
+        "0": 0.488978,
+        "1": 0.407396,
+        "5": 0.62377
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.871098,
+        "1": 46.528304,
+        "5": 47.411224
+      },
+      "tatoeba_eng_nob": {
+        "0": 41.58727,
+        "1": 56.97721,
+        "5": 57.780508
+      },
+      "tatoeba_nno_eng": {
+        "0": 38.586537,
+        "1": 55.140408,
+        "5": 56.607586
+      },
+      "tatoeba_nob_eng": {
+        "0": 41.218871,
+        "1": 57.491502,
+        "5": 59.075034
+      },
+      "tatoeba_nob_sme": {
+        "0": 18.84583,
+        "1": 23.75295,
+        "5": 31.559299
+      },
+      "tatoeba_sme_nob": {
+        "0": 32.985537,
+        "1": 49.738813,
+        "5": 58.173355
+      }
+    },
+    "21000": {
+      "ask_gec": {
+        "0": 0.18162,
+        "1": 0.40752,
+        "5": 0.48054
+      },
+      "ncb": {
+        "0": 0.770238,
+        "1": 0.808333,
+        "5": 0.865476
+      },
+      "nocola": {
+        "0": 0.130272,
+        "1": 0.124682,
+        "5": 0.127648
+      },
+      "norbelebele": {
+        "0": 0.318222,
+        "1": 0.356,
+        "5": 0.405111
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.296842,
+        "1": 0.393684,
+        "5": 0.482105
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.352705,
+        "1": 0.481764,
+        "5": 0.550501
+      },
+      "norec_document": {
+        "0": 0.45861,
+        "1": 0.874657,
+        "5": 0.900469
+      },
+      "norec_sentence": {
+        "0": 0.487736,
+        "1": 0.713711,
+        "5": 0.847445
+      },
+      "noridiom_nno": {
+        "0": 0.534831,
+        "1": 0.608989,
+        "5": 0.510112
+      },
+      "noridiom_nob": {
+        "0": 0.307697,
+        "1": 0.324984,
+        "5": 0.254448
+      },
+      "noropenbookqa_nno": {
+        "0": 0.408889,
+        "1": 0.471111,
+        "5": 0.482222
+      },
+      "noropenbookqa_nob": {
+        "0": 0.482888,
+        "1": 0.554011,
+        "5": 0.58984
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.286667,
+        "1": 0.315556,
+        "5": 0.348889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.319786,
+        "1": 0.393048,
+        "5": 0.46631
+      },
+      "norquad": {
+        "0": 0.471469,
+        "1": 0.654689,
+        "5": 0.734437
+      },
+      "norrewrite_instruct": {
+        "0": 1.664938,
+        "1": 2.146416,
+        "5": 10.259974
+      },
+      "norsummarize_instruct": {
+        "0": 1.202521,
+        "1": 2.204769,
+        "5": 3.830802
+      },
+      "norsumm_nob": {
+        "0": 16.912056,
+        "1": 26.33601,
+        "5": 33.526976
+      },
+      "norsumm_nno": {
+        "0": 13.811717,
+        "1": 23.284825,
+        "5": 31.258509
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 66.685088,
+        "1": 72.167257,
+        "5": 73.305867
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 71.172803,
+        "1": 80.851673,
+        "5": 82.67634
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.491617,
+        "1": 0.197952,
+        "5": 0.061091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.089611,
+        "1": 0.788051,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.350877,
+        "1": 0.340351,
+        "5": 0.4
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.372541,
+        "1": 0.315574,
+        "5": 0.395082
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.454887,
+        "1": 0.537293,
+        "5": 0.566466
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.424889,
+        "1": 0.460833,
+        "5": 0.488444
+      },
+      "slide": {
+        "0": 0.505496,
+        "1": 0.422245,
+        "5": 0.584518
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.720034,
+        "1": 46.739939,
+        "5": 46.895328
+      },
+      "tatoeba_eng_nob": {
+        "0": 46.957407,
+        "1": 57.212569,
+        "5": 57.78242
+      },
+      "tatoeba_nno_eng": {
+        "0": 32.941644,
+        "1": 55.353859,
+        "5": 56.800012
+      },
+      "tatoeba_nob_eng": {
+        "0": 42.486705,
+        "1": 58.118395,
+        "5": 59.679379
+      },
+      "tatoeba_nob_sme": {
+        "0": 18.835782,
+        "1": 23.216248,
+        "5": 28.884642
+      },
+      "tatoeba_sme_nob": {
+        "0": 35.23299,
+        "1": 49.6237,
+        "5": 58.496474
+      }
+    },
+    "22000": {
+      "ask_gec": {
+        "0": 0.09014,
+        "1": 0.3442,
+        "5": 0.45974
+      },
+      "ncb": {
+        "0": 0.780952,
+        "1": 0.792857,
+        "5": 0.871429
+      },
+      "nocola": {
+        "0": 0.127366,
+        "1": 0.124511,
+        "5": 0.128567
+      },
+      "norbelebele": {
+        "0": 0.309111,
+        "1": 0.337333,
+        "5": 0.385333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.28,
+        "1": 0.397895,
+        "5": 0.494737
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.346693,
+        "1": 0.473146,
+        "5": 0.540882
+      },
+      "norec_document": {
+        "0": 0.448396,
+        "1": 0.77703,
+        "5": 0.878998
+      },
+      "norec_sentence": {
+        "0": 0.460781,
+        "1": 0.694729,
+        "5": 0.843791
+      },
+      "noridiom_nno": {
+        "0": 0.564045,
+        "1": 0.602247,
+        "5": 0.382022
+      },
+      "noridiom_nob": {
+        "0": 0.322397,
+        "1": 0.317539,
+        "5": 0.210284
+      },
+      "noropenbookqa_nno": {
+        "0": 0.446667,
+        "1": 0.473333,
+        "5": 0.544444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.484492,
+        "1": 0.563102,
+        "5": 0.594118
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.295556,
+        "1": 0.335556,
+        "5": 0.397778
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.338503,
+        "1": 0.403209,
+        "5": 0.452406
+      },
+      "norquad": {
+        "0": 0.486612,
+        "1": 0.663176,
+        "5": 0.739538
+      },
+      "norrewrite_instruct": {
+        "0": 1.99833,
+        "1": 2.932069,
+        "5": 8.894617
+      },
+      "norsummarize_instruct": {
+        "0": 1.440402,
+        "1": 1.855248,
+        "5": 3.3191
+      },
+      "norsumm_nob": {
+        "0": 17.031044,
+        "1": 25.925155,
+        "5": 31.014755
+      },
+      "norsumm_nno": {
+        "0": 12.968191,
+        "1": 22.575973,
+        "5": 28.475625
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 59.503912,
+        "1": 72.020492,
+        "5": 73.457663
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 70.217003,
+        "1": 79.442983,
+        "5": 83.262885
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.04794,
+        "1": 0.309258,
+        "5": 0.066738
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 18.333704,
+        "1": 0.214696,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.361404,
+        "1": 0.350877,
+        "5": 0.424561
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.383197,
+        "1": 0.325,
+        "5": 0.415164
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.466015,
+        "1": 0.534887,
+        "5": 0.564361
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.436,
+        "1": 0.478167,
+        "5": 0.502667
+      },
+      "slide": {
+        "0": 0.488719,
+        "1": 0.391309,
+        "5": 0.558043
+      },
+      "tatoeba_eng_nno": {
+        "0": 41.035693,
+        "1": 46.487952,
+        "5": 46.449291
+      },
+      "tatoeba_eng_nob": {
+        "0": 35.910868,
+        "1": 56.996833,
+        "5": 57.828934
+      },
+      "tatoeba_nno_eng": {
+        "0": 26.697051,
+        "1": 56.136052,
+        "5": 57.10816
+      },
+      "tatoeba_nob_eng": {
+        "0": 20.216247,
+        "1": 57.745685,
+        "5": 59.230859
+      },
+      "tatoeba_nob_sme": {
+        "0": 16.850425,
+        "1": 23.856552,
+        "5": 32.665824
+      },
+      "tatoeba_sme_nob": {
+        "0": 26.51666,
+        "1": 50.30852,
+        "5": 56.820674
+      }
+    },
+    "23000": {
+      "ask_gec": {
+        "0": 0.1214,
+        "1": 0.40952,
+        "5": 0.4836
+      },
+      "ncb": {
+        "0": 0.8,
+        "1": 0.816667,
+        "5": 0.866667
+      },
+      "nocola": {
+        "0": 0.125116,
+        "1": 0.125661,
+        "5": 0.131523
+      },
+      "norbelebele": {
+        "0": 0.298222,
+        "1": 0.336444,
+        "5": 0.383111
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.28,
+        "1": 0.406316,
+        "5": 0.507368
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.326453,
+        "1": 0.486573,
+        "5": 0.553106
+      },
+      "norec_document": {
+        "0": 0.445192,
+        "1": 0.799163,
+        "5": 0.887132
+      },
+      "norec_sentence": {
+        "0": 0.435814,
+        "1": 0.633122,
+        "5": 0.791953
+      },
+      "noridiom_nno": {
+        "0": 0.579775,
+        "1": 0.61573,
+        "5": 0.476404
+      },
+      "noridiom_nob": {
+        "0": 0.324795,
+        "1": 0.324984,
+        "5": 0.237729
+      },
+      "noropenbookqa_nno": {
+        "0": 0.406667,
+        "1": 0.482222,
+        "5": 0.524444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.439572,
+        "1": 0.546524,
+        "5": 0.589305
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.293333,
+        "1": 0.34,
+        "5": 0.36
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.309626,
+        "1": 0.388235,
+        "5": 0.443316
+      },
+      "norquad": {
+        "0": 0.473671,
+        "1": 0.688683,
+        "5": 0.755858
+      },
+      "norrewrite_instruct": {
+        "0": 1.733305,
+        "1": 3.906946,
+        "5": 10.625979
+      },
+      "norsummarize_instruct": {
+        "0": 1.297863,
+        "1": 2.136004,
+        "5": 3.572707
+      },
+      "norsumm_nob": {
+        "0": 17.686319,
+        "1": 25.215761,
+        "5": 29.278785
+      },
+      "norsumm_nno": {
+        "0": 14.279118,
+        "1": 23.38675,
+        "5": 26.612568
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 66.590556,
+        "1": 72.236642,
+        "5": 73.849167
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 74.166936,
+        "1": 81.281403,
+        "5": 83.098697
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.544253,
+        "1": 0.309562,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.664057,
+        "1": 0.45418,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.385965,
+        "1": 0.368421,
+        "5": 0.354386
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.439754,
+        "1": 0.381557,
+        "5": 0.419262
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.437594,
+        "1": 0.527218,
+        "5": 0.56797
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.409333,
+        "1": 0.466222,
+        "5": 0.500222
+      },
+      "slide": {
+        "0": 0.482849,
+        "1": 0.411396,
+        "5": 0.566417
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.174445,
+        "1": 45.974601,
+        "5": 46.528338
+      },
+      "tatoeba_eng_nob": {
+        "0": 51.063922,
+        "1": 57.391135,
+        "5": 58.026221
+      },
+      "tatoeba_nno_eng": {
+        "0": 52.795506,
+        "1": 55.766414,
+        "5": 58.307301
+      },
+      "tatoeba_nob_eng": {
+        "0": 40.956521,
+        "1": 57.887614,
+        "5": 59.337813
+      },
+      "tatoeba_nob_sme": {
+        "0": 12.838223,
+        "1": 19.996641,
+        "5": 25.646845
+      },
+      "tatoeba_sme_nob": {
+        "0": 39.304295,
+        "1": 51.632014,
+        "5": 59.437257
+      }
+    },
+    "24000": {
+      "ask_gec": {
+        "0": 0.16234,
+        "1": 0.38768,
+        "5": 0.47544
+      },
+      "ncb": {
+        "0": 0.796429,
+        "1": 0.807143,
+        "5": 0.872619
+      },
+      "nocola": {
+        "0": 0.122614,
+        "1": 0.122705,
+        "5": 0.128173
+      },
+      "norbelebele": {
+        "0": 0.294,
+        "1": 0.348,
+        "5": 0.389111
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.292632,
+        "1": 0.404211,
+        "5": 0.496842
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.34008,
+        "1": 0.491784,
+        "5": 0.539479
+      },
+      "norec_document": {
+        "0": 0.470846,
+        "1": 0.872262,
+        "5": 0.925336
+      },
+      "norec_sentence": {
+        "0": 0.453003,
+        "1": 0.686403,
+        "5": 0.812282
+      },
+      "noridiom_nno": {
+        "0": 0.573034,
+        "1": 0.6,
+        "5": 0.364045
+      },
+      "noridiom_nob": {
+        "0": 0.320189,
+        "1": 0.322776,
+        "5": 0.185426
+      },
+      "noropenbookqa_nno": {
+        "0": 0.377778,
+        "1": 0.488889,
+        "5": 0.52
+      },
+      "noropenbookqa_nob": {
+        "0": 0.413904,
+        "1": 0.559358,
+        "5": 0.596791
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.264444,
+        "1": 0.344444,
+        "5": 0.377778
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.32246,
+        "1": 0.410695,
+        "5": 0.439037
+      },
+      "norquad": {
+        "0": 0.465297,
+        "1": 0.66643,
+        "5": 0.741942
+      },
+      "norrewrite_instruct": {
+        "0": 1.587374,
+        "1": 2.634957,
+        "5": 9.679347
+      },
+      "norsummarize_instruct": {
+        "0": 1.020417,
+        "1": 1.795038,
+        "5": 3.578733
+      },
+      "norsumm_nob": {
+        "0": 16.607705,
+        "1": 24.302058,
+        "5": 32.763974
+      },
+      "norsumm_nno": {
+        "0": 12.637398,
+        "1": 21.896858,
+        "5": 29.107132
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 67.906715,
+        "1": 72.640156,
+        "5": 74.289305
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 64.930671,
+        "1": 73.798028,
+        "5": 81.996397
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.232387,
+        "1": 0.888957,
+        "5": 0.093091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.308509,
+        "1": 1.204737,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.385965,
+        "1": 0.368421,
+        "5": 0.4
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.421311,
+        "1": 0.364344,
+        "5": 0.384426
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.440451,
+        "1": 0.54406,
+        "5": 0.572932
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.428556,
+        "1": 0.484611,
+        "5": 0.506056
+      },
+      "slide": {
+        "0": 0.517007,
+        "1": 0.474273,
+        "5": 0.599194
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.699845,
+        "1": 45.25878,
+        "5": 46.124243
+      },
+      "tatoeba_eng_nob": {
+        "0": 39.010503,
+        "1": 57.162669,
+        "5": 57.801255
+      },
+      "tatoeba_nno_eng": {
+        "0": 53.496988,
+        "1": 56.310139,
+        "5": 58.598476
+      },
+      "tatoeba_nob_eng": {
+        "0": 50.015194,
+        "1": 57.56797,
+        "5": 59.387154
+      },
+      "tatoeba_nob_sme": {
+        "0": 17.507197,
+        "1": 23.676073,
+        "5": 32.497077
+      },
+      "tatoeba_sme_nob": {
+        "0": 36.46563,
+        "1": 49.27554,
+        "5": 56.563258
+      }
+    },
+    "25000": {
+      "ask_gec": {
+        "0": 0.12642,
+        "1": 0.30742,
+        "5": 0.42882
+      },
+      "ncb": {
+        "0": 0.77381,
+        "1": 0.803571,
+        "5": 0.860714
+      },
+      "nocola": {
+        "0": 0.129464,
+        "1": 0.123229,
+        "5": 0.126932
+      },
+      "norbelebele": {
+        "0": 0.288,
+        "1": 0.319778,
+        "5": 0.363778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.290526,
+        "1": 0.326316,
+        "5": 0.444211
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.311222,
+        "1": 0.402204,
+        "5": 0.465531
+      },
+      "norec_document": {
+        "0": 0.451344,
+        "1": 0.841436,
+        "5": 0.902774
+      },
+      "norec_sentence": {
+        "0": 0.451754,
+        "1": 0.654042,
+        "5": 0.761969
+      },
+      "noridiom_nno": {
+        "0": 0.530337,
+        "1": 0.570787,
+        "5": 0.422472
+      },
+      "noridiom_nob": {
+        "0": 0.300631,
+        "1": 0.31571,
+        "5": 0.164038
+      },
+      "noropenbookqa_nno": {
+        "0": 0.328889,
+        "1": 0.442222,
+        "5": 0.477778
+      },
+      "noropenbookqa_nob": {
+        "0": 0.386631,
+        "1": 0.493048,
+        "5": 0.542246
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.26,
+        "1": 0.302222,
+        "5": 0.326667
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.300535,
+        "1": 0.354545,
+        "5": 0.386631
+      },
+      "norquad": {
+        "0": 0.424335,
+        "1": 0.63773,
+        "5": 0.688134
+      },
+      "norrewrite_instruct": {
+        "0": 1.701006,
+        "1": 2.182071,
+        "5": 7.625436
+      },
+      "norsummarize_instruct": {
+        "0": 0.98945,
+        "1": 1.707387,
+        "5": 2.985097
+      },
+      "norsumm_nob": {
+        "0": 16.373908,
+        "1": 22.864142,
+        "5": 28.331048
+      },
+      "norsumm_nno": {
+        "0": 12.787155,
+        "1": 21.54054,
+        "5": 26.562266
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 56.960915,
+        "1": 70.179057,
+        "5": 72.327468
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 62.469406,
+        "1": 75.310001,
+        "5": 80.235349
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.92515,
+        "1": 0.320803,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.759426,
+        "1": 0.198827,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.421053,
+        "1": 0.340351,
+        "5": 0.37193
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.439754,
+        "1": 0.341803,
+        "5": 0.387295
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.391429,
+        "1": 0.454286,
+        "5": 0.488872
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.380611,
+        "1": 0.417,
+        "5": 0.443833
+      },
+      "slide": {
+        "0": 0.422331,
+        "1": 0.387655,
+        "5": 0.471108
+      },
+      "tatoeba_eng_nno": {
+        "0": 31.183517,
+        "1": 46.702975,
+        "5": 46.76139
+      },
+      "tatoeba_eng_nob": {
+        "0": 25.629675,
+        "1": 54.998282,
+        "5": 56.122911
+      },
+      "tatoeba_nno_eng": {
+        "0": 39.680236,
+        "1": 52.544479,
+        "5": 55.515931
+      },
+      "tatoeba_nob_eng": {
+        "0": 23.138661,
+        "1": 55.845546,
+        "5": 57.803524
+      },
+      "tatoeba_nob_sme": {
+        "0": 11.230569,
+        "1": 22.253746,
+        "5": 29.227836
+      },
+      "tatoeba_sme_nob": {
+        "0": 23.89003,
+        "1": 43.117581,
+        "5": 53.840485
+      }
+    },
+    "26000": {
+      "ask_gec": {
+        "0": 0.09766,
+        "1": 0.35134,
+        "5": 0.4588
+      },
+      "ncb": {
+        "0": 0.753571,
+        "1": 0.802381,
+        "5": 0.869048
+      },
+      "nocola": {
+        "0": 0.13237,
+        "1": 0.126599,
+        "5": 0.134116
+      },
+      "norbelebele": {
+        "0": 0.295111,
+        "1": 0.334222,
+        "5": 0.370444
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.277895,
+        "1": 0.349474,
+        "5": 0.456842
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.335872,
+        "1": 0.411222,
+        "5": 0.49479
+      },
+      "norec_document": {
+        "0": 0.436157,
+        "1": 0.823644,
+        "5": 0.905746
+      },
+      "norec_sentence": {
+        "0": 0.485091,
+        "1": 0.663683,
+        "5": 0.722837
+      },
+      "noridiom_nno": {
+        "0": 0.54382,
+        "1": 0.611236,
+        "5": 0.505618
+      },
+      "noridiom_nob": {
+        "0": 0.307003,
+        "1": 0.329211,
+        "5": 0.236909
+      },
+      "noropenbookqa_nno": {
+        "0": 0.384444,
+        "1": 0.431111,
+        "5": 0.491111
+      },
+      "noropenbookqa_nob": {
+        "0": 0.426738,
+        "1": 0.514973,
+        "5": 0.561497
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.302222,
+        "1": 0.306667,
+        "5": 0.324444
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.323529,
+        "1": 0.358824,
+        "5": 0.397861
+      },
+      "norquad": {
+        "0": 0.430469,
+        "1": 0.646078,
+        "5": 0.73206
+      },
+      "norrewrite_instruct": {
+        "0": 1.54034,
+        "1": 2.564282,
+        "5": 9.314241
+      },
+      "norsummarize_instruct": {
+        "0": 1.288441,
+        "1": 1.683095,
+        "5": 3.60777
+      },
+      "norsumm_nob": {
+        "0": 18.058592,
+        "1": 23.824661,
+        "5": 32.580037
+      },
+      "norsumm_nno": {
+        "0": 14.771976,
+        "1": 22.136517,
+        "5": 27.238891
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 62.001382,
+        "1": 71.911906,
+        "5": 73.753121
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 62.086912,
+        "1": 75.679433,
+        "5": 82.406583
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.269872,
+        "1": 0.127169,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 21.043583,
+        "1": 0.051967,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.403509,
+        "1": 0.375439,
+        "5": 0.382456
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.45041,
+        "1": 0.372541,
+        "5": 0.411066
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.405414,
+        "1": 0.468872,
+        "5": 0.516391
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.397056,
+        "1": 0.420889,
+        "5": 0.457222
+      },
+      "slide": {
+        "0": 0.484115,
+        "1": 0.398532,
+        "5": 0.51459
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.767603,
+        "1": 46.323437,
+        "5": 45.476536
+      },
+      "tatoeba_eng_nob": {
+        "0": 41.700014,
+        "1": 56.578194,
+        "5": 57.421917
+      },
+      "tatoeba_nno_eng": {
+        "0": 50.299057,
+        "1": 53.768966,
+        "5": 54.926681
+      },
+      "tatoeba_nob_eng": {
+        "0": 32.608627,
+        "1": 56.239637,
+        "5": 57.866371
+      },
+      "tatoeba_nob_sme": {
+        "0": 15.723491,
+        "1": 24.064087,
+        "5": 32.353582
+      },
+      "tatoeba_sme_nob": {
+        "0": 27.046112,
+        "1": 47.155448,
+        "5": 54.436398
+      }
+    },
+    "27000": {
+      "ask_gec": {
+        "0": 0.14298,
+        "1": 0.38358,
+        "5": 0.46468
+      },
+      "ncb": {
+        "0": 0.771429,
+        "1": 0.815476,
+        "5": 0.869048
+      },
+      "nocola": {
+        "0": 0.133651,
+        "1": 0.124642,
+        "5": 0.133631
+      },
+      "norbelebele": {
+        "0": 0.285556,
+        "1": 0.308222,
+        "5": 0.370222
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.286316,
+        "1": 0.343158,
+        "5": 0.482105
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.32485,
+        "1": 0.433467,
+        "5": 0.510621
+      },
+      "norec_document": {
+        "0": 0.45027,
+        "1": 0.820715,
+        "5": 0.927674
+      },
+      "norec_sentence": {
+        "0": 0.440417,
+        "1": 0.678765,
+        "5": 0.782435
+      },
+      "noridiom_nno": {
+        "0": 0.564045,
+        "1": 0.611236,
+        "5": 0.48764
+      },
+      "noridiom_nob": {
+        "0": 0.316088,
+        "1": 0.333312,
+        "5": 0.215142
+      },
+      "noropenbookqa_nno": {
+        "0": 0.373333,
+        "1": 0.475556,
+        "5": 0.524444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.445455,
+        "1": 0.516043,
+        "5": 0.577005
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.295556,
+        "1": 0.346667,
+        "5": 0.388889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.328342,
+        "1": 0.35508,
+        "5": 0.409626
+      },
+      "norquad": {
+        "0": 0.463195,
+        "1": 0.657408,
+        "5": 0.711212
+      },
+      "norrewrite_instruct": {
+        "0": 1.850962,
+        "1": 2.377349,
+        "5": 11.151989
+      },
+      "norsummarize_instruct": {
+        "0": 1.222679,
+        "1": 1.664677,
+        "5": 3.551847
+      },
+      "norsumm_nob": {
+        "0": 17.792068,
+        "1": 24.153939,
+        "5": 35.971756
+      },
+      "norsumm_nno": {
+        "0": 14.717195,
+        "1": 22.751144,
+        "5": 31.319857
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 67.587789,
+        "1": 72.146476,
+        "5": 73.416054
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 76.317281,
+        "1": 80.389764,
+        "5": 81.976323
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.75271,
+        "1": 0.120988,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.389066,
+        "1": 0.04443,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.392982,
+        "1": 0.287719,
+        "5": 0.347368
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.42582,
+        "1": 0.340164,
+        "5": 0.389344
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.397744,
+        "1": 0.490526,
+        "5": 0.542406
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.379556,
+        "1": 0.431444,
+        "5": 0.468611
+      },
+      "slide": {
+        "0": 0.450906,
+        "1": 0.396173,
+        "5": 0.530388
+      },
+      "tatoeba_eng_nno": {
+        "0": 41.573857,
+        "1": 45.416958,
+        "5": 45.891014
+      },
+      "tatoeba_eng_nob": {
+        "0": 44.211012,
+        "1": 56.568312,
+        "5": 57.726968
+      },
+      "tatoeba_nno_eng": {
+        "0": 46.755832,
+        "1": 54.718691,
+        "5": 56.09851
+      },
+      "tatoeba_nob_eng": {
+        "0": 31.582804,
+        "1": 56.564247,
+        "5": 58.324061
+      },
+      "tatoeba_nob_sme": {
+        "0": 10.318441,
+        "1": 18.963623,
+        "5": 30.46866
+      },
+      "tatoeba_sme_nob": {
+        "0": 27.916511,
+        "1": 44.752074,
+        "5": 53.151933
+      }
+    },
+    "28000": {
+      "ask_gec": {
+        "0": 0.1823,
+        "1": 0.3882,
+        "5": 0.45868
+      },
+      "ncb": {
+        "0": 0.791667,
+        "1": 0.815476,
+        "5": 0.87381
+      },
+      "nocola": {
+        "0": 0.130948,
+        "1": 0.123451,
+        "5": 0.129575
+      },
+      "norbelebele": {
+        "0": 0.295778,
+        "1": 0.321778,
+        "5": 0.375778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.309474,
+        "1": 0.36,
+        "5": 0.471579
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.327856,
+        "1": 0.420842,
+        "5": 0.490581
+      },
+      "norec_document": {
+        "0": 0.450563,
+        "1": 0.813289,
+        "5": 0.894528
+      },
+      "norec_sentence": {
+        "0": 0.454463,
+        "1": 0.688249,
+        "5": 0.756941
+      },
+      "noridiom_nno": {
+        "0": 0.577528,
+        "1": 0.644944,
+        "5": 0.505618
+      },
+      "noridiom_nob": {
+        "0": 0.304164,
+        "1": 0.319054,
+        "5": 0.213817
+      },
+      "noropenbookqa_nno": {
+        "0": 0.331111,
+        "1": 0.466667,
+        "5": 0.513333
+      },
+      "noropenbookqa_nob": {
+        "0": 0.447594,
+        "1": 0.528877,
+        "5": 0.565775
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.313333,
+        "1": 0.335556,
+        "5": 0.355556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.326203,
+        "1": 0.368984,
+        "5": 0.425134
+      },
+      "norquad": {
+        "0": 0.423945,
+        "1": 0.667008,
+        "5": 0.737866
+      },
+      "norrewrite_instruct": {
+        "0": 1.439108,
+        "1": 1.629454,
+        "5": 9.784198
+      },
+      "norsummarize_instruct": {
+        "0": 1.397401,
+        "1": 2.268417,
+        "5": 4.149794
+      },
+      "norsumm_nob": {
+        "0": 16.947541,
+        "1": 23.514169,
+        "5": 31.923068
+      },
+      "norsumm_nno": {
+        "0": 13.499631,
+        "1": 21.104887,
+        "5": 31.083425
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 65.103466,
+        "1": 72.305784,
+        "5": 74.294444
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 70.863432,
+        "1": 79.883523,
+        "5": 82.296187
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.130587,
+        "1": 0.135758,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.582706,
+        "1": 0.077568,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.389474,
+        "1": 0.284211,
+        "5": 0.361404
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.40082,
+        "1": 0.302459,
+        "5": 0.351639
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.424962,
+        "1": 0.493083,
+        "5": 0.536241
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.397056,
+        "1": 0.438722,
+        "5": 0.474944
+      },
+      "slide": {
+        "0": 0.492432,
+        "1": 0.391022,
+        "5": 0.553957
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.563508,
+        "1": 45.416788,
+        "5": 45.89291
+      },
+      "tatoeba_eng_nob": {
+        "0": 45.423769,
+        "1": 56.557302,
+        "5": 57.183288
+      },
+      "tatoeba_nno_eng": {
+        "0": 34.423886,
+        "1": 54.331555,
+        "5": 55.677977
+      },
+      "tatoeba_nob_eng": {
+        "0": 21.200298,
+        "1": 56.43075,
+        "5": 58.570175
+      },
+      "tatoeba_nob_sme": {
+        "0": 15.457939,
+        "1": 24.391168,
+        "5": 32.985431
+      },
+      "tatoeba_sme_nob": {
+        "0": 29.758141,
+        "1": 44.182914,
+        "5": 53.979916
+      }
+    },
+    "29000": {
+      "ask_gec": {
+        "0": 0.18812,
+        "1": 0.393,
+        "5": 0.4751
+      },
+      "ncb": {
+        "0": 0.786905,
+        "1": 0.814286,
+        "5": 0.875
+      },
+      "nocola": {
+        "0": 0.127073,
+        "1": 0.122059,
+        "5": 0.127376
+      },
+      "norbelebele": {
+        "0": 0.299556,
+        "1": 0.335111,
+        "5": 0.404889
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.336842,
+        "1": 0.362105,
+        "5": 0.490526
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.330661,
+        "1": 0.453307,
+        "5": 0.52024
+      },
+      "norec_document": {
+        "0": 0.48539,
+        "1": 0.864223,
+        "5": 0.926544
+      },
+      "norec_sentence": {
+        "0": 0.481739,
+        "1": 0.686259,
+        "5": 0.791698
+      },
+      "noridiom_nno": {
+        "0": 0.573034,
+        "1": 0.633708,
+        "5": 0.501124
+      },
+      "noridiom_nob": {
+        "0": 0.331798,
+        "1": 0.336151,
+        "5": 0.199937
+      },
+      "noropenbookqa_nno": {
+        "0": 0.391111,
+        "1": 0.522222,
+        "5": 0.542222
+      },
+      "noropenbookqa_nob": {
+        "0": 0.457754,
+        "1": 0.564706,
+        "5": 0.580749
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.313333,
+        "1": 0.346667,
+        "5": 0.366667
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.33262,
+        "1": 0.400535,
+        "5": 0.442781
+      },
+      "norquad": {
+        "0": 0.449126,
+        "1": 0.684143,
+        "5": 0.758511
+      },
+      "norrewrite_instruct": {
+        "0": 1.928792,
+        "1": 2.626887,
+        "5": 9.90905
+      },
+      "norsummarize_instruct": {
+        "0": 1.325472,
+        "1": 2.041674,
+        "5": 4.55705
+      },
+      "norsumm_nob": {
+        "0": 17.584358,
+        "1": 25.457857,
+        "5": 34.901765
+      },
+      "norsumm_nno": {
+        "0": 14.385853,
+        "1": 23.258007,
+        "5": 31.270571
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 64.445959,
+        "1": 72.668735,
+        "5": 73.973245
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 75.407556,
+        "1": 80.63243,
+        "5": 83.042197
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.414956,
+        "1": 0.078032,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.079026,
+        "1": 0.163166,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.333333,
+        "1": 0.280702,
+        "5": 0.368421
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.404098,
+        "1": 0.309836,
+        "5": 0.366393
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.441805,
+        "1": 0.517594,
+        "5": 0.554887
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.406278,
+        "1": 0.452944,
+        "5": 0.486833
+      },
+      "slide": {
+        "0": 0.493122,
+        "1": 0.420029,
+        "5": 0.552921
+      },
+      "tatoeba_eng_nno": {
+        "0": 41.011729,
+        "1": 45.571683,
+        "5": 45.883432
+      },
+      "tatoeba_eng_nob": {
+        "0": 44.977906,
+        "1": 57.228614,
+        "5": 58.098654
+      },
+      "tatoeba_nno_eng": {
+        "0": 34.685728,
+        "1": 55.560317,
+        "5": 56.825237
+      },
+      "tatoeba_nob_eng": {
+        "0": 34.591143,
+        "1": 57.059226,
+        "5": 58.920701
+      },
+      "tatoeba_nob_sme": {
+        "0": 19.669233,
+        "1": 22.030992,
+        "5": 34.522976
+      },
+      "tatoeba_sme_nob": {
+        "0": 31.543313,
+        "1": 48.220721,
+        "5": 56.203454
+      }
+    },
+    "3000": {
+      "ask_gec": {
+        "0": 0.209,
+        "1": 0.3649,
+        "5": 0.4327
+      },
+      "ncb": {
+        "0": 0.792857,
+        "1": 0.817857,
+        "5": 0.840476
+      },
+      "nocola": {
+        "0": 0.132047,
+        "1": 0.128546,
+        "5": 0.131139
+      },
+      "norbelebele": {
+        "0": 0.335111,
+        "1": 0.425778,
+        "5": 0.478222
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.322105,
+        "1": 0.427368,
+        "5": 0.557895
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.352104,
+        "1": 0.518236,
+        "5": 0.577355
+      },
+      "norec_document": {
+        "0": 0.431887,
+        "1": 0.797654,
+        "5": 0.854997
+      },
+      "norec_sentence": {
+        "0": 0.418581,
+        "1": 0.70341,
+        "5": 0.76525
+      },
+      "noridiom_nno": {
+        "0": 0.453933,
+        "1": 0.474157,
+        "5": 0.368539
+      },
+      "noridiom_nob": {
+        "0": 0.271798,
+        "1": 0.274196,
+        "5": 0.203155
+      },
+      "noropenbookqa_nno": {
+        "0": 0.402222,
+        "1": 0.506667,
+        "5": 0.584444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.513904,
+        "1": 0.616578,
+        "5": 0.650802
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.268889,
+        "1": 0.36,
+        "5": 0.42
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.325134,
+        "1": 0.432086,
+        "5": 0.51016
+      },
+      "norquad": {
+        "0": 0.52124,
+        "1": 0.669776,
+        "5": 0.725656
+      },
+      "norrewrite_instruct": {
+        "0": 1.85678,
+        "1": 2.460569,
+        "5": 8.196781
+      },
+      "norsummarize_instruct": {
+        "0": 1.310282,
+        "1": 1.655485,
+        "5": 3.381775
+      },
+      "norsumm_nob": {
+        "0": 15.980103,
+        "1": 24.162777,
+        "5": 33.493961
+      },
+      "norsumm_nno": {
+        "0": 12.802012,
+        "1": 19.510066,
+        "5": 29.770166
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 61.886676,
+        "1": 68.825113,
+        "5": 70.212768
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 63.910827,
+        "1": 79.368915,
+        "5": 81.323876
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 15.294715,
+        "1": 1.031882,
+        "5": 0.064
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 17.340005,
+        "1": 1.339592,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.284211,
+        "1": 0.259649,
+        "5": 0.298246
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.323361,
+        "1": 0.304098,
+        "5": 0.387705
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.40406,
+        "1": 0.460301,
+        "5": 0.49609
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.382278,
+        "1": 0.430722,
+        "5": 0.457389
+      },
+      "slide": {
+        "0": 0.324892,
+        "1": 0.34823,
+        "5": 0.545151
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.615138,
+        "1": 42.147558,
+        "5": 42.353409
+      },
+      "tatoeba_eng_nob": {
+        "0": 44.44753,
+        "1": 53.894202,
+        "5": 55.424717
+      },
+      "tatoeba_nno_eng": {
+        "0": 48.812229,
+        "1": 55.578745,
+        "5": 56.730341
+      },
+      "tatoeba_nob_eng": {
+        "0": 42.929192,
+        "1": 56.811877,
+        "5": 58.711227
+      },
+      "tatoeba_nob_sme": {
+        "0": 2.967837,
+        "1": 6.272906,
+        "5": 15.275664
+      },
+      "tatoeba_sme_nob": {
+        "0": 10.23596,
+        "1": 25.778603,
+        "5": 36.209109
+      }
+    },
+    "30000": {
+      "ask_gec": {
+        "0": 0.19542,
+        "1": 0.38818,
+        "5": 0.47682
+      },
+      "ncb": {
+        "0": 0.775,
+        "1": 0.817857,
+        "5": 0.865476
+      },
+      "nocola": {
+        "0": 0.127739,
+        "1": 0.122594,
+        "5": 0.128314
+      },
+      "norbelebele": {
+        "0": 0.303333,
+        "1": 0.348444,
+        "5": 0.409556
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.343158,
+        "1": 0.368421,
+        "5": 0.492632
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.339078,
+        "1": 0.47495,
+        "5": 0.540281
+      },
+      "norec_document": {
+        "0": 0.476851,
+        "1": 0.860382,
+        "5": 0.924613
+      },
+      "norec_sentence": {
+        "0": 0.48221,
+        "1": 0.686538,
+        "5": 0.801081
+      },
+      "noridiom_nno": {
+        "0": 0.566292,
+        "1": 0.629213,
+        "5": 0.51236
+      },
+      "noridiom_nob": {
+        "0": 0.327256,
+        "1": 0.336593,
+        "5": 0.211483
+      },
+      "noropenbookqa_nno": {
+        "0": 0.38,
+        "1": 0.524444,
+        "5": 0.544444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.464706,
+        "1": 0.571123,
+        "5": 0.591979
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.317778,
+        "1": 0.351111,
+        "5": 0.384444
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.347594,
+        "1": 0.408556,
+        "5": 0.449733
+      },
+      "norquad": {
+        "0": 0.457923,
+        "1": 0.690856,
+        "5": 0.764009
+      },
+      "norrewrite_instruct": {
+        "0": 1.807737,
+        "1": 2.692989,
+        "5": 10.163655
+      },
+      "norsummarize_instruct": {
+        "0": 1.415045,
+        "1": 1.97128,
+        "5": 3.850936
+      },
+      "norsumm_nob": {
+        "0": 17.496149,
+        "1": 25.13817,
+        "5": 34.151894
+      },
+      "norsumm_nno": {
+        "0": 14.26271,
+        "1": 24.012187,
+        "5": 30.695727
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 64.834723,
+        "1": 72.665325,
+        "5": 74.213295
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 74.877584,
+        "1": 80.945697,
+        "5": 82.988749
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.982284,
+        "1": 0.071758,
+        "5": 0.051948
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.874438,
+        "1": 0.232567,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.350877,
+        "1": 0.312281,
+        "5": 0.34386
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.40082,
+        "1": 0.335246,
+        "5": 0.37459
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.444511,
+        "1": 0.530226,
+        "5": 0.565714
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.409833,
+        "1": 0.464278,
+        "5": 0.4975
+      },
+      "slide": {
+        "0": 0.493266,
+        "1": 0.408633,
+        "5": 0.555655
+      },
+      "tatoeba_eng_nno": {
+        "0": 39.852499,
+        "1": 45.255765,
+        "5": 46.073401
+      },
+      "tatoeba_eng_nob": {
+        "0": 44.559154,
+        "1": 57.307173,
+        "5": 58.231488
+      },
+      "tatoeba_nno_eng": {
+        "0": 38.020276,
+        "1": 55.594841,
+        "5": 56.533026
+      },
+      "tatoeba_nob_eng": {
+        "0": 37.774032,
+        "1": 57.197156,
+        "5": 59.304456
+      },
+      "tatoeba_nob_sme": {
+        "0": 20.562337,
+        "1": 24.570716,
+        "5": 34.776728
+      },
+      "tatoeba_sme_nob": {
+        "0": 32.583702,
+        "1": 48.443553,
+        "5": 56.83252
+      }
+    },
+    "31000": {
+      "ask_gec": {
+        "0": 0.18034,
+        "1": 0.3295,
+        "5": 0.43216
+      },
+      "ncb": {
+        "0": 0.77381,
+        "1": 0.808333,
+        "5": 0.867857
+      },
+      "nocola": {
+        "0": 0.131916,
+        "1": 0.126387,
+        "5": 0.133884
+      },
+      "norbelebele": {
+        "0": 0.278889,
+        "1": 0.283778,
+        "5": 0.351333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.286316,
+        "1": 0.347368,
+        "5": 0.463158
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.326253,
+        "1": 0.423447,
+        "5": 0.492385
+      },
+      "norec_document": {
+        "0": 0.485047,
+        "1": 0.752229,
+        "5": 0.893529
+      },
+      "norec_sentence": {
+        "0": 0.478769,
+        "1": 0.633043,
+        "5": 0.774248
+      },
+      "noridiom_nno": {
+        "0": 0.559551,
+        "1": 0.604494,
+        "5": 0.48764
+      },
+      "noridiom_nob": {
+        "0": 0.291104,
+        "1": 0.305994,
+        "5": 0.22265
+      },
+      "noropenbookqa_nno": {
+        "0": 0.391111,
+        "1": 0.466667,
+        "5": 0.533333
+      },
+      "noropenbookqa_nob": {
+        "0": 0.442246,
+        "1": 0.537433,
+        "5": 0.572727
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.28,
+        "1": 0.326667,
+        "5": 0.395556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.327807,
+        "1": 0.400535,
+        "5": 0.445989
+      },
+      "norquad": {
+        "0": 0.383662,
+        "1": 0.657307,
+        "5": 0.738853
+      },
+      "norrewrite_instruct": {
+        "0": 1.858588,
+        "1": 2.017749,
+        "5": 8.914625
+      },
+      "norsummarize_instruct": {
+        "0": 0.966948,
+        "1": 1.911622,
+        "5": 3.732136
+      },
+      "norsumm_nob": {
+        "0": 15.490313,
+        "1": 25.208183,
+        "5": 35.462207
+      },
+      "norsumm_nno": {
+        "0": 13.612878,
+        "1": 22.266779,
+        "5": 32.836096
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 62.977985,
+        "1": 71.80855,
+        "5": 73.2309
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 72.00487,
+        "1": 79.390664,
+        "5": 81.499522
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.697298,
+        "1": 0.040125,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 21.656902,
+        "1": 0.089517,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.294737,
+        "1": 0.298246,
+        "5": 0.364912
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.42377,
+        "1": 0.372131,
+        "5": 0.387705
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.403609,
+        "1": 0.479549,
+        "5": 0.513083
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.380944,
+        "1": 0.42,
+        "5": 0.450278
+      },
+      "slide": {
+        "0": 0.502158,
+        "1": 0.389237,
+        "5": 0.552403
+      },
+      "tatoeba_eng_nno": {
+        "0": 36.042751,
+        "1": 44.345012,
+        "5": 43.774538
+      },
+      "tatoeba_eng_nob": {
+        "0": 30.166266,
+        "1": 55.645521,
+        "5": 56.617358
+      },
+      "tatoeba_nno_eng": {
+        "0": 49.159399,
+        "1": 54.546091,
+        "5": 54.854005
+      },
+      "tatoeba_nob_eng": {
+        "0": 34.429862,
+        "1": 56.10391,
+        "5": 57.733416
+      },
+      "tatoeba_nob_sme": {
+        "0": 14.780205,
+        "1": 19.845049,
+        "5": 31.02934
+      },
+      "tatoeba_sme_nob": {
+        "0": 18.413326,
+        "1": 41.790629,
+        "5": 52.106003
+      }
+    },
+    "32000": {
+      "ask_gec": {
+        "0": 0.16568,
+        "1": 0.35456,
+        "5": 0.45424
+      },
+      "ncb": {
+        "0": 0.766667,
+        "1": 0.805952,
+        "5": 0.875
+      },
+      "nocola": {
+        "0": 0.130201,
+        "1": 0.124279,
+        "5": 0.129646
+      },
+      "norbelebele": {
+        "0": 0.303333,
+        "1": 0.324889,
+        "5": 0.406667
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.303158,
+        "1": 0.345263,
+        "5": 0.488421
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.335872,
+        "1": 0.452305,
+        "5": 0.53006
+      },
+      "norec_document": {
+        "0": 0.526689,
+        "1": 0.851214,
+        "5": 0.929632
+      },
+      "norec_sentence": {
+        "0": 0.484004,
+        "1": 0.751022,
+        "5": 0.839452
+      },
+      "noridiom_nno": {
+        "0": 0.570787,
+        "1": 0.611236,
+        "5": 0.496629
+      },
+      "noridiom_nob": {
+        "0": 0.309842,
+        "1": 0.317918,
+        "5": 0.194132
+      },
+      "noropenbookqa_nno": {
+        "0": 0.422222,
+        "1": 0.504444,
+        "5": 0.533333
+      },
+      "noropenbookqa_nob": {
+        "0": 0.464171,
+        "1": 0.550802,
+        "5": 0.590374
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.284444,
+        "1": 0.366667,
+        "5": 0.391111
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.337968,
+        "1": 0.413904,
+        "5": 0.441711
+      },
+      "norquad": {
+        "0": 0.46452,
+        "1": 0.67939,
+        "5": 0.768515
+      },
+      "norrewrite_instruct": {
+        "0": 2.412432,
+        "1": 2.220501,
+        "5": 9.663738
+      },
+      "norsummarize_instruct": {
+        "0": 1.037413,
+        "1": 1.94675,
+        "5": 3.851625
+      },
+      "norsumm_nob": {
+        "0": 16.767958,
+        "1": 24.235757,
+        "5": 34.557681
+      },
+      "norsumm_nno": {
+        "0": 14.589592,
+        "1": 21.92019,
+        "5": 32.058568
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 55.626023,
+        "1": 71.37623,
+        "5": 73.265296
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 65.637505,
+        "1": 78.325328,
+        "5": 81.726627
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.44968,
+        "1": 0.038937,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.735124,
+        "1": 0.015124,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.347368,
+        "1": 0.294737,
+        "5": 0.333333
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.398361,
+        "1": 0.343033,
+        "5": 0.357377
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.428872,
+        "1": 0.494286,
+        "5": 0.543759
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.406722,
+        "1": 0.456167,
+        "5": 0.477944
+      },
+      "slide": {
+        "0": 0.508892,
+        "1": 0.401784,
+        "5": 0.564576
+      },
+      "tatoeba_eng_nno": {
+        "0": 43.708586,
+        "1": 45.695253,
+        "5": 46.303991
+      },
+      "tatoeba_eng_nob": {
+        "0": 40.482534,
+        "1": 56.906732,
+        "5": 57.580539
+      },
+      "tatoeba_nno_eng": {
+        "0": 51.160691,
+        "1": 55.504337,
+        "5": 56.457524
+      },
+      "tatoeba_nob_eng": {
+        "0": 42.946204,
+        "1": 58.069248,
+        "5": 59.099618
+      },
+      "tatoeba_nob_sme": {
+        "0": 18.657538,
+        "1": 24.786985,
+        "5": 33.914122
+      },
+      "tatoeba_sme_nob": {
+        "0": 33.95189,
+        "1": 47.623439,
+        "5": 56.796142
+      }
+    },
+    "33000": {
+      "ask_gec": {
+        "0": 0.15654,
+        "1": 0.38026,
+        "5": 0.468
+      },
+      "ncb": {
+        "0": 0.778571,
+        "1": 0.811905,
+        "5": 0.882143
+      },
+      "nocola": {
+        "0": 0.128506,
+        "1": 0.123461,
+        "5": 0.127588
+      },
+      "norbelebele": {
+        "0": 0.289556,
+        "1": 0.345556,
+        "5": 0.419333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.309474,
+        "1": 0.389474,
+        "5": 0.52
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.337876,
+        "1": 0.482966,
+        "5": 0.560721
+      },
+      "norec_document": {
+        "0": 0.494506,
+        "1": 0.840032,
+        "5": 0.926518
+      },
+      "norec_sentence": {
+        "0": 0.462489,
+        "1": 0.695248,
+        "5": 0.84965
+      },
+      "noridiom_nno": {
+        "0": 0.566292,
+        "1": 0.620225,
+        "5": 0.485393
+      },
+      "noridiom_nob": {
+        "0": 0.312366,
+        "1": 0.313312,
+        "5": 0.204416
+      },
+      "noropenbookqa_nno": {
+        "0": 0.417778,
+        "1": 0.517778,
+        "5": 0.553333
+      },
+      "noropenbookqa_nob": {
+        "0": 0.468449,
+        "1": 0.588235,
+        "5": 0.62246
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.297778,
+        "1": 0.357778,
+        "5": 0.377778
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.33262,
+        "1": 0.434225,
+        "5": 0.462567
+      },
+      "norquad": {
+        "0": 0.440099,
+        "1": 0.690559,
+        "5": 0.767836
+      },
+      "norrewrite_instruct": {
+        "0": 1.483324,
+        "1": 3.103293,
+        "5": 10.26385
+      },
+      "norsummarize_instruct": {
+        "0": 1.303908,
+        "1": 2.006848,
+        "5": 4.135302
+      },
+      "norsumm_nob": {
+        "0": 16.386685,
+        "1": 25.017365,
+        "5": 35.016363
+      },
+      "norsumm_nno": {
+        "0": 14.533345,
+        "1": 22.482997,
+        "5": 32.155172
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 60.028872,
+        "1": 71.951431,
+        "5": 73.901343
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 67.85212,
+        "1": 78.720753,
+        "5": 82.834196
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.46427,
+        "1": 0.029091,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 20.527273,
+        "1": 0.013424,
+        "5": 0.009634
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.378947,
+        "1": 0.329825,
+        "5": 0.326316
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.413934,
+        "1": 0.318443,
+        "5": 0.340164
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.432932,
+        "1": 0.519699,
+        "5": 0.562256
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.409111,
+        "1": 0.4685,
+        "5": 0.498111
+      },
+      "slide": {
+        "0": 0.496403,
+        "1": 0.424547,
+        "5": 0.571741
+      },
+      "tatoeba_eng_nno": {
+        "0": 42.755966,
+        "1": 45.292109,
+        "5": 46.103688
+      },
+      "tatoeba_eng_nob": {
+        "0": 42.534687,
+        "1": 57.128493,
+        "5": 58.013791
+      },
+      "tatoeba_nno_eng": {
+        "0": 49.207546,
+        "1": 55.386167,
+        "5": 56.725888
+      },
+      "tatoeba_nob_eng": {
+        "0": 34.78155,
+        "1": 57.479086,
+        "5": 59.117212
+      },
+      "tatoeba_nob_sme": {
+        "0": 14.514082,
+        "1": 25.445265,
+        "5": 34.828515
+      },
+      "tatoeba_sme_nob": {
+        "0": 29.773451,
+        "1": 50.661988,
+        "5": 57.120845
+      }
+    },
+    "4000": {
+      "ask_gec": {
+        "0": 0.13522,
+        "1": 0.3603,
+        "5": 0.44222
+      },
+      "ncb": {
+        "0": 0.825,
+        "1": 0.82619,
+        "5": 0.871429
+      },
+      "nocola": {
+        "0": 0.122543,
+        "1": 0.123613,
+        "5": 0.12445
+      },
+      "norbelebele": {
+        "0": 0.311333,
+        "1": 0.383333,
+        "5": 0.430222
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.313684,
+        "1": 0.406316,
+        "5": 0.488421
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.329058,
+        "1": 0.457715,
+        "5": 0.527856
+      },
+      "norec_document": {
+        "0": 0.443707,
+        "1": 0.750036,
+        "5": 0.881047
+      },
+      "norec_sentence": {
+        "0": 0.461663,
+        "1": 0.695654,
+        "5": 0.78001
+      },
+      "noridiom_nno": {
+        "0": 0.453933,
+        "1": 0.460674,
+        "5": 0.429213
+      },
+      "noridiom_nob": {
+        "0": 0.279432,
+        "1": 0.272871,
+        "5": 0.185489
+      },
+      "noropenbookqa_nno": {
+        "0": 0.402222,
+        "1": 0.508889,
+        "5": 0.544444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.475401,
+        "1": 0.555615,
+        "5": 0.596791
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.251111,
+        "1": 0.315556,
+        "5": 0.388889
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.322995,
+        "1": 0.391979,
+        "5": 0.44385
+      },
+      "norquad": {
+        "0": 0.450146,
+        "1": 0.64986,
+        "5": 0.71784
+      },
+      "norrewrite_instruct": {
+        "0": 2.077669,
+        "1": 2.529776,
+        "5": 7.505843
+      },
+      "norsummarize_instruct": {
+        "0": 0.989445,
+        "1": 1.77901,
+        "5": 3.859056
+      },
+      "norsumm_nob": {
+        "0": 17.24015,
+        "1": 23.357526,
+        "5": 33.715127
+      },
+      "norsumm_nno": {
+        "0": 14.256571,
+        "1": 19.64216,
+        "5": 30.51797
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 48.250015,
+        "1": 69.407228,
+        "5": 71.191506
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 56.64442,
+        "1": 76.917772,
+        "5": 80.850292
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 18.068627,
+        "1": 0.388937,
+        "5": 0.093091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.291614,
+        "1": 0.920553,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.315789,
+        "1": 0.340351,
+        "5": 0.463158
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.347541,
+        "1": 0.335246,
+        "5": 0.422131
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.399699,
+        "1": 0.463308,
+        "5": 0.482105
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.373889,
+        "1": 0.431111,
+        "5": 0.441389
+      },
+      "slide": {
+        "0": 0.422734,
+        "1": 0.36141,
+        "5": 0.526446
+      },
+      "tatoeba_eng_nno": {
+        "0": 33.410748,
+        "1": 43.886739,
+        "5": 44.528141
+      },
+      "tatoeba_eng_nob": {
+        "0": 35.387505,
+        "1": 54.749984,
+        "5": 55.505361
+      },
+      "tatoeba_nno_eng": {
+        "0": 31.003975,
+        "1": 55.746055,
+        "5": 57.365169
+      },
+      "tatoeba_nob_eng": {
+        "0": 21.280117,
+        "1": 56.583405,
+        "5": 58.426444
+      },
+      "tatoeba_nob_sme": {
+        "0": 5.521853,
+        "1": 7.755106,
+        "5": 14.37032
+      },
+      "tatoeba_sme_nob": {
+        "0": 19.405442,
+        "1": 32.811794,
+        "5": 42.666409
+      }
+    },
+    "5000": {
+      "ask_gec": {
+        "0": 0.06732,
+        "1": 0.38646,
+        "5": 0.47248
+      },
+      "ncb": {
+        "0": 0.811905,
+        "1": 0.838095,
+        "5": 0.875
+      },
+      "nocola": {
+        "0": 0.121363,
+        "1": 0.118417,
+        "5": 0.124117
+      },
+      "norbelebele": {
+        "0": 0.330222,
+        "1": 0.396889,
+        "5": 0.431333
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.303158,
+        "1": 0.427368,
+        "5": 0.52
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.371944,
+        "1": 0.516232,
+        "5": 0.571944
+      },
+      "norec_document": {
+        "0": 0.489601,
+        "1": 0.806625,
+        "5": 0.926221
+      },
+      "norec_sentence": {
+        "0": 0.444141,
+        "1": 0.695026,
+        "5": 0.805647
+      },
+      "noridiom_nno": {
+        "0": 0.485393,
+        "1": 0.51236,
+        "5": 0.489888
+      },
+      "noridiom_nob": {
+        "0": 0.294196,
+        "1": 0.306309,
+        "5": 0.22612
+      },
+      "noropenbookqa_nno": {
+        "0": 0.468889,
+        "1": 0.528889,
+        "5": 0.577778
+      },
+      "noropenbookqa_nob": {
+        "0": 0.519251,
+        "1": 0.595187,
+        "5": 0.631551
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.326667,
+        "1": 0.368889,
+        "5": 0.44
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.345455,
+        "1": 0.430481,
+        "5": 0.486631
+      },
+      "norquad": {
+        "0": 0.48657,
+        "1": 0.653078,
+        "5": 0.689862
+      },
+      "norrewrite_instruct": {
+        "0": 2.142613,
+        "1": 2.815726,
+        "5": 8.942411
+      },
+      "norsummarize_instruct": {
+        "0": 0.931469,
+        "1": 1.692933,
+        "5": 3.269923
+      },
+      "norsumm_nob": {
+        "0": 16.689619,
+        "1": 23.325923,
+        "5": 32.261557
+      },
+      "norsumm_nno": {
+        "0": 13.56362,
+        "1": 19.886856,
+        "5": 29.78433
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 51.725959,
+        "1": 69.435576,
+        "5": 71.399079
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 59.471935,
+        "1": 79.989307,
+        "5": 81.373617
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 15.433445,
+        "1": 0.210729,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 17.796235,
+        "1": 0.156515,
+        "5": 0.0
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.396491,
+        "1": 0.407018,
+        "5": 0.378947
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.380738,
+        "1": 0.397131,
+        "5": 0.453689
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.422105,
+        "1": 0.503759,
+        "5": 0.52797
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.405778,
+        "1": 0.463556,
+        "5": 0.481111
+      },
+      "slide": {
+        "0": 0.536345,
+        "1": 0.388604,
+        "5": 0.57836
+      },
+      "tatoeba_eng_nno": {
+        "0": 30.85208,
+        "1": 42.811456,
+        "5": 42.845116
+      },
+      "tatoeba_eng_nob": {
+        "0": 24.669877,
+        "1": 55.323442,
+        "5": 56.355349
+      },
+      "tatoeba_nno_eng": {
+        "0": 44.257842,
+        "1": 56.043356,
+        "5": 57.502602
+      },
+      "tatoeba_nob_eng": {
+        "0": 33.101813,
+        "1": 57.528452,
+        "5": 58.803845
+      },
+      "tatoeba_nob_sme": {
+        "0": 4.086956,
+        "1": 4.718,
+        "5": 9.595274
+      },
+      "tatoeba_sme_nob": {
+        "0": 14.306741,
+        "1": 32.691201,
+        "5": 44.374685
+      }
+    },
+    "6000": {
+      "ask_gec": {
+        "0": 0.09538,
+        "1": 0.38202,
+        "5": 0.46068
+      },
+      "ncb": {
+        "0": 0.813095,
+        "1": 0.819048,
+        "5": 0.853571
+      },
+      "nocola": {
+        "0": 0.121403,
+        "1": 0.12108,
+        "5": 0.127305
+      },
+      "norbelebele": {
+        "0": 0.313556,
+        "1": 0.357333,
+        "5": 0.409778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.317895,
+        "1": 0.4,
+        "5": 0.524211
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.352505,
+        "1": 0.473948,
+        "5": 0.557715
+      },
+      "norec_document": {
+        "0": 0.453832,
+        "1": 0.829652,
+        "5": 0.918186
+      },
+      "norec_sentence": {
+        "0": 0.529201,
+        "1": 0.629481,
+        "5": 0.694021
+      },
+      "noridiom_nno": {
+        "0": 0.516854,
+        "1": 0.582022,
+        "5": 0.483146
+      },
+      "noridiom_nob": {
+        "0": 0.275394,
+        "1": 0.299621,
+        "5": 0.19817
+      },
+      "noropenbookqa_nno": {
+        "0": 0.426667,
+        "1": 0.495556,
+        "5": 0.566667
+      },
+      "noropenbookqa_nob": {
+        "0": 0.484492,
+        "1": 0.582888,
+        "5": 0.608556
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.315556,
+        "1": 0.335556,
+        "5": 0.424444
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.328877,
+        "1": 0.41016,
+        "5": 0.462032
+      },
+      "norquad": {
+        "0": 0.469713,
+        "1": 0.650328,
+        "5": 0.694359
+      },
+      "norrewrite_instruct": {
+        "0": 2.176807,
+        "1": 3.308144,
+        "5": 9.041343
+      },
+      "norsummarize_instruct": {
+        "0": 0.949749,
+        "1": 1.419616,
+        "5": 3.21368
+      },
+      "norsumm_nob": {
+        "0": 15.582315,
+        "1": 23.175597,
+        "5": 31.351195
+      },
+      "norsumm_nno": {
+        "0": 13.767353,
+        "1": 20.35439,
+        "5": 28.738956
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 62.972866,
+        "1": 70.253938,
+        "5": 72.215344
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 63.14113,
+        "1": 79.463136,
+        "5": 82.05847
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 15.558173,
+        "1": 0.51932,
+        "5": 0.0
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 18.271246,
+        "1": 1.319758,
+        "5": 0.244701
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.4,
+        "1": 0.445614,
+        "5": 0.42807
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.42418,
+        "1": 0.423361,
+        "5": 0.470902
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.422105,
+        "1": 0.501053,
+        "5": 0.534586
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.399889,
+        "1": 0.445,
+        "5": 0.470111
+      },
+      "slide": {
+        "0": 0.403367,
+        "1": 0.383252,
+        "5": 0.609065
+      },
+      "tatoeba_eng_nno": {
+        "0": 25.04395,
+        "1": 43.782665,
+        "5": 44.288208
+      },
+      "tatoeba_eng_nob": {
+        "0": 22.932014,
+        "1": 55.492548,
+        "5": 56.219485
+      },
+      "tatoeba_nno_eng": {
+        "0": 47.758446,
+        "1": 55.746469,
+        "5": 57.199767
+      },
+      "tatoeba_nob_eng": {
+        "0": 36.716913,
+        "1": 57.13268,
+        "5": 58.699069
+      },
+      "tatoeba_nob_sme": {
+        "0": 8.068585,
+        "1": 15.372561,
+        "5": 22.794012
+      },
+      "tatoeba_sme_nob": {
+        "0": 12.512745,
+        "1": 35.644595,
+        "5": 45.92404
+      }
+    },
+    "7000": {
+      "ask_gec": {
+        "0": 0.10622,
+        "1": 0.41748,
+        "5": 0.47694
+      },
+      "ncb": {
+        "0": 0.814286,
+        "1": 0.827381,
+        "5": 0.87381
+      },
+      "nocola": {
+        "0": 0.122745,
+        "1": 0.121181,
+        "5": 0.121756
+      },
+      "norbelebele": {
+        "0": 0.306444,
+        "1": 0.368,
+        "5": 0.391556
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.317895,
+        "1": 0.381053,
+        "5": 0.463158
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.346293,
+        "1": 0.465731,
+        "5": 0.524248
+      },
+      "norec_document": {
+        "0": 0.443287,
+        "1": 0.816592,
+        "5": 0.890618
+      },
+      "norec_sentence": {
+        "0": 0.477255,
+        "1": 0.708398,
+        "5": 0.814515
+      },
+      "noridiom_nno": {
+        "0": 0.546067,
+        "1": 0.539326,
+        "5": 0.334831
+      },
+      "noridiom_nob": {
+        "0": 0.298423,
+        "1": 0.284101,
+        "5": 0.184858
+      },
+      "noropenbookqa_nno": {
+        "0": 0.408889,
+        "1": 0.482222,
+        "5": 0.531111
+      },
+      "noropenbookqa_nob": {
+        "0": 0.496791,
+        "1": 0.563636,
+        "5": 0.61016
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.293333,
+        "1": 0.348889,
+        "5": 0.335556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.349198,
+        "1": 0.37861,
+        "5": 0.440642
+      },
+      "norquad": {
+        "0": 0.46552,
+        "1": 0.669025,
+        "5": 0.731394
+      },
+      "norrewrite_instruct": {
+        "0": 1.379861,
+        "1": 3.108961,
+        "5": 9.285388
+      },
+      "norsummarize_instruct": {
+        "0": 1.354557,
+        "1": 1.881425,
+        "5": 4.332944
+      },
+      "norsumm_nob": {
+        "0": 17.320019,
+        "1": 24.322935,
+        "5": 31.934471
+      },
+      "norsumm_nno": {
+        "0": 14.434003,
+        "1": 21.527943,
+        "5": 27.169408
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 60.233337,
+        "1": 71.169908,
+        "5": 72.901156
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 62.150006,
+        "1": 80.401743,
+        "5": 82.286015
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 16.747996,
+        "1": 1.021289,
+        "5": 0.120519
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.581632,
+        "1": 1.394245,
+        "5": 0.033031
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.350877,
+        "1": 0.315789,
+        "5": 0.333333
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.379508,
+        "1": 0.329508,
+        "5": 0.372951
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.43188,
+        "1": 0.494135,
+        "5": 0.525113
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.401111,
+        "1": 0.457056,
+        "5": 0.477667
+      },
+      "slide": {
+        "0": 0.439165,
+        "1": 0.378561,
+        "5": 0.602014
+      },
+      "tatoeba_eng_nno": {
+        "0": 40.463352,
+        "1": 44.236023,
+        "5": 44.081081
+      },
+      "tatoeba_eng_nob": {
+        "0": 51.062001,
+        "1": 56.484773,
+        "5": 57.156417
+      },
+      "tatoeba_nno_eng": {
+        "0": 52.95763,
+        "1": 56.629098,
+        "5": 57.848646
+      },
+      "tatoeba_nob_eng": {
+        "0": 52.429508,
+        "1": 57.132998,
+        "5": 58.963494
+      },
+      "tatoeba_nob_sme": {
+        "0": 6.835937,
+        "1": 14.459033,
+        "5": 22.538273
+      },
+      "tatoeba_sme_nob": {
+        "0": 25.403555,
+        "1": 41.532312,
+        "5": 52.722363
+      }
+    },
+    "8000": {
+      "ask_gec": {
+        "0": 0.14224,
+        "1": 0.38232,
+        "5": 0.46834
+      },
+      "ncb": {
+        "0": 0.8,
+        "1": 0.817857,
+        "5": 0.861905
+      },
+      "nocola": {
+        "0": 0.121887,
+        "1": 0.122906,
+        "5": 0.128355
+      },
+      "norbelebele": {
+        "0": 0.305111,
+        "1": 0.348222,
+        "5": 0.413778
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.309474,
+        "1": 0.385263,
+        "5": 0.482105
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.337275,
+        "1": 0.480361,
+        "5": 0.554709
+      },
+      "norec_document": {
+        "0": 0.464776,
+        "1": 0.872372,
+        "5": 0.911008
+      },
+      "norec_sentence": {
+        "0": 0.471524,
+        "1": 0.739631,
+        "5": 0.832282
+      },
+      "noridiom_nno": {
+        "0": 0.498876,
+        "1": 0.550562,
+        "5": 0.395506
+      },
+      "noridiom_nob": {
+        "0": 0.285615,
+        "1": 0.284543,
+        "5": 0.171798
+      },
+      "noropenbookqa_nno": {
+        "0": 0.397778,
+        "1": 0.526667,
+        "5": 0.544444
+      },
+      "noropenbookqa_nob": {
+        "0": 0.488235,
+        "1": 0.581818,
+        "5": 0.618717
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.286667,
+        "1": 0.36,
+        "5": 0.355556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.336898,
+        "1": 0.424599,
+        "5": 0.460428
+      },
+      "norquad": {
+        "0": 0.474553,
+        "1": 0.669637,
+        "5": 0.730231
+      },
+      "norrewrite_instruct": {
+        "0": 3.005436,
+        "1": 2.407646,
+        "5": 9.111019
+      },
+      "norsummarize_instruct": {
+        "0": 1.352203,
+        "1": 1.67371,
+        "5": 3.977766
+      },
+      "norsumm_nob": {
+        "0": 18.431515,
+        "1": 23.473388,
+        "5": 28.734888
+      },
+      "norsumm_nno": {
+        "0": 14.260703,
+        "1": 21.206109,
+        "5": 27.704169
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 61.559639,
+        "1": 71.774964,
+        "5": 72.600188
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 66.433072,
+        "1": 79.447029,
+        "5": 82.39113
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 19.082369,
+        "1": 2.05183,
+        "5": 0.061091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 21.16243,
+        "1": 1.405282,
+        "5": 0.021195
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.333333,
+        "1": 0.364912,
+        "5": 0.396491
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.397951,
+        "1": 0.360246,
+        "5": 0.409016
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.414135,
+        "1": 0.50812,
+        "5": 0.532331
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.389556,
+        "1": 0.453444,
+        "5": 0.473833
+      },
+      "slide": {
+        "0": 0.491194,
+        "1": 0.387079,
+        "5": 0.580259
+      },
+      "tatoeba_eng_nno": {
+        "0": 33.853003,
+        "1": 45.094341,
+        "5": 44.833619
+      },
+      "tatoeba_eng_nob": {
+        "0": 47.207561,
+        "1": 56.627375,
+        "5": 57.487138
+      },
+      "tatoeba_nno_eng": {
+        "0": 34.297128,
+        "1": 54.948389,
+        "5": 57.884002
+      },
+      "tatoeba_nob_eng": {
+        "0": 37.747594,
+        "1": 57.51257,
+        "5": 59.235966
+      },
+      "tatoeba_nob_sme": {
+        "0": 11.116238,
+        "1": 15.64229,
+        "5": 26.543412
+      },
+      "tatoeba_sme_nob": {
+        "0": 20.154533,
+        "1": 42.451655,
+        "5": 51.599131
+      }
+    },
+    "9000": {
+      "ask_gec": {
+        "0": 0.15072,
+        "1": 0.40444,
+        "5": 0.47112
+      },
+      "ncb": {
+        "0": 0.82381,
+        "1": 0.833333,
+        "5": 0.869048
+      },
+      "nocola": {
+        "0": 0.12335,
+        "1": 0.11883,
+        "5": 0.123542
+      },
+      "norbelebele": {
+        "0": 0.306444,
+        "1": 0.360444,
+        "5": 0.404667
+      },
+      "norcommonsenseqa_nno": {
+        "0": 0.353684,
+        "1": 0.456842,
+        "5": 0.509474
+      },
+      "norcommonsenseqa_nob": {
+        "0": 0.336473,
+        "1": 0.506413,
+        "5": 0.563327
+      },
+      "norec_document": {
+        "0": 0.482173,
+        "1": 0.814969,
+        "5": 0.90034
+      },
+      "norec_sentence": {
+        "0": 0.454143,
+        "1": 0.650165,
+        "5": 0.758958
+      },
+      "noridiom_nno": {
+        "0": 0.501124,
+        "1": 0.534831,
+        "5": 0.453933
+      },
+      "noridiom_nob": {
+        "0": 0.298549,
+        "1": 0.291735,
+        "5": 0.214637
+      },
+      "noropenbookqa_nno": {
+        "0": 0.408889,
+        "1": 0.542222,
+        "5": 0.582222
+      },
+      "noropenbookqa_nob": {
+        "0": 0.485027,
+        "1": 0.593048,
+        "5": 0.640642
+      },
+      "noropenbookqa_no_fact_nno": {
+        "0": 0.262222,
+        "1": 0.371111,
+        "5": 0.395556
+      },
+      "noropenbookqa_no_fact_nob": {
+        "0": 0.33369,
+        "1": 0.432086,
+        "5": 0.458824
+      },
+      "norquad": {
+        "0": 0.38023,
+        "1": 0.650432,
+        "5": 0.721292
+      },
+      "norrewrite_instruct": {
+        "0": 1.462431,
+        "1": 1.900326,
+        "5": 7.695284
+      },
+      "norsummarize_instruct": {
+        "0": 0.698061,
+        "1": 1.715642,
+        "5": 3.200728
+      },
+      "norsumm_nob": {
+        "0": 15.266356,
+        "1": 23.973919,
+        "5": 31.343141
+      },
+      "norsumm_nno": {
+        "0": 12.262467,
+        "1": 21.635972,
+        "5": 29.055123
+      },
+      "norsumm_nob_nno_translation": {
+        "0": 64.355693,
+        "1": 71.953938,
+        "5": 73.576026
+      },
+      "norsumm_nno_nob_translation": {
+        "0": 71.036309,
+        "1": 81.292663,
+        "5": 82.99926
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": 17.491133,
+        "1": 0.289806,
+        "5": 0.029091
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": 19.457359,
+        "1": 0.127017,
+        "5": 0.032755
+      },
+      "nortruthfulqa_mc_nno": {
+        "0": 0.389474,
+        "1": 0.4,
+        "5": 0.392982
+      },
+      "nortruthfulqa_mc_nob": {
+        "0": 0.395492,
+        "1": 0.344672,
+        "5": 0.392623
+      },
+      "nrk_quiz_qa_nno": {
+        "0": 0.432481,
+        "1": 0.519398,
+        "5": 0.548872
+      },
+      "nrk_quiz_qa_nob": {
+        "0": 0.402444,
+        "1": 0.477167,
+        "5": 0.497333
+      },
+      "slide": {
+        "0": 0.432317,
+        "1": 0.377755,
+        "5": 0.566935
+      },
+      "tatoeba_eng_nno": {
+        "0": 38.679053,
+        "1": 44.722958,
+        "5": 44.447655
+      },
+      "tatoeba_eng_nob": {
+        "0": 33.17571,
+        "1": 56.539093,
+        "5": 57.312457
+      },
+      "tatoeba_nno_eng": {
+        "0": 37.459579,
+        "1": 54.744539,
+        "5": 57.092165
+      },
+      "tatoeba_nob_eng": {
+        "0": 23.821395,
+        "1": 57.501108,
+        "5": 59.386208
+      },
+      "tatoeba_nob_sme": {
+        "0": 7.843474,
+        "1": 14.646237,
+        "5": 20.669225
+      },
+      "tatoeba_sme_nob": {
+        "0": 21.760055,
+        "1": 43.619865,
+        "5": 55.444929
+      }
+    }
+  }
+}

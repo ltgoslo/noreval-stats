@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NorEval Benchmark Results</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+</head>
+<body>
+    <header>
+        <h1>NorEval Benchmark Results</h1>
+        <p class="subtitle">Norwegian language model evaluation with <a href="https://github.com/EleutherAI/lm-evaluation-harness">lm-eval-harness</a> v0.4.10</p>
+    </header>
+
+    <main>
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="comparison">Model Comparison</button>
+            <button class="tab-btn" data-tab="progress">Training Progress</button>
+        </nav>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="task-select">Task:</label>
+                <select id="task-select">
+                    <option value="__all__">All (Aggregate)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Shots:</label>
+                <div class="shot-toggle">
+                    <button class="shot-btn" data-shot="0">0-shot</button>
+                    <button class="shot-btn" data-shot="1">1-shot</button>
+                    <button class="shot-btn active" data-shot="5">5-shot</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="chart-container">
+            <div id="chart"></div>
+        </div>
+
+        <div id="task-checkboxes" class="task-checkboxes">
+            <div class="checkbox-header">
+                <h3>Tasks included in aggregation:</h3>
+                <div class="checkbox-actions">
+                    <button id="select-all-btn" class="small-btn">Select all</button>
+                    <button id="select-none-btn" class="small-btn">Select none</button>
+                </div>
+            </div>
+            <div id="checkbox-grid" class="checkbox-grid"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Evaluated on NVIDIA GH200 120GB GPUs with fixed seeds for reproducibility.
+        Scores averaged across prompt variants. Normalized scores: 0 = random baseline, 100 = perfect.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

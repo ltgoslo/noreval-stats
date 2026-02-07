@@ -1,0 +1,204 @@
+ask_gec:
+  pretty_name: grammar correction
+  main_metric: errant_f05
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: unit
+ncb:
+  pretty_name: comma benchmark
+  main_metric: acc
+  random_baseline: 0.5
+  category: Language Understanding
+  metric_scale: unit
+nocola:
+  pretty_name: linguistic acceptability
+  main_metric: acc
+  random_baseline: 0.5
+  category: Language Understanding
+  metric_scale: unit
+norbelebele:
+  pretty_name: reading comprehension (belebele)
+  main_metric: acc
+  random_baseline: 0.25
+  category: Knowledge & Reasoning
+  metric_scale: unit
+norcommonsenseqa_nno:
+  pretty_name: commonsense QA
+  main_metric: acc
+  random_baseline: 0.2
+  category: Knowledge & Reasoning
+  metric_scale: unit
+norcommonsenseqa_nob:
+  pretty_name: commonsense QA
+  main_metric: acc
+  random_baseline: 0.2
+  category: Knowledge & Reasoning
+  metric_scale: unit
+norec_document:
+  pretty_name: sentiment analysis (document)
+  main_metric: f1
+  random_baseline: 0.5
+  category: Sentiment Analysis
+  metric_scale: unit
+norec_sentence:
+  pretty_name: sentiment analysis (sentence)
+  main_metric: f1
+  random_baseline: 0.5
+  category: Sentiment Analysis
+  metric_scale: unit
+noridiom_nno:
+  pretty_name: idiom completion
+  main_metric: em
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: unit
+noridiom_nob:
+  pretty_name: idiom completion
+  main_metric: em
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: unit
+noropenbookqa_nno:
+  pretty_name: reading comprehension (openbookqa)
+  main_metric: acc
+  random_baseline: 0.25
+  category: Knowledge & Reasoning
+  metric_scale: unit
+noropenbookqa_nob:
+  pretty_name: reading comprehension (openbookqa)
+  main_metric: acc
+  random_baseline: 0.25
+  category: Knowledge & Reasoning
+  metric_scale: unit
+noropenbookqa_no_fact_nno:
+  pretty_name: openbook QA
+  main_metric: acc
+  random_baseline: 0.25
+  category: Knowledge & Reasoning
+  metric_scale: unit
+noropenbookqa_no_fact_nob:
+  pretty_name: openbook QA
+  main_metric: acc
+  random_baseline: 0.25
+  category: Knowledge & Reasoning
+  metric_scale: unit
+norquad:
+  pretty_name: reading comprehension (norquad)
+  main_metric: f1
+  random_baseline: 0.0
+  category: Language Understanding
+  metric_scale: unit
+norrewrite_instruct:
+  pretty_name: instruction-following
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: percent
+norsummarize_instruct:
+  pretty_name: summarization (instructed)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: percent
+norsumm_nob:
+  pretty_name: summarization
+  main_metric: rougeL_max
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: percent
+norsumm_nno:
+  pretty_name: summarization
+  main_metric: rougeL_max
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: percent
+norsumm_nob_nno_translation:
+  pretty_name: translation (NOB-NNO)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+norsumm_nno_nob_translation:
+  pretty_name: translation (NOB-NNO)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+nortruthfulqa_gen_nno:
+  pretty_name: truthful QA (generative)
+  main_metric: rougeL_max
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: percent
+nortruthfulqa_gen_nob:
+  pretty_name: truthful QA (generative)
+  main_metric: rougeL_max
+  random_baseline: 0.0
+  category: Generation & Summarization
+  metric_scale: percent
+nortruthfulqa_mc_nno:
+  pretty_name: truthful QA
+  main_metric: acc
+  random_baseline: 0.23311814890762259
+  category: Knowledge & Reasoning
+  metric_scale: unit
+nortruthfulqa_mc_nob:
+  pretty_name: truthful QA
+  main_metric: acc
+  random_baseline: 0.23170337745132827
+  category: Knowledge & Reasoning
+  metric_scale: unit
+nrk_quiz_qa_nno:
+  pretty_name: NRK quiz
+  main_metric: acc
+  random_baseline: 0.27884711779448623
+  category: Knowledge & Reasoning
+  metric_scale: unit
+nrk_quiz_qa_nob:
+  pretty_name: NRK quiz
+  main_metric: acc
+  random_baseline: 0.2836296296296296
+  category: Knowledge & Reasoning
+  metric_scale: unit
+slide:
+  pretty_name: Scandinavian LID
+  main_metric: acc
+  random_baseline: 0.21289208633093526
+  category: Language ID
+  metric_scale: unit
+tatoeba_eng_nno:
+  pretty_name: translation (ENG-NNO)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+tatoeba_eng_nob:
+  pretty_name: translation (ENG-NOB)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+tatoeba_nno_eng:
+  pretty_name: translation (NNO-ENG)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+tatoeba_nob_eng:
+  pretty_name: translation (NOB-ENG)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+tatoeba_nob_sme:
+  pretty_name: translation (NOB-SME)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent
+tatoeba_sme_nob:
+  pretty_name: translation (SME-NOB)
+  main_metric: bleu
+  random_baseline: 0.0
+  category: Translation
+  metric_scale: percent

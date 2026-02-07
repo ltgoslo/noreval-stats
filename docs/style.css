@@ -1,0 +1,253 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a2e;
+  --accent: #0f3460;
+  --accent-light: #e2e8f0;
+  --border: #cbd5e0;
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+header {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+header h1 {
+  font-size: 1.8rem;
+  color: var(--accent);
+}
+
+.subtitle {
+  color: #666;
+  margin-top: 0.3rem;
+}
+
+.subtitle a {
+  color: var(--accent);
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Tab navigation */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--accent);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--accent-light);
+  border-radius: 8px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+#task-select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  min-width: 280px;
+}
+
+/* Shot toggle */
+.shot-toggle {
+  display: flex;
+  gap: 0;
+}
+
+.shot-btn {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.shot-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.shot-btn:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.shot-btn:not(:first-child) {
+  border-left: none;
+}
+
+.shot-btn:hover {
+  background: #f0f0f0;
+}
+
+.shot-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Chart */
+#chart-container {
+  min-height: 500px;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+/* Task checkboxes */
+.task-checkboxes {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.checkbox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.checkbox-header h3 {
+  font-size: 1rem;
+}
+
+.checkbox-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.small-btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.small-btn:hover {
+  background: var(--accent-light);
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+}
+
+.checkbox-category h4 {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2rem;
+}
+
+.checkbox-category label {
+  display: block;
+  padding: 0.15rem 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.checkbox-category label:hover {
+  background: var(--accent-light);
+  border-radius: 3px;
+  padding-left: 0.25rem;
+}
+
+.checkbox-category input[type="checkbox"] {
+  margin-right: 0.3rem;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #888;
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  #task-select {
+    min-width: 100%;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+  }
+}
