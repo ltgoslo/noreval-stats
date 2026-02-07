@@ -1,0 +1,6 @@
+# Per-sample prediction logs (large, not needed for visualization)
+**/samples_*.jsonl
+
+# Python
+__pycache__/
+*.pyc
