@@ -2,7 +2,7 @@
 """Build consolidated data.json from NorEval evaluation results.
 
 Reads metrics_setup.yaml and all result JSONs from results/ and
-NorOLMo_progress/, extracting the main_metric averaged across prompt
+NorOLMo_progress/, extracting the best main_metric across prompt
 variants for each (model, benchmark, shot) combination.
 
 Output: docs/data.json
@@ -120,10 +120,10 @@ def find_latest_results_json(directory):
 
 
 def extract_benchmark_score(results_json_path, benchmark_name, main_metric):
-    """Extract the average main_metric across all prompt variants.
+    """Extract the best main_metric across all prompt variants.
 
-    Handles both single-prompt benchmarks (key = benchmark_name) and
-    multi-prompt benchmarks (keys = benchmark_name_p0, _p1, ...).
+    For multi-prompt benchmarks, returns the maximum score across variants
+    (best prompt). For single-prompt benchmarks, returns the single score.
     """
     with open(results_json_path) as f:
         data = json.load(f)
@@ -141,7 +141,7 @@ def extract_benchmark_score(results_json_path, benchmark_name, main_metric):
 
     if not values:
         return None
-    return sum(values) / len(values)
+    return max(values)
 
 
 def process_model_dir(model_path, metrics_setup):
@@ -212,11 +212,15 @@ def main():
             scores = process_model_dir(str(ckpt_path), metrics_setup)
             progress[step] = scores
 
+    # Nynorsk benchmarks (those containing "_nno" in their name)
+    nno_benchmarks = [b for b in metrics_setup if "_nno" in b]
+
     # Build output
     output = {
         "metrics_setup": build_metrics_info(metrics_setup),
         "task_groups": TASK_GROUPS,
         "standalone_benchmarks": STANDALONE_BENCHMARKS,
+        "nno_benchmarks": sorted(nno_benchmarks),
         "model_display_names": MODEL_DISPLAY_NAMES,
         "models": models,
         "progress": progress,

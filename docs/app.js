@@ -37,7 +37,7 @@ async function init() {
   populateTaskDropdown();
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
   bindEventListeners();
-  updateCheckboxes();
+  buildCheckboxes();
   renderChart();
 }
 
@@ -56,9 +56,9 @@ function populateTaskDropdown() {
     categories[cat].push(bench);
   }
 
-  // Category aggregate options
+  // "Aggregate by Category" optgroup
   const catGroup = document.createElement("optgroup");
-  catGroup.label = "By Category";
+  catGroup.label = "Aggregate by Category";
   for (const catName of Object.keys(categories).sort()) {
     const opt = document.createElement("option");
     opt.value = "__cat__" + catName;
@@ -67,33 +67,41 @@ function populateTaskDropdown() {
   }
   select.appendChild(catGroup);
 
-  // Individual task groups (paired benchmarks)
-  const taskGroup = document.createElement("optgroup");
-  taskGroup.label = "Individual Tasks (Paired)";
-  const addedBenchmarks = new Set();
-  for (const [groupName, group] of Object.entries(DATA.task_groups)) {
-    const opt = document.createElement("option");
-    opt.value = "__group__" + groupName;
-    opt.textContent = groupName;
-    taskGroup.appendChild(opt);
-    group.benchmarks.forEach((b) => addedBenchmarks.add(b));
-  }
-  select.appendChild(taskGroup);
+  // "Aggregate by Language" optgroup
+  const langGroup = document.createElement("optgroup");
+  langGroup.label = "Aggregate by Language";
+  const nobOpt = document.createElement("option");
+  nobOpt.value = "__lang__nob";
+  nobOpt.textContent = "Bokm\u00e5l";
+  langGroup.appendChild(nobOpt);
+  const nnoOpt = document.createElement("option");
+  nnoOpt.value = "__lang__nno";
+  nnoOpt.textContent = "Nynorsk";
+  langGroup.appendChild(nnoOpt);
+  select.appendChild(langGroup);
 
-  // Standalone benchmarks
-  const standaloneGroup = document.createElement("optgroup");
-  standaloneGroup.label = "Individual Tasks (Single)";
+  // "Individual Tasks" optgroup — all groups + standalone, sorted
+  const taskGroup = document.createElement("optgroup");
+  taskGroup.label = "Individual Tasks";
+
+  const entries = [];
+  for (const groupName of Object.keys(DATA.task_groups)) {
+    entries.push({ value: "__group__" + groupName, label: groupName });
+  }
   for (const bench of DATA.standalone_benchmarks) {
-    if (addedBenchmarks.has(bench)) continue;
     const info = DATA.metrics_setup[bench];
     if (!info) continue;
-    const opt = document.createElement("option");
-    opt.value = bench;
-    opt.textContent = info.pretty_name;
-    standaloneGroup.appendChild(opt);
-    addedBenchmarks.add(bench);
+    entries.push({ value: bench, label: info.pretty_name });
   }
-  select.appendChild(standaloneGroup);
+  entries.sort((a, b) => a.label.localeCompare(b.label));
+
+  for (const entry of entries) {
+    const opt = document.createElement("option");
+    opt.value = entry.value;
+    opt.textContent = entry.label;
+    taskGroup.appendChild(opt);
+  }
+  select.appendChild(taskGroup);
 }
 
 // ============================================================
@@ -121,63 +129,74 @@ function bindEventListeners() {
 
   document.getElementById("task-select").addEventListener("change", (e) => {
     currentTaskSelection = e.target.value;
-    updateCheckboxes();
+    if (isAggregateSelection(currentTaskSelection)) {
+      checkedTasks = new Set(getBenchmarksForSelection(currentTaskSelection));
+      syncCheckboxStates();
+    }
     renderChart();
   });
 
   document.getElementById("select-all-btn").addEventListener("click", () => {
-    const benchmarks = getActiveBenchmarks();
-    checkedTasks = new Set(benchmarks);
-    updateCheckboxStates();
+    checkedTasks = new Set(Object.keys(DATA.metrics_setup));
+    syncCheckboxStates();
     renderChart();
   });
 
   document.getElementById("select-none-btn").addEventListener("click", () => {
     checkedTasks.clear();
-    updateCheckboxStates();
+    syncCheckboxStates();
     renderChart();
   });
 }
 
 // ============================================================
-// Checkbox management
+// Selection helpers
 // ============================================================
 
-function getActiveBenchmarks() {
-  if (currentTaskSelection === "__all__") {
+function isAggregateSelection(sel) {
+  return (
+    sel === "__all__" ||
+    sel.startsWith("__cat__") ||
+    sel.startsWith("__lang__")
+  );
+}
+
+function getBenchmarksForSelection(sel) {
+  if (sel === "__all__") {
     return Object.keys(DATA.metrics_setup);
   }
-  if (currentTaskSelection.startsWith("__cat__")) {
-    const catName = currentTaskSelection.slice(7);
+  if (sel.startsWith("__cat__")) {
+    const catName = sel.slice(7);
     return Object.keys(DATA.metrics_setup).filter(
       (b) => DATA.metrics_setup[b].category === catName
     );
   }
+  if (sel === "__lang__nno") {
+    return DATA.nno_benchmarks || [];
+  }
+  if (sel === "__lang__nob") {
+    const nno = new Set(DATA.nno_benchmarks || []);
+    return Object.keys(DATA.metrics_setup).filter((b) => !nno.has(b));
+  }
   return [];
 }
 
-function updateCheckboxes() {
-  const container = document.getElementById("task-checkboxes");
+// ============================================================
+// Checkboxes — always visible, all 34 benchmarks
+// ============================================================
+
+function buildCheckboxes() {
   const grid = document.getElementById("checkbox-grid");
-  const isAggregate =
-    currentTaskSelection === "__all__" ||
-    currentTaskSelection.startsWith("__cat__");
+  grid.innerHTML = "";
 
-  container.style.display = isAggregate ? "block" : "none";
-  if (!isAggregate) return;
-
-  const benchmarks = getActiveBenchmarks();
-  checkedTasks = new Set(benchmarks);
-
-  // Group by category
+  // Group all benchmarks by category
   const grouped = {};
-  for (const bench of benchmarks) {
-    const cat = DATA.metrics_setup[bench].category;
+  for (const [bench, info] of Object.entries(DATA.metrics_setup)) {
+    const cat = info.category;
     if (!grouped[cat]) grouped[cat] = [];
     grouped[cat].push(bench);
   }
 
-  grid.innerHTML = "";
   for (const cat of Object.keys(grouped).sort()) {
     const catDiv = document.createElement("div");
     catDiv.className = "checkbox-category";
@@ -192,7 +211,7 @@ function updateCheckboxes() {
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.checked = true;
+      checkbox.checked = checkedTasks.has(bench);
       checkbox.dataset.bench = bench;
       checkbox.addEventListener("change", () => {
         if (checkbox.checked) checkedTasks.add(bench);
@@ -201,21 +220,33 @@ function updateCheckboxes() {
       });
 
       label.appendChild(checkbox);
-      label.appendChild(
-        document.createTextNode(
-          " " + info.pretty_name + " (" + info.main_metric + ")"
-        )
-      );
+      // Show benchmark key suffix for disambiguation (e.g. "commonsense QA (acc) [nno]")
+      let displayName = info.pretty_name + " (" + info.main_metric + ")";
+      if (bench.endsWith("_nno")) displayName += " [NNO]";
+      else if (bench.endsWith("_nob")) displayName += " [NOB]";
+      else if (bench.includes("_nno_")) displayName += " [NNO\u2192NOB]";
+      else if (bench.includes("_nob_") && bench.includes("translation"))
+        displayName += " [NOB\u2192NNO]";
+      else if (bench.startsWith("tatoeba_eng_nob")) displayName += " [ENG\u2192NOB]";
+      else if (bench.startsWith("tatoeba_nob_eng")) displayName += " [NOB\u2192ENG]";
+      else if (bench.startsWith("tatoeba_eng_nno")) displayName += " [ENG\u2192NNO]";
+      else if (bench.startsWith("tatoeba_nno_eng")) displayName += " [NNO\u2192ENG]";
+      else if (bench.startsWith("tatoeba_nob_sme")) displayName += " [NOB\u2192SME]";
+      else if (bench.startsWith("tatoeba_sme_nob")) displayName += " [SME\u2192NOB]";
+
+      label.appendChild(document.createTextNode(" " + displayName));
       catDiv.appendChild(label);
     }
     grid.appendChild(catDiv);
   }
 }
 
-function updateCheckboxStates() {
-  document.querySelectorAll("#checkbox-grid input[type=checkbox]").forEach((cb) => {
-    cb.checked = checkedTasks.has(cb.dataset.bench);
-  });
+function syncCheckboxStates() {
+  document
+    .querySelectorAll("#checkbox-grid input[type=checkbox]")
+    .forEach((cb) => {
+      cb.checked = checkedTasks.has(cb.dataset.bench);
+    });
 }
 
 // ============================================================
@@ -248,7 +279,7 @@ function renderChart() {
 
 function renderComparisonChart() {
   const sel = currentTaskSelection;
-  if (sel === "__all__" || sel.startsWith("__cat__")) {
+  if (isAggregateSelection(sel)) {
     renderAggregateBarChart();
   } else if (sel.startsWith("__group__")) {
     renderGroupedBarChart(sel.slice(9));
@@ -274,14 +305,11 @@ function renderAggregateBarChart() {
   for (const modelDir of modelNames) {
     let sum = 0,
       count = 0;
-    const details = [];
     for (const bench of checkedTasks) {
       const val = DATA.models[modelDir]?.[bench]?.[currentShot];
       if (val !== undefined) {
-        const norm = normalizeScore(val, bench);
-        sum += norm;
+        sum += normalizeScore(val, bench);
         count++;
-        details.push(DATA.metrics_setup[bench].pretty_name + ": " + norm.toFixed(1));
       }
     }
     const avg = count > 0 ? sum / count : 0;
@@ -307,16 +335,14 @@ function renderAggregateBarChart() {
     hoverinfo: "text",
   };
 
-  const selLabel =
-    currentTaskSelection === "__all__"
-      ? "All Tasks"
-      : currentTaskSelection.slice(7);
+  const selLabel = getAggregateLabel();
+  const yMax = computeYMax(scores);
 
   const layout = {
     title: selLabel + " \u2014 Normalized Aggregate (" + currentShot + "-shot)",
     yaxis: {
       title: "Normalized Score",
-      range: [0, Math.max(105, ...scores.map((s) => s + 5))],
+      range: [0, yMax],
     },
     xaxis: { title: "" },
     margin: { b: 120, t: 60 },
@@ -332,11 +358,12 @@ function renderGroupedBarChart(groupName) {
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
 
+  const allValues = [];
   const traces = group.benchmarks.map((bench, i) => {
-    const info = DATA.metrics_setup[bench];
     const values = modelNames.map(
       (m) => DATA.models[m]?.[bench]?.[currentShot] ?? null
     );
+    allValues.push(...values.filter((v) => v !== null));
     return {
       x: labels,
       y: values,
@@ -350,15 +377,12 @@ function renderGroupedBarChart(groupName) {
   });
 
   const info = DATA.metrics_setup[group.benchmarks[0]];
+  const yMax = computeYMax(allValues);
+
   const layout = {
     title:
-      groupName +
-      " (" +
-      currentShot +
-      "-shot, " +
-      info.main_metric +
-      ")",
-    yaxis: { title: info.main_metric },
+      groupName + " (" + currentShot + "-shot, " + info.main_metric + ")",
+    yaxis: { title: info.main_metric, range: [0, yMax] },
     barmode: "group",
     margin: { b: 120, t: 60 },
   };
@@ -375,6 +399,8 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const values = modelNames.map(
     (m) => DATA.models[m]?.[benchmark]?.[currentShot] ?? null
   );
+
+  const yMax = computeYMax(values.filter((v) => v !== null));
 
   const trace = {
     x: labels,
@@ -394,7 +420,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
       "-shot, " +
       info.main_metric +
       ")",
-    yaxis: { title: info.main_metric },
+    yaxis: { title: info.main_metric, range: [0, yMax] },
     margin: { b: 120, t: 60 },
   };
 
@@ -407,7 +433,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
 
 function renderProgressChart() {
   const sel = currentTaskSelection;
-  if (sel === "__all__" || sel.startsWith("__cat__")) {
+  if (isAggregateSelection(sel)) {
     renderAggregateProgressChart();
   } else if (sel.startsWith("__group__")) {
     renderGroupProgressChart(sel.slice(9));
@@ -447,22 +473,17 @@ function renderAggregateProgressChart() {
     hovertemplate: "Step %{x}<br>Score: %{y:.1f}<extra></extra>",
   };
 
-  const selLabel =
-    currentTaskSelection === "__all__"
-      ? "All Tasks"
-      : currentTaskSelection.slice(7);
+  const selLabel = getAggregateLabel();
+  const validScores = scores.filter((s) => s !== null);
+  const yMax = computeYMax(validScores);
 
   const layout = {
     title:
-      "Training Progress \u2014 " +
-      selLabel +
-      " (" +
-      currentShot +
-      "-shot)",
+      "Training Progress \u2014 " + selLabel + " (" + currentShot + "-shot)",
     xaxis: { title: "Training Step", dtick: 5000 },
     yaxis: {
       title: "Normalized Score",
-      range: [0, 100],
+      range: [0, yMax],
     },
     margin: { t: 60 },
   };
@@ -475,19 +496,28 @@ function renderGroupProgressChart(groupName) {
   if (!group) return;
 
   const steps = getSteps();
+  const allValues = [];
 
-  const traces = group.benchmarks.map((bench, i) => ({
-    x: steps,
-    y: steps.map((s) => DATA.progress[s]?.[bench]?.[currentShot] ?? null),
-    mode: "lines+markers",
-    name: group.labels[i],
-    line: { width: 2 },
-    marker: { size: 5 },
-    hovertemplate:
-      group.labels[i] + "<br>Step %{x}: %{y}<extra></extra>",
-  }));
+  const traces = group.benchmarks.map((bench, i) => {
+    const ys = steps.map(
+      (s) => DATA.progress[s]?.[bench]?.[currentShot] ?? null
+    );
+    allValues.push(...ys.filter((v) => v !== null));
+    return {
+      x: steps,
+      y: ys,
+      mode: "lines+markers",
+      name: group.labels[i],
+      line: { width: 2 },
+      marker: { size: 5 },
+      hovertemplate:
+        group.labels[i] + "<br>Step %{x}: %{y}<extra></extra>",
+    };
+  });
 
   const info = DATA.metrics_setup[group.benchmarks[0]];
+  const yMax = computeYMax(allValues);
+
   const layout = {
     title:
       "Training Progress \u2014 " +
@@ -498,7 +528,7 @@ function renderGroupProgressChart(groupName) {
       info.main_metric +
       ")",
     xaxis: { title: "Training Step", dtick: 5000 },
-    yaxis: { title: info.main_metric },
+    yaxis: { title: info.main_metric, range: [0, yMax] },
     margin: { t: 60 },
   };
 
@@ -510,11 +540,16 @@ function renderSingleProgressChart(benchmark) {
   if (!info) return;
 
   const steps = getSteps();
+  const ys = steps.map(
+    (s) => DATA.progress[s]?.[benchmark]?.[currentShot] ?? null
+  );
+
+  const validYs = ys.filter((v) => v !== null);
+  const yMax = computeYMax(validYs);
+
   const trace = {
     x: steps,
-    y: steps.map(
-      (s) => DATA.progress[s]?.[benchmark]?.[currentShot] ?? null
-    ),
+    y: ys,
     mode: "lines+markers",
     name: info.pretty_name,
     line: { color: MODEL_COLORS[0], width: 2 },
@@ -532,7 +567,7 @@ function renderSingleProgressChart(benchmark) {
       info.main_metric +
       ")",
     xaxis: { title: "Training Step", dtick: 5000 },
-    yaxis: { title: info.main_metric },
+    yaxis: { title: info.main_metric, range: [0, yMax] },
     margin: { t: 60 },
   };
 
@@ -549,6 +584,23 @@ function formatScore(value, benchmark) {
     return value.toFixed(1);
   }
   return value.toFixed(3);
+}
+
+function computeYMax(values) {
+  if (!values.length) return 1;
+  const maxVal = Math.max(...values);
+  // Add 15% headroom, minimum 0.05 absolute padding
+  const padding = Math.max(maxVal * 0.15, 0.05);
+  return maxVal + padding;
+}
+
+function getAggregateLabel() {
+  const sel = currentTaskSelection;
+  if (sel === "__all__") return "All Tasks";
+  if (sel.startsWith("__cat__")) return sel.slice(7);
+  if (sel === "__lang__nob") return "Bokm\u00e5l Tasks";
+  if (sel === "__lang__nno") return "Nynorsk Tasks";
+  return "Aggregate";
 }
 
 // ============================================================
