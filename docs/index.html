@@ -38,6 +38,24 @@
                     <button class="shot-btn active" data-shot="5">5-shot</button>
                 </div>
             </div>
+
+            <div class="control-group">
+                <label>Prompts:</label>
+                <div class="toggle-group">
+                    <button class="prompt-agg-btn active" data-agg="max">max</button>
+                    <button class="prompt-agg-btn" data-agg="mean">mean</button>
+                    <button class="prompt-agg-btn" data-agg="median">median</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Normalization:</label>
+                <div class="toggle-group">
+                    <button class="norm-btn" data-norm="none">none</button>
+                    <button class="norm-btn active" data-norm="baseline">baseline</button>
+                    <button class="norm-btn" data-norm="minmax">min-max</button>
+                </div>
+            </div>
         </div>
 
         <div id="task-description" class="task-description" style="display:none;"></div>
@@ -60,6 +78,10 @@
         <div id="model-checkboxes" class="model-checkboxes">
             <div class="checkbox-header">
                 <h3>Models</h3>
+                <div class="checkbox-actions">
+                    <button id="model-select-all-btn" class="small-btn">Select all</button>
+                    <button id="model-select-none-btn" class="small-btn">Select none</button>
+                </div>
             </div>
             <div id="model-checkbox-grid" class="model-checkbox-grid"></div>
         </div>
@@ -67,7 +89,7 @@
 
     <footer>
         <p>Evaluated on NVIDIA GH200 120GB GPUs with fixed seeds for reproducibility.
-        Best score across prompt variants reported. Normalized scores: 0 = random baseline, 100 = perfect.</p>
+        Best score across prompt variants reported by default. Normalized scores: 0 = random baseline, 100 = perfect.</p>
     </footer>
 
     <script src="app.js"></script>

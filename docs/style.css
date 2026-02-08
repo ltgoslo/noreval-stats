@@ -132,13 +132,16 @@ main {
   box-shadow: 0 0 0 2px var(--accent-light);
 }
 
-/* Shot toggle */
-.shot-toggle {
+/* Toggle button groups (shots, prompts, normalization) */
+.shot-toggle,
+.toggle-group {
   display: flex;
   gap: 0;
 }
 
-.shot-btn {
+.shot-btn,
+.prompt-agg-btn,
+.norm-btn {
   padding: 0.35rem 0.85rem;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -150,31 +153,37 @@ main {
   transition: all 0.15s;
 }
 
-.shot-btn:first-child {
+.shot-btn:first-child,
+.prompt-agg-btn:first-child,
+.norm-btn:first-child {
   border-radius: 6px 0 0 6px;
 }
 
-.shot-btn:last-child {
+.shot-btn:last-child,
+.prompt-agg-btn:last-child,
+.norm-btn:last-child {
   border-radius: 0 6px 6px 0;
 }
 
-.shot-btn:not(:first-child) {
+.shot-btn:not(:first-child),
+.prompt-agg-btn:not(:first-child),
+.norm-btn:not(:first-child) {
   border-left: none;
 }
 
-.shot-btn:hover {
+.shot-btn:hover,
+.prompt-agg-btn:hover,
+.norm-btn:hover {
   background: var(--accent-light);
   color: var(--accent);
 }
 
-.shot-btn.active {
+.shot-btn.active,
+.prompt-agg-btn.active,
+.norm-btn.active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
-}
-
-.shot-btn.active + .shot-btn {
-  border-left: none;
 }
 
 /* Task description */

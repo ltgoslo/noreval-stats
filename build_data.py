@@ -2,8 +2,8 @@
 """Build consolidated data.json from NorEval evaluation results.
 
 Reads metrics_setup.yaml and all result JSONs from results/ and
-NorOLMo_progress/, extracting the best main_metric across prompt
-variants for each (model, benchmark, shot) combination.
+NorOLMo_progress/, extracting prompt-variant aggregation stats
+(max, mean, median) for each (model, benchmark, shot) combination.
 
 Output: docs/data.json
 """
@@ -11,6 +11,7 @@ Output: docs/data.json
 import json
 import os
 import glob
+import statistics
 from pathlib import Path
 
 import yaml
@@ -114,12 +115,7 @@ def load_metrics_setup():
 
 
 def find_latest_results_json(directory):
-    """Find the newest results_*.json file under directory (recursive).
-
-    Handles multiple sanitized-name subdirectories by searching recursively.
-    Picks the latest file by sorting on filename (timestamp-based names
-    sort lexicographically).
-    """
+    """Find the newest results_*.json file under directory (recursive)."""
     pattern = os.path.join(directory, "**", "results_*.json")
     files = glob.glob(pattern, recursive=True)
     if not files:
@@ -128,11 +124,10 @@ def find_latest_results_json(directory):
     return files[-1]
 
 
-def extract_benchmark_score(results_json_path, benchmark_name, main_metric):
-    """Extract the best main_metric across all prompt variants.
+def extract_benchmark_scores(results_json_path, benchmark_name, main_metric):
+    """Extract max/mean/median of main_metric across all prompt variants.
 
-    For multi-prompt benchmarks, returns the maximum score across variants
-    (best prompt). For single-prompt benchmarks, returns the single score.
+    Returns dict {"max": ..., "mean": ..., "median": ...} or None.
     """
     with open(results_json_path) as f:
         data = json.load(f)
@@ -150,7 +145,11 @@ def extract_benchmark_score(results_json_path, benchmark_name, main_metric):
 
     if not values:
         return None
-    return max(values)
+    return {
+        "max": round(max(values), 6),
+        "mean": round(statistics.mean(values), 6),
+        "median": round(statistics.median(values), 6),
+    }
 
 
 def process_model_dir(model_path, metrics_setup):
@@ -166,9 +165,9 @@ def process_model_dir(model_path, metrics_setup):
             results_file = find_latest_results_json(shot_path)
             if results_file is None:
                 continue
-            score = extract_benchmark_score(results_file, benchmark, main_metric)
-            if score is not None:
-                bench_scores[shot_key] = round(score, 6)
+            agg = extract_benchmark_scores(results_file, benchmark, main_metric)
+            if agg is not None:
+                bench_scores[shot_key] = agg
         if bench_scores:
             scores[benchmark] = bench_scores
     return scores
@@ -227,7 +226,6 @@ def main():
     # Language benchmark lists
     nno_benchmarks = [b for b in metrics_setup if "_nno" in b]
     sme_benchmarks = [b for b in metrics_setup if "_sme" in b]
-    # Bokmål↔Nynorsk translation tasks belong to both language groups
     nob_nno_translation_benchmarks = [
         "norsumm_nob_nno_translation",
         "norsumm_nno_nob_translation",
