@@ -33,8 +33,8 @@ MODEL_DISPLAY_NAMES = {
     "normistral-11b-long": "NorMistral 11B Long",
     "olmo-2-13b (stage 1)": "OLMo-2 13B (stage 1)",
     "Apertus-8B-2509": "Apertus 8B",
-    "NorGPT-3B": "NorGPT 3B",
-    "NorLlama-3B": "NorLlama 3B",
+    "NorGPT-3B": "NTNU NorGPT 3B",
+    "NorLlama-3B": "NTNU NorLlama 8B",
     "NorwAI-Mistral-7B": "NorwAI Mistral 7B",
     "nb-gpt-j-6B": "NB-GPT-J 6B",
     # Multilingual models

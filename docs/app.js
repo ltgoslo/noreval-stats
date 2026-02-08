@@ -396,19 +396,18 @@ function buildCheckboxes() {
 }
 
 function onTaskCheckboxChange() {
-  // If exactly 1 task checked, switch to individual view
+  // If exactly 1 task checked, show as single benchmark
   if (checkedTasks.size === 1) {
     const bench = [...checkedTasks][0];
+    currentTaskSelection = bench;
+    // Update dropdown to closest matching entry
     const ddVal = findDropdownValueForBench(bench);
-    if (ddVal) {
-      currentTaskSelection = ddVal;
-      document.getElementById("task-select").value = ddVal;
-      autoSetNormalization();
-      renderChart();
-      return;
-    }
+    if (ddVal) document.getElementById("task-select").value = ddVal;
+    autoSetNormalization();
+    renderChart();
+    return;
   }
-  // If exactly 2 tasks that form a group, switch to group view
+  // If exactly 2 tasks that form a group, switch to paired group view
   if (checkedTasks.size === 2) {
     const arr = [...checkedTasks];
     for (const [gn, g] of Object.entries(DATA.task_groups)) {
@@ -450,6 +449,9 @@ function buildModelCheckboxes() {
   for (const modelDir of Object.keys(DATA.models)) {
     const cat = categories[modelDir] || "multilingual";
     groups[cat].push(modelDir);
+  }
+  for (const key of Object.keys(groups)) {
+    groups[key].sort((a, b) => getModelLabel(a).localeCompare(getModelLabel(b)));
   }
 
   const groupLabels = { norwegian: "Norwegian", multilingual: "Multilingual" };
@@ -530,14 +532,14 @@ function updateDescription() {
   if (desc) {
     descEl.appendChild(document.createTextNode(desc));
     if (url) {
-      descEl.appendChild(document.createTextNode(" "));
+      descEl.appendChild(document.createElement("br"));
+      const displayUrl = url.replace("https://huggingface.co/", "https://hf.co/");
       const link = document.createElement("a");
       link.href = url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "Dataset \u2197";
+      link.textContent = displayUrl;
       link.style.color = "var(--accent)";
-      link.style.textDecoration = "none";
       descEl.appendChild(link);
     }
   }
@@ -690,7 +692,7 @@ function renderGroupedBarChart(groupName) {
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     barmode: "group",
-    legend: { x: 0.01, y: 0.99, xanchor: "left", yanchor: "top",
+    legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
   });
   Plotly.newPlot("chart", dataTraces, layout, PLOTLY_CONFIG);

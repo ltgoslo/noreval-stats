@@ -541,8 +541,8 @@
     "normistral-11b-long": "NorMistral 11B Long",
     "olmo-2-13b (stage 1)": "OLMo-2 13B (stage 1)",
     "Apertus-8B-2509": "Apertus 8B",
-    "NorGPT-3B": "NorGPT 3B",
-    "NorLlama-3B": "NorLlama 3B",
+    "NorGPT-3B": "NTNU NorGPT 3B",
+    "NorLlama-3B": "NTNU NorLlama 8B",
     "NorwAI-Mistral-7B": "NorwAI Mistral 7B",
     "nb-gpt-j-6B": "NB-GPT-J 6B",
     "EuroLLM-22B-2512": "EuroLLM 22B",
@@ -3221,6 +3221,12 @@
           "mean": 0.0392,
           "median": 0.0523,
           "min": 0.004
+        },
+        "1": {
+          "max": 0.2536,
+          "mean": 0.22982,
+          "median": 0.229,
+          "min": 0.197
         },
         "5": {
           "max": 0.294,
@@ -9163,6 +9169,26 @@
       }
     },
     "Qwen3-8B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.3557,
+          "mean": 0.3278,
+          "median": 0.3324,
+          "min": 0.2867
+        },
+        "1": {
+          "max": 0.3721,
+          "mean": 0.36626,
+          "median": 0.3646,
+          "min": 0.3611
+        },
+        "5": {
+          "max": 0.3886,
+          "mean": 0.38364,
+          "median": 0.3823,
+          "min": 0.3802
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.721429,
@@ -10463,6 +10489,14 @@
       }
     },
     "gemma-3-27b-pt": {
+      "ask_gec": {
+        "5": {
+          "max": 0.5441,
+          "mean": 0.54052,
+          "median": 0.5415,
+          "min": 0.5332
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.859524,
