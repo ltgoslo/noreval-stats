@@ -26,11 +26,56 @@ SHOT_DIRS = {"0": "0-shot", "1": "1-shot", "5": "5-shot"}
 
 # Pretty display names for known models (fallback: directory name)
 MODEL_DISPLAY_NAMES = {
+    # Norwegian models
     "norolmo-13b": "NorOLMo 13B",
     "normistral-7b-warm": "NorMistral 7B",
     "normistral-11b-warm": "NorMistral 11B",
     "normistral-11b-long": "NorMistral 11B Long",
     "olmo-2-13b (stage 1)": "OLMo-2 13B (stage 1)",
+    "Apertus-8B-2509": "Apertus 8B",
+    "NorGPT-3B": "NorGPT 3B",
+    "NorLlama-3B": "NorLlama 3B",
+    "NorwAI-Mistral-7B": "NorwAI Mistral 7B",
+    "nb-gpt-j-6B": "NB-GPT-J 6B",
+    # Multilingual models
+    "EuroLLM-22B-2512": "EuroLLM 22B",
+    "EuroLLM-9B-2512": "EuroLLM 9B",
+    "gemma-3-12b-pt": "Gemma 3 12B",
+    "gemma-3-27b-pt": "Gemma 3 27B",
+    "Llama-3.1-8B": "Llama 3.1 8B",
+    "Mistral-7B-v0.1": "Mistral 7B",
+    "OLMo-2-1124-13B": "OLMo 2 13B",
+    "Olmo-3-1025-7B": "OLMo 3 7B",
+    "Olmo-3-1125-32B": "OLMo 3 32B",
+    "Qwen3-14B": "Qwen 3 14B",
+    "Qwen3-32B": "Qwen 3 32B",
+    "Qwen3-8B": "Qwen 3 8B",
+}
+
+# Model category: "norwegian" or "multilingual"
+MODEL_CATEGORIES = {
+    "norolmo-13b": "norwegian",
+    "normistral-7b-warm": "norwegian",
+    "normistral-11b-warm": "norwegian",
+    "normistral-11b-long": "norwegian",
+    "olmo-2-13b (stage 1)": "norwegian",
+    "Apertus-8B-2509": "norwegian",
+    "NorGPT-3B": "norwegian",
+    "NorLlama-3B": "norwegian",
+    "NorwAI-Mistral-7B": "norwegian",
+    "nb-gpt-j-6B": "norwegian",
+    "EuroLLM-22B-2512": "multilingual",
+    "EuroLLM-9B-2512": "multilingual",
+    "gemma-3-12b-pt": "multilingual",
+    "gemma-3-27b-pt": "multilingual",
+    "Llama-3.1-8B": "multilingual",
+    "Mistral-7B-v0.1": "multilingual",
+    "OLMo-2-1124-13B": "multilingual",
+    "Olmo-3-1025-7B": "multilingual",
+    "Olmo-3-1125-32B": "multilingual",
+    "Qwen3-14B": "multilingual",
+    "Qwen3-32B": "multilingual",
+    "Qwen3-8B": "multilingual",
 }
 
 # Models displayed by default (others unchecked until user enables them)
@@ -245,6 +290,7 @@ def main():
         "nob_nno_translation_benchmarks": sorted(nob_nno_translation_benchmarks),
         "shared_language_benchmarks": shared_language_benchmarks,
         "model_display_names": MODEL_DISPLAY_NAMES,
+        "model_categories": MODEL_CATEGORIES,
         "default_models": DEFAULT_MODELS,
         "models": models,
         "progress": progress,

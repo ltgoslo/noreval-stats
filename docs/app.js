@@ -89,7 +89,7 @@ function baselineNorm(raw, benchmark) {
 }
 
 /** Apply current normalization to a raw score.
- *  For min-max and z-score, pass allRaw = array of all raw scores for this benchmark. */
+ *  For min-max, z-score, and percentile, pass allRaw = array of all raw scores for this benchmark. */
 function applyNorm(raw, benchmark, allRaw) {
   if (currentNormalization === "none") return toDisplayScale(raw, benchmark);
   if (currentNormalization === "baseline") return baselineNorm(raw, benchmark);
@@ -104,6 +104,12 @@ function applyNorm(raw, benchmark, allRaw) {
     const std = Math.sqrt(allRaw.reduce((s, v) => s + (v - mean) ** 2, 0) / allRaw.length);
     return std === 0 ? 0 : (raw - mean) / std;
   }
+  if (currentNormalization === "percentile") {
+    if (!allRaw || allRaw.length < 2) return 50;
+    const below = allRaw.filter((v) => v < raw).length;
+    const equal = allRaw.filter((v) => v === raw).length;
+    return ((below + (equal - 1) / 2) / (allRaw.length - 1)) * 100;
+  }
   return toDisplayScale(raw, benchmark);
 }
 
@@ -111,6 +117,7 @@ function getNormYLabel() {
   if (currentNormalization === "baseline") return "normalized score (baseline=0, perfect=100)";
   if (currentNormalization === "minmax") return "normalized score (min-max across models)";
   if (currentNormalization === "zscore") return "z-score (standard deviations from mean)";
+  if (currentNormalization === "percentile") return "percentile rank (0=worst, 100=best)";
   return "score (0\u2013100)";
 }
 
@@ -438,26 +445,44 @@ function buildModelCheckboxes() {
   if (!grid) return;
   grid.innerHTML = "";
 
+  const categories = DATA.model_categories || {};
+  const groups = { norwegian: [], multilingual: [] };
   for (const modelDir of Object.keys(DATA.models)) {
-    const label = document.createElement("label");
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = checkedModels.has(modelDir);
-    checkbox.dataset.model = modelDir;
-    checkbox.addEventListener("change", () => {
-      if (checkbox.checked) checkedModels.add(modelDir);
-      else checkedModels.delete(modelDir);
-      renderChart();
-    });
+    const cat = categories[modelDir] || "multilingual";
+    groups[cat].push(modelDir);
+  }
 
-    const colorDot = document.createElement("span");
-    colorDot.className = "model-color-dot";
-    colorDot.style.backgroundColor = getModelColor(modelDir);
+  const groupLabels = { norwegian: "Norwegian", multilingual: "Multilingual" };
+  for (const groupKey of ["norwegian", "multilingual"]) {
+    if (groups[groupKey].length === 0) continue;
+    const catDiv = document.createElement("div");
+    catDiv.className = "model-category-group";
+    const h4 = document.createElement("h4");
+    h4.textContent = groupLabels[groupKey];
+    catDiv.appendChild(h4);
 
-    label.appendChild(checkbox);
-    label.appendChild(colorDot);
-    label.appendChild(document.createTextNode(" " + getModelLabel(modelDir)));
-    grid.appendChild(label);
+    for (const modelDir of groups[groupKey]) {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = checkedModels.has(modelDir);
+      checkbox.dataset.model = modelDir;
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) checkedModels.add(modelDir);
+        else checkedModels.delete(modelDir);
+        renderChart();
+      });
+
+      const colorDot = document.createElement("span");
+      colorDot.className = "model-color-dot";
+      colorDot.style.backgroundColor = getModelColor(modelDir);
+
+      label.appendChild(checkbox);
+      label.appendChild(colorDot);
+      label.appendChild(document.createTextNode(" " + getModelLabel(modelDir)));
+      catDiv.appendChild(label);
+    }
+    grid.appendChild(catDiv);
   }
 }
 
@@ -473,6 +498,9 @@ function syncModelCheckboxStates() {
 
 function renderChart() {
   updateDescription();
+  // Hide model checkboxes on progress tab (only one model)
+  const modelSection = document.getElementById("model-checkboxes");
+  if (modelSection) modelSection.style.display = currentTab === "progress" ? "none" : "";
   if (currentTab === "comparison") renderComparisonChart();
   else renderProgressChart();
 }
@@ -528,7 +556,7 @@ function renderAggregateBarChart() {
   const hoverTexts = [];
   const colors = modelNames.map(getModelColor);
 
-  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore";
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   for (const m of modelNames) {
     let sum = 0, count = 0;
     for (const bench of checkedTasks) {
@@ -577,34 +605,27 @@ function renderGroupedBarChart(groupName) {
     });
     const barColors = modelNames.map((m) => {
       const base = getModelColor(m);
-      return i === 0 ? lightenColor(base, 0.25) : darkenColor(base, 0.2);
+      return i === 0 ? base : darkenColor(base, 0.3);
     });
     return {
       x: labels, y: values, name: group.labels[i], type: "bar",
+      legendgroup: group.labels[i],
       marker: { color: barColors, line: { width: 0 } },
       text: values.map((v) => (v !== null ? v.toFixed(1) : "")), textposition: "outside",
       hovertemplate: "%{x}<br>" + group.labels[i] + ": %{y:.1f}<extra></extra>",
-      showlegend: false,
+      showlegend: true,
     };
   });
-
-  // Grey legend-only traces (scatter with empty data, placed AFTER bar traces
-  // so bars establish the categorical x-axis first)
-  const legendTraces = group.labels.map((lbl, i) => ({
-    x: [], y: [], type: "scatter", mode: "markers",
-    name: lbl,
-    marker: { color: i === 0 ? "#b0b0b0" : "#707070", size: 10, symbol: "square" },
-    showlegend: true,
-  }));
 
   const yMax = computeRawYMax_display(DATA.models, group.benchmarks);
   const layout = getPlotlyLayout({
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getMetricYLabel(bench0), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
     barmode: "group",
-    legend: { orientation: "h", y: -0.15 },
+    legend: { x: 0.01, y: 0.99, xanchor: "left", yanchor: "top",
+              bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
   });
-  Plotly.newPlot("chart", [...dataTraces, ...legendTraces], layout, PLOTLY_CONFIG);
+  Plotly.newPlot("chart", dataTraces, layout, PLOTLY_CONFIG);
 }
 
 function renderSingleBenchmarkBarChart(benchmark) {
@@ -657,25 +678,33 @@ function getSteps() {
 
 function renderAggregateProgressChart() {
   const steps = getSteps();
+  const allStepEntities = steps.map(String);
   const scores = steps.map((step) => {
     let sum = 0, count = 0;
     for (const bench of checkedTasks) {
       const raw = getScore(DATA.progress, step, bench, currentShot);
-      if (raw !== undefined) { sum += baselineNorm(raw, bench); count++; }
+      if (raw !== undefined) {
+        const allRaw = (currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile")
+          ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
+          : null;
+        sum += applyNorm(raw, bench, allRaw);
+        count++;
+      }
     }
     return count > 0 ? sum / count : null;
   });
 
+  const fmt = currentNormalization === "zscore" ? 2 : 1;
   const trace = {
     x: steps, y: scores, mode: "lines+markers", name: "NorOLMo",
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
-    hovertemplate: "Step %{x}<br>Score: %{y:.1f}<extra></extra>",
+    hovertemplate: "Step %{x}<br>Score: %{y:." + fmt + "f}<extra></extra>",
   };
-  const yMax = computeProgressAggregateYMax();
+  const yRange = computeProgressAggregateYRange();
   const layout = getPlotlyLayout({
-    title: { text: "training progress \u2014 " + getAggregateLabel() + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: "normalized score", range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
 }
@@ -700,7 +729,7 @@ function renderGroupProgressChart(groupName) {
 
   const yMax = computeRawYMax_display(DATA.progress, group.benchmarks);
   const layout = getPlotlyLayout({
-    title: { text: "training progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(bench0), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
@@ -722,7 +751,7 @@ function renderSingleProgressChart(benchmark) {
     hovertemplate: "Step %{x}: %{y:.1f}<extra></extra>",
   };
   const layout = getPlotlyLayout({
-    title: { text: "training progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(benchmark), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
@@ -751,7 +780,7 @@ function computeYRange(values) {
 function computeAggregateYRange(dataSource, benchmarks) {
   const allAvgs = [];
   const entities = Object.keys(dataSource);
-  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore";
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   for (const shot of ALL_SHOTS) {
     for (const entity of entities) {
       if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
@@ -803,21 +832,27 @@ function computeSingleYRange(dataSource, benchmark) {
   return computeYRange(vals);
 }
 
-function computeProgressAggregateYMax() {
+function computeProgressAggregateYRange() {
   const allAvgs = [];
+  const allStepEntities = Object.keys(DATA.progress);
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   for (const shot of ALL_SHOTS) {
-    for (const step of Object.keys(DATA.progress)) {
+    for (const step of allStepEntities) {
       let sum = 0, count = 0;
       for (const bench of checkedTasks) {
         const raw = getScore(DATA.progress, step, bench, shot);
-        if (raw !== undefined) { sum += baselineNorm(raw, bench); count++; }
+        if (raw !== undefined) {
+          const allRaw = needAllRaw
+            ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot)).filter((v) => v !== undefined)
+            : null;
+          sum += applyNorm(raw, bench, allRaw);
+          count++;
+        }
       }
       if (count > 0) allAvgs.push(sum / count);
     }
   }
-  if (!allAvgs.length) return 100;
-  const mx = Math.max(...allAvgs);
-  return Math.min(mx + Math.max(mx * 0.15, 2), 115);
+  return computeYRange(allAvgs);
 }
 
 function getAggregateLabel() {
