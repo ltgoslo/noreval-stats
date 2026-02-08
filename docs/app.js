@@ -17,12 +17,12 @@ const MODEL_COLORS = [
 ];
 
 const METRIC_DISPLAY = {
-  acc: "accuracy (0–100)",
-  f1: "F1 (0–100)",
-  em: "exact match (0–100)",
+  acc: "accuracy (0\u2013100)",
+  f1: "F1 (0\u2013100)",
+  em: "exact match (0\u2013100)",
   bleu: "BLEU",
   rougeL_max: "ROUGE-L",
-  errant_f05: "ERRANT F0.5 (0–100)",
+  errant_f05: "ERRANT F0.5 (0\u2013100)",
   chrf: "chrF",
 };
 
@@ -104,7 +104,7 @@ function applyNorm(raw, benchmark, allRaw) {
 function getNormYLabel() {
   if (currentNormalization === "baseline") return "normalized score (baseline=0, perfect=100)";
   if (currentNormalization === "minmax") return "normalized score (min-max across models)";
-  return "score (0–100)";
+  return "score (0\u2013100)";
 }
 
 function getMetricYLabel(benchmark) {
@@ -119,7 +119,7 @@ function autoSetNormalization() {
   } else {
     currentNormalization = "none";
   }
-  syncNormButtons();
+  document.getElementById("norm-select").value = currentNormalization;
 }
 
 // ============================================================
@@ -185,7 +185,7 @@ function populateTaskDropdown() {
 
   const langGroup = document.createElement("optgroup");
   langGroup.label = "Aggregate by Language";
-  for (const [val, label] of [["__lang__nob","Bokmål"],["__lang__nno","Nynorsk"],["__lang__sme","Northern Sámi"]]) {
+  for (const [val, label] of [["__lang__nob","Bokm\u00e5l"],["__lang__nno","Nynorsk"],["__lang__sme","Northern S\u00e1mi"]]) {
     const opt = document.createElement("option");
     opt.value = val; opt.textContent = label;
     langGroup.appendChild(opt);
@@ -233,22 +233,14 @@ function bindEventListeners() {
     });
   });
 
-  document.querySelectorAll(".prompt-agg-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelector(".prompt-agg-btn.active").classList.remove("active");
-      btn.classList.add("active");
-      currentPromptAgg = btn.dataset.agg;
-      renderChart();
-    });
+  document.getElementById("prompt-agg-select").addEventListener("change", (e) => {
+    currentPromptAgg = e.target.value;
+    renderChart();
   });
 
-  document.querySelectorAll(".norm-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelector(".norm-btn.active").classList.remove("active");
-      btn.classList.add("active");
-      currentNormalization = btn.dataset.norm;
-      renderChart();
-    });
+  document.getElementById("norm-select").addEventListener("change", (e) => {
+    currentNormalization = e.target.value;
+    renderChart();
   });
 
   document.getElementById("task-select").addEventListener("change", (e) => {
@@ -283,12 +275,6 @@ function bindEventListeners() {
   });
 }
 
-function syncNormButtons() {
-  document.querySelectorAll(".norm-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.norm === currentNormalization);
-  });
-}
-
 // ============================================================
 // Selection helpers
 // ============================================================
@@ -310,13 +296,15 @@ function getBenchmarksForSelection(sel) {
   if (sel === "__lang__nno") {
     const nno = new Set(DATA.nno_benchmarks || []);
     for (const b of (DATA.nob_nno_translation_benchmarks || [])) nno.add(b);
+    for (const b of (DATA.shared_language_benchmarks || [])) nno.add(b);
     return [...nno];
   }
   if (sel === "__lang__nob") {
     const nnoOnly = new Set(DATA.nno_benchmarks || []);
     const smeOnly = new Set(DATA.sme_benchmarks || []);
     const nobNno = new Set(DATA.nob_nno_translation_benchmarks || []);
-    return Object.keys(DATA.metrics_setup).filter((b) => (!nnoOnly.has(b) && !smeOnly.has(b)) || nobNno.has(b));
+    const shared = new Set(DATA.shared_language_benchmarks || []);
+    return Object.keys(DATA.metrics_setup).filter((b) => (!nnoOnly.has(b) && !smeOnly.has(b)) || nobNno.has(b) || shared.has(b));
   }
   if (sel === "__lang__sme") return DATA.sme_benchmarks || [];
   if (sel.startsWith("__group__")) {
@@ -344,10 +332,10 @@ function getCheckboxDisplayName(bench) {
   const info = DATA.metrics_setup[bench];
   let name = info.pretty_name;
   // Only add language tag if the pretty_name doesn't already disambiguate
-  const hasDirection = /[→↔]/.test(name) || /Bokmål|Nynorsk|English|Sámi/.test(name);
+  const hasDirection = /[\u2192\u2194]/.test(name) || /Bokm\u00e5l|Nynorsk|English|S\u00e1mi/.test(name);
   if (!hasDirection) {
     if (bench.endsWith("_nno")) name += " [Nynorsk]";
-    else if (bench.endsWith("_nob")) name += " [Bokmål]";
+    else if (bench.endsWith("_nob")) name += " [Bokm\u00e5l]";
   }
   return name;
 }
@@ -538,7 +526,6 @@ function renderAggregateBarChart() {
     for (const bench of checkedTasks) {
       const raw = getScore(DATA.models, m, bench, currentShot);
       if (raw !== undefined) {
-        // For aggregate, collect all model raws for minmax
         const allRaw = currentNormalization === "minmax"
           ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
           : null;
@@ -560,7 +547,7 @@ function renderAggregateBarChart() {
 
   const yMax = computeAggregateYMax(DATA.models, checkedTasks);
   const layout = getPlotlyLayout({
-    title: { text: getAggregateLabel() + " — aggregate (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: getAggregateLabel() + " \u2014 aggregate (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
     xaxis: { title: "" },
   });
@@ -592,11 +579,11 @@ function renderGroupedBarChart(groupName) {
     };
   });
 
-  // Grey legend-only traces
+  // Grey legend-only traces (scatter so they don't interfere with bar grouping)
   const legendTraces = group.labels.map((lbl, i) => ({
-    x: [null], y: [null], type: "bar",
+    x: [null], y: [null], type: "scatter", mode: "markers",
     name: lbl,
-    marker: { color: i === 0 ? "#b0b0b0" : "#707070" },
+    marker: { color: i === 0 ? "#b0b0b0" : "#707070", size: 10, symbol: "square" },
     showlegend: true,
   }));
 
@@ -673,7 +660,7 @@ function renderAggregateProgressChart() {
   };
   const yMax = computeProgressAggregateYMax();
   const layout = getPlotlyLayout({
-    title: { text: "training progress — " + getAggregateLabel() + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "training progress \u2014 " + getAggregateLabel() + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: "normalized score", range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
@@ -700,7 +687,7 @@ function renderGroupProgressChart(groupName) {
 
   const yMax = computeRawYMax_display(DATA.progress, group.benchmarks);
   const layout = getPlotlyLayout({
-    title: { text: "training progress — " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "training progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(bench0), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
@@ -722,7 +709,7 @@ function renderSingleProgressChart(benchmark) {
     hovertemplate: "Step %{x}: %{y:.1f}<extra></extra>",
   };
   const layout = getPlotlyLayout({
-    title: { text: "training progress — " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "training progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(benchmark), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
@@ -813,9 +800,9 @@ function getAggregateLabel() {
   if (sel === "__all__") return "all tasks";
   if (sel.startsWith("__cat__")) return sel.slice(7);
   if (sel.startsWith("__eval__")) return sel.slice(8) + " tasks";
-  if (sel === "__lang__nob") return "Bokmål tasks";
+  if (sel === "__lang__nob") return "Bokm\u00e5l tasks";
   if (sel === "__lang__nno") return "Nynorsk tasks";
-  if (sel === "__lang__sme") return "Northern Sámi tasks";
+  if (sel === "__lang__sme") return "Northern S\u00e1mi tasks";
   return "aggregate";
 }
 

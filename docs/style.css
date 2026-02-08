@@ -132,16 +132,13 @@ main {
   box-shadow: 0 0 0 2px var(--accent-light);
 }
 
-/* Toggle button groups (shots, prompts, normalization) */
-.shot-toggle,
-.toggle-group {
+/* Shot toggle buttons */
+.shot-toggle {
   display: flex;
   gap: 0;
 }
 
-.shot-btn,
-.prompt-agg-btn,
-.norm-btn {
+.shot-btn {
   padding: 0.35rem 0.85rem;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -153,37 +150,32 @@ main {
   transition: all 0.15s;
 }
 
-.shot-btn:first-child,
-.prompt-agg-btn:first-child,
-.norm-btn:first-child {
-  border-radius: 6px 0 0 6px;
-}
+.shot-btn:first-child { border-radius: 6px 0 0 6px; }
+.shot-btn:last-child { border-radius: 0 6px 6px 0; }
+.shot-btn:not(:first-child) { border-left: none; }
+.shot-btn:hover { background: var(--accent-light); color: var(--accent); }
 
-.shot-btn:last-child,
-.prompt-agg-btn:last-child,
-.norm-btn:last-child {
-  border-radius: 0 6px 6px 0;
-}
-
-.shot-btn:not(:first-child),
-.prompt-agg-btn:not(:first-child),
-.norm-btn:not(:first-child) {
-  border-left: none;
-}
-
-.shot-btn:hover,
-.prompt-agg-btn:hover,
-.norm-btn:hover {
-  background: var(--accent-light);
-  color: var(--accent);
-}
-
-.shot-btn.active,
-.prompt-agg-btn.active,
-.norm-btn.active {
+.shot-btn.active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
+}
+
+/* Small dropdown selectors (prompt agg, normalization) */
+.control-select {
+  padding: 0.35rem 0.5rem;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  outline: none;
+}
+
+.control-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
 }
 
 /* Task description */

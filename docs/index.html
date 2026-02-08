@@ -40,21 +40,22 @@
             </div>
 
             <div class="control-group">
-                <label>Prompts:</label>
-                <div class="toggle-group">
-                    <button class="prompt-agg-btn active" data-agg="max">max</button>
-                    <button class="prompt-agg-btn" data-agg="mean">mean</button>
-                    <button class="prompt-agg-btn" data-agg="median">median</button>
-                </div>
+                <label for="prompt-agg-select">Prompts:</label>
+                <select id="prompt-agg-select" class="control-select">
+                    <option value="max" selected>max</option>
+                    <option value="mean">mean</option>
+                    <option value="median">median</option>
+                    <option value="min">min</option>
+                </select>
             </div>
 
             <div class="control-group">
-                <label>Normalization:</label>
-                <div class="toggle-group">
-                    <button class="norm-btn" data-norm="none">none</button>
-                    <button class="norm-btn active" data-norm="baseline">baseline</button>
-                    <button class="norm-btn" data-norm="minmax">min-max</button>
-                </div>
+                <label for="norm-select">Normalization:</label>
+                <select id="norm-select" class="control-select">
+                    <option value="none">none</option>
+                    <option value="baseline" selected>random baseline</option>
+                    <option value="minmax">min-max</option>
+                </select>
             </div>
         </div>
 

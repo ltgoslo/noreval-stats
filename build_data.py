@@ -149,6 +149,7 @@ def extract_benchmark_scores(results_json_path, benchmark_name, main_metric):
         "max": round(max(values), 6),
         "mean": round(statistics.mean(values), 6),
         "median": round(statistics.median(values), 6),
+        "min": round(min(values), 6),
     }
 
 
@@ -231,6 +232,9 @@ def main():
         "norsumm_nno_nob_translation",
     ]
 
+    # Benchmarks that belong to both Bokmål and Nynorsk
+    shared_language_benchmarks = ["slide"]
+
     # Build output
     output = {
         "metrics_setup": build_metrics_info(metrics_setup),
@@ -239,6 +243,7 @@ def main():
         "nno_benchmarks": sorted(nno_benchmarks),
         "sme_benchmarks": sorted(sme_benchmarks),
         "nob_nno_translation_benchmarks": sorted(nob_nno_translation_benchmarks),
+        "shared_language_benchmarks": shared_language_benchmarks,
         "model_display_names": MODEL_DISPLAY_NAMES,
         "default_models": DEFAULT_MODELS,
         "models": models,
