@@ -6,18 +6,25 @@ let currentTab = "comparison";
 let currentShot = "5";
 let currentTaskSelection = "__all__";
 let checkedTasks = new Set();
+let checkedModels = new Set();
 
+// Modern, accessible color palette
 const MODEL_COLORS = [
-  "#1f77b4",
-  "#ff7f0e",
-  "#2ca02c",
-  "#d62728",
-  "#9467bd",
-  "#8c564b",
-  "#e377c2",
-  "#7f7f7f",
-  "#bcbd22",
-  "#17becf",
+  "#6366f1", // Indigo
+  "#f43f5e", // Rose
+  "#10b981", // Emerald
+  "#f59e0b", // Amber
+  "#8b5cf6", // Violet
+  "#06b6d4", // Cyan
+  "#ec4899", // Pink
+  "#84cc16", // Lime
+  "#14b8a6", // Teal
+  "#f97316", // Orange
+  "#3b82f6", // Blue
+  "#ef4444", // Red
+  "#22c55e", // Green
+  "#a855f7", // Purple
+  "#0ea5e9", // Sky
 ];
 
 const PLOTLY_CONFIG = {
@@ -27,6 +34,66 @@ const PLOTLY_CONFIG = {
 };
 
 // ============================================================
+// Color utilities
+// ============================================================
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return [r, g, b];
+}
+
+function rgbToHex(r, g, b) {
+  return (
+    "#" +
+    [r, g, b].map((x) => Math.round(x).toString(16).padStart(2, "0")).join("")
+  );
+}
+
+function lightenColor(hex, amount) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(
+    r + (255 - r) * amount,
+    g + (255 - g) * amount,
+    b + (255 - b) * amount
+  );
+}
+
+function darkenColor(hex, amount) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r * (1 - amount), g * (1 - amount), b * (1 - amount));
+}
+
+function getModelColor(modelDir) {
+  const allModels = Object.keys(DATA.models);
+  const idx = allModels.indexOf(modelDir);
+  return MODEL_COLORS[idx % MODEL_COLORS.length];
+}
+
+// ============================================================
+// Score display utilities
+// ============================================================
+
+/** Convert a raw stored score to the 0-100 display scale */
+function toDisplayScale(value, benchmark) {
+  const info = DATA.metrics_setup[benchmark];
+  if (info.metric_scale === "unit") {
+    return value * 100;
+  }
+  return value; // already 0-100
+}
+
+/** Normalize score: 0 = random baseline, 100 = perfect */
+function normalizeScore(rawScore, benchmark) {
+  const info = DATA.metrics_setup[benchmark];
+  const baseline = info.random_baseline;
+  const maxPerf = info.max_performance;
+  if (maxPerf === baseline) return 0;
+  return ((rawScore - baseline) / (maxPerf - baseline)) * 100;
+}
+
+// ============================================================
 // Initialization
 // ============================================================
 
@@ -34,10 +101,15 @@ async function init() {
   const response = await fetch("data.json");
   DATA = await response.json();
 
+  // Initialize default models
+  const defaultModels = DATA.default_models || Object.keys(DATA.models);
+  checkedModels = new Set(defaultModels.filter((m) => m in DATA.models));
+
   populateTaskDropdown();
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
   bindEventListeners();
   buildCheckboxes();
+  buildModelCheckboxes();
   renderChart();
 }
 
@@ -67,17 +139,40 @@ function populateTaskDropdown() {
   }
   select.appendChild(catGroup);
 
+  // "Aggregate by Evaluation Type" optgroup
+  const evalTypes = {};
+  for (const [bench, info] of Object.entries(DATA.metrics_setup)) {
+    const et = info.evaluation_type;
+    if (et && !evalTypes[et]) evalTypes[et] = [];
+    if (et) evalTypes[et].push(bench);
+  }
+  if (Object.keys(evalTypes).length > 0) {
+    const evalGroup = document.createElement("optgroup");
+    evalGroup.label = "Aggregate by Evaluation Type";
+    for (const etName of Object.keys(evalTypes).sort()) {
+      const opt = document.createElement("option");
+      opt.value = "__eval__" + etName;
+      opt.textContent = etName;
+      evalGroup.appendChild(opt);
+    }
+    select.appendChild(evalGroup);
+  }
+
   // "Aggregate by Language" optgroup
   const langGroup = document.createElement("optgroup");
   langGroup.label = "Aggregate by Language";
   const nobOpt = document.createElement("option");
   nobOpt.value = "__lang__nob";
-  nobOpt.textContent = "Bokm\u00e5l";
+  nobOpt.textContent = "Bokmål";
   langGroup.appendChild(nobOpt);
   const nnoOpt = document.createElement("option");
   nnoOpt.value = "__lang__nno";
   nnoOpt.textContent = "Nynorsk";
   langGroup.appendChild(nnoOpt);
+  const smeOpt = document.createElement("option");
+  smeOpt.value = "__lang__sme";
+  smeOpt.textContent = "Northern Sámi";
+  langGroup.appendChild(smeOpt);
   select.appendChild(langGroup);
 
   // "Individual Tasks" optgroup — all groups + standalone, sorted
@@ -129,7 +224,6 @@ function bindEventListeners() {
 
   document.getElementById("task-select").addEventListener("change", (e) => {
     currentTaskSelection = e.target.value;
-    // Always pre-check the relevant benchmarks
     const benchmarks = getBenchmarksForSelection(currentTaskSelection);
     if (benchmarks.length > 0) {
       checkedTasks = new Set(benchmarks);
@@ -159,7 +253,8 @@ function isAggregateSelection(sel) {
   return (
     sel === "__all__" ||
     sel.startsWith("__cat__") ||
-    sel.startsWith("__lang__")
+    sel.startsWith("__lang__") ||
+    sel.startsWith("__eval__")
   );
 }
 
@@ -173,20 +268,36 @@ function getBenchmarksForSelection(sel) {
       (b) => DATA.metrics_setup[b].category === catName
     );
   }
+  if (sel.startsWith("__eval__")) {
+    const etName = sel.slice(8);
+    return Object.keys(DATA.metrics_setup).filter(
+      (b) => DATA.metrics_setup[b].evaluation_type === etName
+    );
+  }
   if (sel === "__lang__nno") {
-    return DATA.nno_benchmarks || [];
+    // Nynorsk benchmarks + Bokmål↔Nynorsk translation
+    const nno = new Set(DATA.nno_benchmarks || []);
+    const nobNno = DATA.nob_nno_translation_benchmarks || [];
+    for (const b of nobNno) nno.add(b);
+    return [...nno];
   }
   if (sel === "__lang__nob") {
-    const nno = new Set(DATA.nno_benchmarks || []);
-    return Object.keys(DATA.metrics_setup).filter((b) => !nno.has(b));
+    // Everything that's NOT NNO-only, plus Bokmål↔Nynorsk translation
+    const nnoOnly = new Set(DATA.nno_benchmarks || []);
+    const smeOnly = new Set(DATA.sme_benchmarks || []);
+    const nobNno = new Set(DATA.nob_nno_translation_benchmarks || []);
+    return Object.keys(DATA.metrics_setup).filter(
+      (b) => (!nnoOnly.has(b) && !smeOnly.has(b)) || nobNno.has(b)
+    );
   }
-  // Individual task group
+  if (sel === "__lang__sme") {
+    return DATA.sme_benchmarks || [];
+  }
   if (sel.startsWith("__group__")) {
     const groupName = sel.slice(9);
     const group = DATA.task_groups[groupName];
     return group ? group.benchmarks : [];
   }
-  // Standalone benchmark
   if (DATA.metrics_setup[sel]) {
     return [sel];
   }
@@ -194,14 +305,27 @@ function getBenchmarksForSelection(sel) {
 }
 
 // ============================================================
-// Checkboxes — always visible, all 34 benchmarks
+// Task checkboxes
 // ============================================================
+
+function getCheckboxDisplayName(bench) {
+  const info = DATA.metrics_setup[bench];
+  let name = info.pretty_name;
+
+  // Add language tag for disambiguation
+  if (bench.endsWith("_nno")) name += " [Nynorsk]";
+  else if (bench.endsWith("_nob")) name += " [Bokmål]";
+  else if (bench === "norsumm_nno_nob_translation") name += "";
+  else if (bench === "norsumm_nob_nno_translation") name += "";
+  else if (bench.includes("_sme")) name += "";
+
+  return name;
+}
 
 function buildCheckboxes() {
   const grid = document.getElementById("checkbox-grid");
   grid.innerHTML = "";
 
-  // Group all benchmarks by category
   const grouped = {};
   for (const [bench, info] of Object.entries(DATA.metrics_setup)) {
     const cat = info.category;
@@ -220,6 +344,9 @@ function buildCheckboxes() {
     for (const bench of grouped[cat]) {
       const info = DATA.metrics_setup[bench];
       const label = document.createElement("label");
+      if (info.description) {
+        label.title = info.description;
+      }
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -228,7 +355,6 @@ function buildCheckboxes() {
       checkbox.addEventListener("change", () => {
         if (checkbox.checked) checkedTasks.add(bench);
         else checkedTasks.delete(bench);
-        // If on an individual task view, switch to aggregate mode
         if (!isAggregateSelection(currentTaskSelection)) {
           currentTaskSelection = "__all__";
           document.getElementById("task-select").value = "__all__";
@@ -237,20 +363,7 @@ function buildCheckboxes() {
       });
 
       label.appendChild(checkbox);
-      // Show benchmark key suffix for disambiguation (e.g. "commonsense QA (acc) [nno]")
-      let displayName = info.pretty_name + " (" + info.main_metric + ")";
-      if (bench.endsWith("_nno")) displayName += " [NNO]";
-      else if (bench.endsWith("_nob")) displayName += " [NOB]";
-      else if (bench.includes("_nno_")) displayName += " [NNO\u2192NOB]";
-      else if (bench.includes("_nob_") && bench.includes("translation"))
-        displayName += " [NOB\u2192NNO]";
-      else if (bench.startsWith("tatoeba_eng_nob")) displayName += " [ENG\u2192NOB]";
-      else if (bench.startsWith("tatoeba_nob_eng")) displayName += " [NOB\u2192ENG]";
-      else if (bench.startsWith("tatoeba_eng_nno")) displayName += " [ENG\u2192NNO]";
-      else if (bench.startsWith("tatoeba_nno_eng")) displayName += " [NNO\u2192ENG]";
-      else if (bench.startsWith("tatoeba_nob_sme")) displayName += " [NOB\u2192SME]";
-      else if (bench.startsWith("tatoeba_sme_nob")) displayName += " [SME\u2192NOB]";
-
+      const displayName = getCheckboxDisplayName(bench);
       label.appendChild(document.createTextNode(" " + displayName));
       catDiv.appendChild(label);
     }
@@ -267,15 +380,36 @@ function syncCheckboxStates() {
 }
 
 // ============================================================
-// Normalization
+// Model checkboxes
 // ============================================================
 
-function normalizeScore(rawScore, benchmark) {
-  const info = DATA.metrics_setup[benchmark];
-  const baseline = info.random_baseline;
-  const maxPerf = info.max_performance;
-  if (maxPerf === baseline) return 0;
-  return ((rawScore - baseline) / (maxPerf - baseline)) * 100;
+function buildModelCheckboxes() {
+  const grid = document.getElementById("model-checkbox-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  const allModels = Object.keys(DATA.models);
+  for (const modelDir of allModels) {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = checkedModels.has(modelDir);
+    checkbox.dataset.model = modelDir;
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) checkedModels.add(modelDir);
+      else checkedModels.delete(modelDir);
+      renderChart();
+    });
+
+    const colorDot = document.createElement("span");
+    colorDot.className = "model-color-dot";
+    colorDot.style.backgroundColor = getModelColor(modelDir);
+
+    label.appendChild(checkbox);
+    label.appendChild(colorDot);
+    label.appendChild(document.createTextNode(" " + getModelLabel(modelDir)));
+    grid.appendChild(label);
+  }
 }
 
 // ============================================================
@@ -283,11 +417,38 @@ function normalizeScore(rawScore, benchmark) {
 // ============================================================
 
 function renderChart() {
+  updateDescription();
   if (currentTab === "comparison") {
     renderComparisonChart();
   } else {
     renderProgressChart();
   }
+}
+
+function updateDescription() {
+  const descEl = document.getElementById("task-description");
+  if (!descEl) return;
+
+  const sel = currentTaskSelection;
+  let description = "";
+
+  if (sel.startsWith("__group__")) {
+    const groupName = sel.slice(9);
+    const group = DATA.task_groups[groupName];
+    if (group) {
+      const info = DATA.metrics_setup[group.benchmarks[0]];
+      if (info && info.description) description = info.description;
+    }
+  } else if (
+    !isAggregateSelection(sel) &&
+    DATA.metrics_setup[sel]
+  ) {
+    const info = DATA.metrics_setup[sel];
+    if (info.description) description = info.description;
+  }
+
+  descEl.textContent = description;
+  descEl.style.display = description ? "block" : "none";
 }
 
 // ============================================================
@@ -306,11 +467,22 @@ function renderComparisonChart() {
 }
 
 function getModelList() {
-  return Object.keys(DATA.models);
+  return Object.keys(DATA.models).filter((m) => checkedModels.has(m));
 }
 
 function getModelLabel(modelDir) {
   return DATA.model_display_names[modelDir] || modelDir;
+}
+
+function getPlotlyLayout(overrides) {
+  const base = {
+    font: { family: "Inter, system-ui, sans-serif", size: 13 },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    margin: { l: 60, r: 20, t: 50, b: 100 },
+    autosize: true,
+  };
+  return Object.assign(base, overrides);
 }
 
 function renderAggregateBarChart() {
@@ -318,6 +490,7 @@ function renderAggregateBarChart() {
   const labels = modelNames.map(getModelLabel);
   const scores = [];
   const hoverTexts = [];
+  const colors = modelNames.map(getModelColor);
 
   for (const modelDir of modelNames) {
     let sum = 0,
@@ -345,7 +518,7 @@ function renderAggregateBarChart() {
     x: labels,
     y: scores,
     type: "bar",
-    marker: { color: MODEL_COLORS.slice(0, labels.length) },
+    marker: { color: colors, line: { width: 0 } },
     text: scores.map((s) => s.toFixed(1)),
     textposition: "outside",
     hovertext: hoverTexts,
@@ -355,15 +528,16 @@ function renderAggregateBarChart() {
   const selLabel = getAggregateLabel();
   const yMax = computeAggregateYMaxAllShots(DATA.models, checkedTasks);
 
-  const layout = {
-    title: selLabel + " \u2014 Normalized Aggregate (" + currentShot + "-shot)",
+  const layout = getPlotlyLayout({
+    title: { text: selLabel + " — normalized aggregate (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: {
-      title: "Normalized Score",
+      title: "normalized score",
       range: [0, yMax],
+      gridcolor: "#f0f0f0",
+      zeroline: false,
     },
     xaxis: { title: "" },
-    margin: { b: 120, t: 60 },
-  };
+  });
 
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
 }
@@ -375,32 +549,36 @@ function renderGroupedBarChart(groupName) {
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
 
+  // Create two traces (one per benchmark in the pair), each with per-model colors
   const traces = group.benchmarks.map((bench, i) => {
-    const values = modelNames.map(
-      (m) => DATA.models[m]?.[bench]?.[currentShot] ?? null
-    );
+    const values = modelNames.map((m) => {
+      const raw = DATA.models[m]?.[bench]?.[currentShot];
+      return raw !== null && raw !== undefined ? toDisplayScale(raw, bench) : null;
+    });
+    const colors = modelNames.map((m) => {
+      const base = getModelColor(m);
+      return i === 0 ? lightenColor(base, 0.25) : darkenColor(base, 0.2);
+    });
     return {
       x: labels,
       y: values,
       name: group.labels[i],
       type: "bar",
-      text: values.map((v) => (v !== null ? formatScore(v, bench) : "")),
+      marker: { color: colors, line: { width: 0 } },
+      text: values.map((v) => (v !== null ? v.toFixed(1) : "")),
       textposition: "outside",
       hovertemplate:
-        "%{x}<br>" + group.labels[i] + ": %{y}<extra></extra>",
+        "%{x}<br>" + group.labels[i] + ": %{y:.1f}<extra></extra>",
     };
   });
 
-  const info = DATA.metrics_setup[group.benchmarks[0]];
-  const yMax = computeRawYMaxAllShots(DATA.models, group.benchmarks);
+  const yMax = computeRawYMaxAllShots_display(DATA.models, group.benchmarks);
 
-  const layout = {
-    title:
-      groupName + " (" + currentShot + "-shot, " + info.main_metric + ")",
-    yaxis: { title: info.main_metric, range: [0, yMax] },
+  const layout = getPlotlyLayout({
+    title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
+    yaxis: { title: "score (0–100)", range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
     barmode: "group",
-    margin: { b: 120, t: 60 },
-  };
+  });
 
   Plotly.newPlot("chart", traces, layout, PLOTLY_CONFIG);
 }
@@ -411,33 +589,28 @@ function renderSingleBenchmarkBarChart(benchmark) {
 
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
-  const values = modelNames.map(
-    (m) => DATA.models[m]?.[benchmark]?.[currentShot] ?? null
-  );
+  const colors = modelNames.map(getModelColor);
+  const values = modelNames.map((m) => {
+    const raw = DATA.models[m]?.[benchmark]?.[currentShot];
+    return raw !== null && raw !== undefined ? toDisplayScale(raw, benchmark) : null;
+  });
 
-  const yMax = computeRawYMaxAllShots(DATA.models, [benchmark]);
+  const yMax = computeRawYMaxAllShots_display(DATA.models, [benchmark]);
 
   const trace = {
     x: labels,
     y: values,
     type: "bar",
-    marker: { color: MODEL_COLORS.slice(0, labels.length) },
-    text: values.map((v) => (v !== null ? formatScore(v, benchmark) : "")),
+    marker: { color: colors, line: { width: 0 } },
+    text: values.map((v) => (v !== null ? v.toFixed(1) : "")),
     textposition: "outside",
-    hovertemplate: "%{x}: %{y}<extra></extra>",
+    hovertemplate: "%{x}: %{y:.1f}<extra></extra>",
   };
 
-  const layout = {
-    title:
-      info.pretty_name +
-      " (" +
-      currentShot +
-      "-shot, " +
-      info.main_metric +
-      ")",
-    yaxis: { title: info.main_metric, range: [0, yMax] },
-    margin: { b: 120, t: 60 },
-  };
+  const layout = getPlotlyLayout({
+    title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
+    yaxis: { title: "score (0–100)", range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+  });
 
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
 }
@@ -483,7 +656,7 @@ function renderAggregateProgressChart() {
     y: scores,
     mode: "lines+markers",
     name: "NorOLMo",
-    line: { color: MODEL_COLORS[0], width: 2 },
+    line: { color: MODEL_COLORS[0], width: 2.5 },
     marker: { size: 5 },
     hovertemplate: "Step %{x}<br>Score: %{y:.1f}<extra></extra>",
   };
@@ -491,16 +664,16 @@ function renderAggregateProgressChart() {
   const selLabel = getAggregateLabel();
   const yMax = computeAggregateYMaxAllShots(DATA.progress, checkedTasks);
 
-  const layout = {
-    title:
-      "Training Progress \u2014 " + selLabel + " (" + currentShot + "-shot)",
-    xaxis: { title: "Training Step", dtick: 5000 },
+  const layout = getPlotlyLayout({
+    title: { text: "training progress — " + selLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: {
-      title: "Normalized Score",
+      title: "normalized score",
       range: [0, yMax],
+      gridcolor: "#f0f0f0",
+      zeroline: false,
     },
-    margin: { t: 60 },
-  };
+  });
 
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
 }
@@ -512,37 +685,29 @@ function renderGroupProgressChart(groupName) {
   const steps = getSteps();
 
   const traces = group.benchmarks.map((bench, i) => {
-    const ys = steps.map(
-      (s) => DATA.progress[s]?.[bench]?.[currentShot] ?? null
-    );
+    const ys = steps.map((s) => {
+      const raw = DATA.progress[s]?.[bench]?.[currentShot];
+      return raw !== null && raw !== undefined ? toDisplayScale(raw, bench) : null;
+    });
     return {
       x: steps,
       y: ys,
       mode: "lines+markers",
       name: group.labels[i],
-      line: { width: 2 },
+      line: { width: 2.5 },
       marker: { size: 5 },
       hovertemplate:
-        group.labels[i] + "<br>Step %{x}: %{y}<extra></extra>",
+        group.labels[i] + "<br>Step %{x}: %{y:.1f}<extra></extra>",
     };
   });
 
-  const info = DATA.metrics_setup[group.benchmarks[0]];
-  const yMax = computeRawYMaxAllShots(DATA.progress, group.benchmarks);
+  const yMax = computeRawYMaxAllShots_display(DATA.progress, group.benchmarks);
 
-  const layout = {
-    title:
-      "Training Progress \u2014 " +
-      groupName +
-      " (" +
-      currentShot +
-      "-shot, " +
-      info.main_metric +
-      ")",
-    xaxis: { title: "Training Step", dtick: 5000 },
-    yaxis: { title: info.main_metric, range: [0, yMax] },
-    margin: { t: 60 },
-  };
+  const layout = getPlotlyLayout({
+    title: { text: "training progress — " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
+    yaxis: { title: "score (0–100)", range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+  });
 
   Plotly.newPlot("chart", traces, layout, PLOTLY_CONFIG);
 }
@@ -552,35 +717,28 @@ function renderSingleProgressChart(benchmark) {
   if (!info) return;
 
   const steps = getSteps();
-  const ys = steps.map(
-    (s) => DATA.progress[s]?.[benchmark]?.[currentShot] ?? null
-  );
+  const ys = steps.map((s) => {
+    const raw = DATA.progress[s]?.[benchmark]?.[currentShot];
+    return raw !== null && raw !== undefined ? toDisplayScale(raw, benchmark) : null;
+  });
 
-  const yMax = computeRawYMaxAllShots(DATA.progress, [benchmark]);
+  const yMax = computeRawYMaxAllShots_display(DATA.progress, [benchmark]);
 
   const trace = {
     x: steps,
     y: ys,
     mode: "lines+markers",
     name: info.pretty_name,
-    line: { color: MODEL_COLORS[0], width: 2 },
+    line: { color: MODEL_COLORS[0], width: 2.5 },
     marker: { size: 5 },
-    hovertemplate: "Step %{x}: %{y}<extra></extra>",
+    hovertemplate: "Step %{x}: %{y:.1f}<extra></extra>",
   };
 
-  const layout = {
-    title:
-      "Training Progress \u2014 " +
-      info.pretty_name +
-      " (" +
-      currentShot +
-      "-shot, " +
-      info.main_metric +
-      ")",
-    xaxis: { title: "Training Step", dtick: 5000 },
-    yaxis: { title: info.main_metric, range: [0, yMax] },
-    margin: { t: 60 },
-  };
+  const layout = getPlotlyLayout({
+    title: { text: "training progress — " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
+    yaxis: { title: "score (0–100)", range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+  });
 
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
 }
@@ -589,31 +747,24 @@ function renderSingleProgressChart(benchmark) {
 // Helpers
 // ============================================================
 
-function formatScore(value, benchmark) {
-  const info = DATA.metrics_setup[benchmark];
-  if (info.max_performance === 100) {
-    return value.toFixed(1);
-  }
-  return value.toFixed(3);
-}
-
 function computeYMax(values) {
-  if (!values.length) return 1;
+  if (!values.length) return 100;
   const maxVal = Math.max(...values);
-  // Add 15% headroom, minimum 0.05 absolute padding
-  const padding = Math.max(maxVal * 0.15, 0.05);
-  return maxVal + padding;
+  const padding = Math.max(maxVal * 0.15, 2);
+  return Math.min(maxVal + padding, 115);
 }
 
 const ALL_SHOTS = ["0", "1", "5"];
 
-// Compute stable y-max across all shot settings for aggregate comparison charts
 function computeAggregateYMaxAllShots(dataSource, benchmarks) {
   const allAvgs = [];
   const entities = Object.keys(dataSource);
   for (const shot of ALL_SHOTS) {
     for (const entity of entities) {
-      let sum = 0, count = 0;
+      // For model comparison, only consider checked models
+      if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
+      let sum = 0,
+        count = 0;
       for (const bench of benchmarks) {
         const val = dataSource[entity]?.[bench]?.[shot];
         if (val !== undefined) {
@@ -627,14 +778,17 @@ function computeAggregateYMaxAllShots(dataSource, benchmarks) {
   return computeYMax(allAvgs);
 }
 
-// Compute stable y-max across all shot settings for raw benchmark values
-function computeRawYMaxAllShots(dataSource, benchmarks) {
+/** Compute stable y-max across all shots, using display scale (0-100) */
+function computeRawYMaxAllShots_display(dataSource, benchmarks) {
   const allVals = [];
   for (const entity of Object.keys(dataSource)) {
+    if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
     for (const shot of ALL_SHOTS) {
       for (const bench of benchmarks) {
         const val = dataSource[entity]?.[bench]?.[shot];
-        if (val !== undefined && val !== null) allVals.push(val);
+        if (val !== undefined && val !== null) {
+          allVals.push(toDisplayScale(val, bench));
+        }
       }
     }
   }
@@ -643,11 +797,13 @@ function computeRawYMaxAllShots(dataSource, benchmarks) {
 
 function getAggregateLabel() {
   const sel = currentTaskSelection;
-  if (sel === "__all__") return "All Tasks";
+  if (sel === "__all__") return "all tasks";
   if (sel.startsWith("__cat__")) return sel.slice(7);
-  if (sel === "__lang__nob") return "Bokm\u00e5l Tasks";
-  if (sel === "__lang__nno") return "Nynorsk Tasks";
-  return "Aggregate";
+  if (sel.startsWith("__eval__")) return sel.slice(8) + " tasks";
+  if (sel === "__lang__nob") return "Bokmål tasks";
+  if (sel === "__lang__nno") return "Nynorsk tasks";
+  if (sel === "__lang__sme") return "Northern Sámi tasks";
+  return "aggregate";
 }
 
 // ============================================================

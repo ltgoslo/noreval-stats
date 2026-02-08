@@ -1,363 +1,465 @@
 {
   "metrics_setup": {
     "ask_gec": {
-      "pretty_name": "grammar correction",
+      "pretty_name": "grammar correction (ASK-GEC)",
+      "description": "Grammar correction based on the ASK-GEC dataset. The main metric is ERRANT F0.5, which emphasizes precision over recall in grammar correction tasks.",
       "main_metric": "errant_f05",
       "random_baseline": 0.0,
       "max_performance": 1.0,
-      "category": "Generation & Summarization"
+      "category": "linguistic knowledge",
+      "evaluation_type": "generation",
+      "metric_scale": "unit"
     },
     "ncb": {
-      "pretty_name": "comma benchmark",
+      "pretty_name": "linguistic acceptability (punctuation)",
+      "description": "Linguistic acceptability based on the NCB dataset, which focuses on correct placement of commas. The main metric is accuracy, with a random baseline of 0.5.",
       "main_metric": "acc",
       "random_baseline": 0.5,
       "max_performance": 1.0,
-      "category": "Language Understanding"
+      "category": "linguistic knowledge",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "nocola": {
-      "pretty_name": "linguistic acceptability",
+      "pretty_name": "linguistic acceptability (NoCoLA)",
+      "description": "Linguistic acceptability based on the BLiMP-like NoCoLA dataset, which includes a variety of linguistic phenomena. The main metric is accuracy, with a random baseline of 0.5.",
       "main_metric": "acc",
       "random_baseline": 0.5,
       "max_performance": 1.0,
-      "category": "Language Understanding"
+      "category": "linguistic knowledge",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "norbelebele": {
-      "pretty_name": "reading comprehension (belebele)",
+      "pretty_name": "reading comprehension (Belebele)",
+      "description": "Reading comprehension based on the NorBelebele dataset, which includes questions about a given passage. The main metric is accuracy, with a random baseline of 0.25.",
       "main_metric": "acc",
       "random_baseline": 0.25,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "language understanding",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "norcommonsenseqa_nno": {
-      "pretty_name": "commonsense QA",
+      "pretty_name": "multiple-choice QA (commonsense)",
+      "description": "Commonsense question-answering based on the NorCommonsenseQA dataset, which includes multiple-choice questions that require commonsense reasoning. The main metric is accuracy, with a random baseline of 0.2.",
       "main_metric": "acc",
       "random_baseline": 0.2,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "norcommonsenseqa_nob": {
-      "pretty_name": "commonsense QA",
+      "pretty_name": "multiple-choice QA (commonsense)",
+      "description": "Commonsense question-answering based on the NorCommonsenseQA dataset, which includes multiple-choice questions that require commonsense reasoning. The main metric is accuracy, with a random baseline of 0.2.",
       "main_metric": "acc",
       "random_baseline": 0.2,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "norec_document": {
       "pretty_name": "sentiment analysis (document)",
+      "description": "Binary document-level sentiment analysis based on the NoReC dataset. The main metric is F1 score, with a random baseline of 0.5.",
       "main_metric": "f1",
       "random_baseline": 0.5,
       "max_performance": 1.0,
-      "category": "Sentiment Analysis"
+      "category": "language understanding",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "norec_sentence": {
       "pretty_name": "sentiment analysis (sentence)",
+      "description": "Binary sentence-level sentiment analysis based on the NoReC dataset. The main metric is F1 score, with a random baseline of 0.5.",
       "main_metric": "f1",
       "random_baseline": 0.5,
       "max_performance": 1.0,
-      "category": "Sentiment Analysis"
+      "category": "language understanding",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "noridiom_nno": {
       "pretty_name": "idiom completion",
+      "description": "Idiom completion based on the NorIdiom dataset, the model is given the first N-1 words of an idiom and must predict the final word. The main metric is exact match (EM), with a random baseline of 0.0 since the model must predict a specific word.",
       "main_metric": "em",
       "random_baseline": 0.0,
       "max_performance": 1.0,
-      "category": "Generation & Summarization"
+      "category": "linguistic knowledge",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "noridiom_nob": {
       "pretty_name": "idiom completion",
+      "description": "Idiom completion based on the NorIdiom dataset, the model is given the first N-1 words of an idiom and must predict the final word. The main metric is exact match (EM), with a random baseline of 0.0 since the model must predict a specific word.",
       "main_metric": "em",
       "random_baseline": 0.0,
       "max_performance": 1.0,
-      "category": "Generation & Summarization"
+      "category": "linguistic knowledge",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "noropenbookqa_nno": {
       "pretty_name": "reading comprehension (openbookqa)",
+      "description": "Reading comprehension based on the NorOpenBookQA dataset, which includes multiple-choice questions about a given factual statement. The main metric is accuracy, with a random baseline of 0.25.",
       "main_metric": "acc",
       "random_baseline": 0.25,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "language understanding",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "noropenbookqa_nob": {
       "pretty_name": "reading comprehension (openbookqa)",
+      "description": "Reading comprehension based on the NorOpenBookQA dataset, which includes multiple-choice questions about a given factual statement. The main metric is accuracy, with a random baseline of 0.25.",
       "main_metric": "acc",
       "random_baseline": 0.25,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "language understanding",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "noropenbookqa_no_fact_nno": {
-      "pretty_name": "openbook QA",
+      "pretty_name": "multiple-choice QA (openbookqa)",
+      "description": "Openbook question-answering based on the NorOpenBookQA dataset, but without the factual statement provided. The model must rely on its own knowledge to answer the questions. The main metric is accuracy, with a random baseline of 0.25.",
       "main_metric": "acc",
       "random_baseline": 0.25,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "noropenbookqa_no_fact_nob": {
-      "pretty_name": "openbook QA",
+      "pretty_name": "multiple-choice QA (openbookqa)",
+      "description": "Openbook question-answering based on the NorOpenBookQA dataset, but without the factual statement provided. The model must rely on its own knowledge to answer the questions. The main metric is accuracy, with a random baseline of 0.25.",
       "main_metric": "acc",
       "random_baseline": 0.25,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "norquad": {
       "pretty_name": "reading comprehension (norquad)",
+      "description": "Reading comprehension based on the NorQuAD dataset, which includes questions about a given passage. The main metric is F1 score, with a random baseline of 0.0 since the model must predict specific spans of text.",
       "main_metric": "f1",
       "random_baseline": 0.0,
       "max_performance": 1.0,
-      "category": "Language Understanding"
+      "category": "language understanding",
+      "evaluation_type": "generation",
+      "metric_scale": "unit"
     },
     "norrewrite_instruct": {
       "pretty_name": "instruction-following",
+      "description": "Instruction-following based on the NorRewrite dataset, which includes tasks where the model must rewrite a given text according to specific instructions. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Generation & Summarization"
+      "category": "generation & summarization",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "norsummarize_instruct": {
       "pretty_name": "summarization (instructed)",
+      "description": "Summarization based on the NorSummarize dataset, which includes tasks where the model must summarize a given text according to specific instructions. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Generation & Summarization"
+      "category": "generation & summarization",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "norsumm_nob": {
-      "pretty_name": "summarization",
+      "pretty_name": "summarization (norsumm)",
+      "description": "Summarization based on the NorSumm dataset, which includes tasks where the model must summarize a given text. The main metric is ROUGE-L, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "rougeL_max",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Generation & Summarization"
+      "category": "generation & summarization",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "norsumm_nno": {
-      "pretty_name": "summarization",
+      "pretty_name": "summarization (norsumm)",
+      "description": "Summarization based on the NorSumm dataset, which includes tasks where the model must summarize a given text. The main metric is ROUGE-L, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "rougeL_max",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Generation & Summarization"
+      "category": "generation & summarization",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "norsumm_nob_nno_translation": {
-      "pretty_name": "translation (NOB-NNO)",
+      "pretty_name": "translation (Bokmål → Nynorsk)",
+      "description": "Translation based on the NorSumm dataset, the model has to translate paragraphs between Nynorsk and Bokmål. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "norsumm_nno_nob_translation": {
-      "pretty_name": "translation (NOB-NNO)",
+      "pretty_name": "translation (Nynorsk → Bokmål)",
+      "description": "Translation based on the NorSumm dataset, the model has to translate paragraphs between Nynorsk and Bokmål. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "nortruthfulqa_gen_nno": {
-      "pretty_name": "truthful QA (generative)",
+      "pretty_name": "generative QA (truthfulqa)",
+      "description": "Generative question-answering based on the TruthfulQA dataset, which includes questions questions that some humans would answer falsely due to a false belief or misconception. The model must generate an answer to each question, and the main metric is ROUGE-L, which measures the overlap between the generated answer and reference answers. The random baseline is 0.0 since the model must generate specific text.",
       "main_metric": "rougeL_max",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Generation & Summarization"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "nortruthfulqa_gen_nob": {
-      "pretty_name": "truthful QA (generative)",
+      "pretty_name": "generative QA (truthfulqa)",
+      "description": "Generative question-answering based on the TruthfulQA dataset, which includes questions questions that some humans would answer falsely due to a false belief or misconception. The model must generate an answer to each question, and the main metric is ROUGE-L, which measures the overlap between the generated answer and reference answers. The random baseline is 0.0 since the model must generate specific text.",
       "main_metric": "rougeL_max",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Generation & Summarization"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "nortruthfulqa_mc_nno": {
-      "pretty_name": "truthful QA",
+      "pretty_name": "multiple-choice QA (truthfulqa)",
+      "description": "Multiple-choice question-answering based on the TruthfulQA dataset, which includes questions that some humans would answer falsely due to a false belief or misconception. The model must select the correct answer from multiple choices, and the main metric is accuracy. The random baseline is approximately 0.233 since the model must choose the correct answer from multiple options.",
       "main_metric": "acc",
       "random_baseline": 0.23311814890762259,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "nortruthfulqa_mc_nob": {
-      "pretty_name": "truthful QA",
+      "pretty_name": "multiple-choice QA (truthfulqa)",
+      "description": "Multiple-choice question-answering based on the TruthfulQA dataset, which includes questions that some humans would answer falsely due to a false belief or misconception. The model must select the correct answer from multiple choices, and the main metric is accuracy.",
       "main_metric": "acc",
       "random_baseline": 0.23170337745132827,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "nrk_quiz_qa_nno": {
-      "pretty_name": "NRK quiz",
+      "pretty_name": "multiple-choice QA (nrk-quiz)",
+      "description": "Multiple-choice question-answering based on the NRK quiz dataset. The model must select the correct answer from multiple choices, and the main metric is accuracy. The random baseline is approximately 0.279 since the model must choose the correct answer from multiple options.",
       "main_metric": "acc",
       "random_baseline": 0.27884711779448623,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "nrk_quiz_qa_nob": {
-      "pretty_name": "NRK quiz",
+      "pretty_name": "multiple-choice QA (nrk-quiz)",
+      "description": "Multiple-choice question-answering based on the NRK quiz dataset. The model must select the correct answer from multiple choices, and the main metric is accuracy.",
       "main_metric": "acc",
       "random_baseline": 0.2836296296296296,
       "max_performance": 1.0,
-      "category": "Knowledge & Reasoning"
+      "category": "world knowledge & reasoning",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "slide": {
       "pretty_name": "Scandinavian LID",
+      "description": "Language identification based on the multi-labeled SLIDE dataset, which includes sentences in various Scandinavian languages. The model must identify the language of each sentence, and the main metric is accuracy. The random baseline is approximately 0.213 since there are multiple languages to choose from.",
       "main_metric": "acc",
       "random_baseline": 0.21289208633093526,
       "max_performance": 1.0,
-      "category": "Language ID"
+      "category": "linguistic knowledge",
+      "evaluation_type": "classification",
+      "metric_scale": "unit"
     },
     "tatoeba_eng_nno": {
-      "pretty_name": "translation (ENG-NNO)",
+      "pretty_name": "translation (English → Nynorsk)",
+      "description": "Translation based on the Tatoeba dataset, the model has to translate sentences between Nynorsk and English. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "tatoeba_eng_nob": {
-      "pretty_name": "translation (ENG-NOB)",
+      "pretty_name": "translation (English → Bokmål)",
+      "description": "Translation based on the Tatoeba dataset, the model has to translate sentences between Norwegian Bokmål and English. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "tatoeba_nno_eng": {
-      "pretty_name": "translation (NNO-ENG)",
+      "pretty_name": "translation (Nynorsk → English)",
+      "description": "Translation based on the Tatoeba dataset, the model has to translate sentences between Nynorsk and English. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "tatoeba_nob_eng": {
-      "pretty_name": "translation (NOB-ENG)",
+      "pretty_name": "translation (Bokmål → English)",
+      "description": "Translation based on the Tatoeba dataset, the model has to translate sentences between Norwegian Bokmål and English. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "tatoeba_nob_sme": {
-      "pretty_name": "translation (NOB-SME)",
+      "pretty_name": "translation (Bokmål → Sámi)",
+      "description": "Translation based on the Tatoeba dataset, the model has to translate sentences between Norwegian Bokmål and Northern Sámi. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     },
     "tatoeba_sme_nob": {
-      "pretty_name": "translation (SME-NOB)",
+      "pretty_name": "translation (Sámi → Bokmål)",
+      "description": "Translation based on the Tatoeba dataset, the model has to translate sentences between Norwegian Bokmål and Northern Sámi. The main metric is BLEU score, with a random baseline of 0.0 since the model must generate specific text.",
       "main_metric": "bleu",
       "random_baseline": 0.0,
       "max_performance": 100.0,
-      "category": "Translation"
+      "category": "translation",
+      "evaluation_type": "generation",
+      "metric_scale": "percent"
     }
   },
   "task_groups": {
-    "Commonsense QA": {
+    "multiple-choice QA (commonsense)": {
       "benchmarks": [
         "norcommonsenseqa_nob",
         "norcommonsenseqa_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "Reading Comprehension (OpenBookQA)": {
+    "reading comprehension (openbookqa)": {
       "benchmarks": [
         "noropenbookqa_nob",
         "noropenbookqa_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "OpenBook QA (no fact)": {
+    "multiple-choice QA (openbookqa)": {
       "benchmarks": [
         "noropenbookqa_no_fact_nob",
         "noropenbookqa_no_fact_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "Truthful QA (MC)": {
+    "multiple-choice QA (truthfulqa)": {
       "benchmarks": [
         "nortruthfulqa_mc_nob",
         "nortruthfulqa_mc_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "Truthful QA (Generative)": {
+    "generative QA (truthfulqa)": {
       "benchmarks": [
         "nortruthfulqa_gen_nob",
         "nortruthfulqa_gen_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "NRK Quiz": {
+    "multiple-choice QA (nrk-quiz)": {
       "benchmarks": [
         "nrk_quiz_qa_nob",
         "nrk_quiz_qa_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "Idiom Completion": {
+    "idiom completion": {
       "benchmarks": [
         "noridiom_nob",
         "noridiom_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "Summarization": {
+    "summarization (norsumm)": {
       "benchmarks": [
         "norsumm_nob",
         "norsumm_nno"
       ],
       "labels": [
-        "NOB",
-        "NNO"
+        "Bokmål",
+        "Nynorsk"
       ]
     },
-    "Translation (ENG↔NOB)": {
+    "translation (English↔Bokmål)": {
       "benchmarks": [
         "tatoeba_nob_eng",
         "tatoeba_eng_nob"
       ],
       "labels": [
-        "NOB→ENG",
-        "ENG→NOB"
+        "Bokmål→English",
+        "English→Bokmål"
       ]
     },
-    "Translation (ENG↔NNO)": {
+    "translation (English↔Nynorsk)": {
       "benchmarks": [
         "tatoeba_nno_eng",
         "tatoeba_eng_nno"
       ],
       "labels": [
-        "NNO→ENG",
-        "ENG→NNO"
+        "Nynorsk→English",
+        "English→Nynorsk"
       ]
     },
-    "Translation (NOB↔SME)": {
+    "translation (Bokmål↔Sámi)": {
       "benchmarks": [
         "tatoeba_nob_sme",
         "tatoeba_sme_nob"
       ],
       "labels": [
-        "NOB→SME",
-        "SME→NOB"
+        "Bokmål→Sámi",
+        "Sámi→Bokmål"
       ]
     },
-    "Translation (NOB↔NNO)": {
+    "translation (Bokmål↔Nynorsk)": {
       "benchmarks": [
         "norsumm_nob_nno_translation",
         "norsumm_nno_nob_translation"
       ],
       "labels": [
-        "NOB→NNO",
-        "NNO→NOB"
+        "Bokmål→Nynorsk",
+        "Nynorsk→Bokmål"
       ]
     }
   },
@@ -387,13 +489,28 @@
     "tatoeba_eng_nno",
     "tatoeba_nno_eng"
   ],
+  "sme_benchmarks": [
+    "tatoeba_nob_sme",
+    "tatoeba_sme_nob"
+  ],
+  "nob_nno_translation_benchmarks": [
+    "norsumm_nno_nob_translation",
+    "norsumm_nob_nno_translation"
+  ],
   "model_display_names": {
-    "NorOLMo-13b": "NorOLMo 13B",
+    "norolmo-13b": "NorOLMo 13B",
     "normistral-7b-warm": "NorMistral 7B",
     "normistral-11b-warm": "NorMistral 11B",
     "normistral-11b-long": "NorMistral 11B Long",
-    "olmo-2-13B-stage1": "OLMo-2 13B Stage1"
+    "olmo-2-13b (stage 1)": "OLMo-2 13B (stage 1)"
   },
+  "default_models": [
+    "norolmo-13b",
+    "normistral-7b-warm",
+    "normistral-11b-warm",
+    "normistral-11b-long",
+    "olmo-2-13b (stage 1)"
+  ],
   "models": {
     "normistral-11b-long": {
       "ask_gec": {

@@ -25,62 +25,71 @@ SHOT_DIRS = {"0": "0-shot", "1": "1-shot", "5": "5-shot"}
 
 # Pretty display names for known models (fallback: directory name)
 MODEL_DISPLAY_NAMES = {
-    "NorOLMo-13b": "NorOLMo 13B",
+    "norolmo-13b": "NorOLMo 13B",
     "normistral-7b-warm": "NorMistral 7B",
     "normistral-11b-warm": "NorMistral 11B",
     "normistral-11b-long": "NorMistral 11B Long",
-    "olmo-2-13B-stage1": "OLMo-2 13B Stage1",
+    "olmo-2-13b (stage 1)": "OLMo-2 13B (stage 1)",
 }
+
+# Models displayed by default (others unchecked until user enables them)
+DEFAULT_MODELS = [
+    "norolmo-13b",
+    "normistral-7b-warm",
+    "normistral-11b-warm",
+    "normistral-11b-long",
+    "olmo-2-13b (stage 1)",
+]
 
 # Task groups for visual pairing (two bars/lines per model)
 TASK_GROUPS = {
-    "Commonsense QA": {
+    "multiple-choice QA (commonsense)": {
         "benchmarks": ["norcommonsenseqa_nob", "norcommonsenseqa_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "Reading Comprehension (OpenBookQA)": {
+    "reading comprehension (openbookqa)": {
         "benchmarks": ["noropenbookqa_nob", "noropenbookqa_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "OpenBook QA (no fact)": {
+    "multiple-choice QA (openbookqa)": {
         "benchmarks": ["noropenbookqa_no_fact_nob", "noropenbookqa_no_fact_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "Truthful QA (MC)": {
+    "multiple-choice QA (truthfulqa)": {
         "benchmarks": ["nortruthfulqa_mc_nob", "nortruthfulqa_mc_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "Truthful QA (Generative)": {
+    "generative QA (truthfulqa)": {
         "benchmarks": ["nortruthfulqa_gen_nob", "nortruthfulqa_gen_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "NRK Quiz": {
+    "multiple-choice QA (nrk-quiz)": {
         "benchmarks": ["nrk_quiz_qa_nob", "nrk_quiz_qa_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "Idiom Completion": {
+    "idiom completion": {
         "benchmarks": ["noridiom_nob", "noridiom_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "Summarization": {
+    "summarization (norsumm)": {
         "benchmarks": ["norsumm_nob", "norsumm_nno"],
-        "labels": ["NOB", "NNO"],
+        "labels": ["Bokmål", "Nynorsk"],
     },
-    "Translation (ENG\u2194NOB)": {
+    "translation (English↔Bokmål)": {
         "benchmarks": ["tatoeba_nob_eng", "tatoeba_eng_nob"],
-        "labels": ["NOB\u2192ENG", "ENG\u2192NOB"],
+        "labels": ["Bokmål→English", "English→Bokmål"],
     },
-    "Translation (ENG\u2194NNO)": {
+    "translation (English↔Nynorsk)": {
         "benchmarks": ["tatoeba_nno_eng", "tatoeba_eng_nno"],
-        "labels": ["NNO\u2192ENG", "ENG\u2192NNO"],
+        "labels": ["Nynorsk→English", "English→Nynorsk"],
     },
-    "Translation (NOB\u2194SME)": {
+    "translation (Bokmål↔Sámi)": {
         "benchmarks": ["tatoeba_nob_sme", "tatoeba_sme_nob"],
-        "labels": ["NOB\u2192SME", "SME\u2192NOB"],
+        "labels": ["Bokmål→Sámi", "Sámi→Bokmål"],
     },
-    "Translation (NOB\u2194NNO)": {
+    "translation (Bokmål↔Nynorsk)": {
         "benchmarks": ["norsumm_nob_nno_translation", "norsumm_nno_nob_translation"],
-        "labels": ["NOB\u2192NNO", "NNO\u2192NOB"],
+        "labels": ["Bokmål→Nynorsk", "Nynorsk→Bokmål"],
     },
 }
 
@@ -172,10 +181,13 @@ def build_metrics_info(metrics_setup):
         max_perf = 100.0 if config.get("metric_scale") == "percent" else 1.0
         info[benchmark] = {
             "pretty_name": config["pretty_name"],
+            "description": config.get("description", ""),
             "main_metric": config["main_metric"],
             "random_baseline": config["random_baseline"],
             "max_performance": max_perf,
             "category": config.get("category", "Uncategorized"),
+            "evaluation_type": config.get("evaluation_type", ""),
+            "metric_scale": config.get("metric_scale", "unit"),
         }
     return info
 
@@ -212,8 +224,14 @@ def main():
             scores = process_model_dir(str(ckpt_path), metrics_setup)
             progress[step] = scores
 
-    # Nynorsk benchmarks (those containing "_nno" in their name)
+    # Language benchmark lists
     nno_benchmarks = [b for b in metrics_setup if "_nno" in b]
+    sme_benchmarks = [b for b in metrics_setup if "_sme" in b]
+    # Bokmål↔Nynorsk translation tasks belong to both language groups
+    nob_nno_translation_benchmarks = [
+        "norsumm_nob_nno_translation",
+        "norsumm_nno_nob_translation",
+    ]
 
     # Build output
     output = {
@@ -221,7 +239,10 @@ def main():
         "task_groups": TASK_GROUPS,
         "standalone_benchmarks": STANDALONE_BENCHMARKS,
         "nno_benchmarks": sorted(nno_benchmarks),
+        "sme_benchmarks": sorted(sme_benchmarks),
+        "nob_nno_translation_benchmarks": sorted(nob_nno_translation_benchmarks),
         "model_display_names": MODEL_DISPLAY_NAMES,
+        "default_models": DEFAULT_MODELS,
         "models": models,
         "progress": progress,
     }

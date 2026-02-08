@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NorEval Benchmark Results</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
@@ -37,19 +40,28 @@
             </div>
         </div>
 
+        <div id="task-description" class="task-description" style="display:none;"></div>
+
         <div id="chart-container">
             <div id="chart"></div>
         </div>
 
         <div id="task-checkboxes" class="task-checkboxes">
             <div class="checkbox-header">
-                <h3>Tasks included in aggregation:</h3>
+                <h3>Tasks included in aggregation</h3>
                 <div class="checkbox-actions">
                     <button id="select-all-btn" class="small-btn">Select all</button>
                     <button id="select-none-btn" class="small-btn">Select none</button>
                 </div>
             </div>
             <div id="checkbox-grid" class="checkbox-grid"></div>
+        </div>
+
+        <div id="model-checkboxes" class="model-checkboxes">
+            <div class="checkbox-header">
+                <h3>Models</h3>
+            </div>
+            <div id="model-checkbox-grid" class="model-checkbox-grid"></div>
         </div>
     </main>
 
