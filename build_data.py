@@ -36,6 +36,7 @@ MODEL_DISPLAY_NAMES = {
     "NorGPT-3B": "NTNU NorGPT 3B",
     "NorLlama-3B": "NTNU NorLlama 8B",
     "NorwAI-Mistral-7B": "NorwAI Mistral 7B",
+    "NorwAI-Mixtral-8x7B": "NorwAI Mixtral 8x7B",
     "nb-gpt-j-6B": "NB-GPT-J 6B",
     # Multilingual models
     "EuroLLM-22B-2512": "EuroLLM 22B",
@@ -63,6 +64,7 @@ MODEL_CATEGORIES = {
     "NorGPT-3B": "norwegian",
     "NorLlama-3B": "norwegian",
     "NorwAI-Mistral-7B": "norwegian",
+    "NorwAI-Mixtral-8x7B": "norwegian",
     "nb-gpt-j-6B": "norwegian",
     "EuroLLM-22B-2512": "multilingual",
     "EuroLLM-9B-2512": "multilingual",

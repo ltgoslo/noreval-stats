@@ -137,6 +137,84 @@ function autoSetNormalization() {
 }
 
 // ============================================================
+// URL state (shareable links)
+// ============================================================
+
+function setsEqual(a, b) {
+  if (a.size !== b.size) return false;
+  for (const item of a) if (!b.has(item)) return false;
+  return true;
+}
+
+function stateToUrl() {
+  if (!DATA) return;
+  const params = new URLSearchParams();
+
+  if (currentTab !== "comparison") params.set("tab", currentTab);
+  if (currentShot !== "5") params.set("shot", currentShot);
+  if (currentTaskSelection !== "__all__") params.set("task", currentTaskSelection);
+  if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
+
+  // Only store normalization if it differs from what auto-set would give
+  const autoNorm = isAggregateSelection(currentTaskSelection) ? "baseline" : "none";
+  if (currentNormalization !== autoNorm) params.set("norm", currentNormalization);
+
+  // Models: only store if different from defaults
+  const defaultModelSet = new Set((DATA.default_models || []).filter((m) => m in DATA.models));
+  if (!setsEqual(checkedModels, defaultModelSet)) {
+    params.set("models", [...checkedModels].sort().join(","));
+  }
+
+  // Tasks: only store if different from what the current task selection auto-selects
+  const autoTasks = new Set(getBenchmarksForSelection(currentTaskSelection));
+  if (!setsEqual(checkedTasks, autoTasks)) {
+    params.set("tasks", [...checkedTasks].sort().join(","));
+  }
+
+  const hash = params.toString();
+  const newHash = hash ? "#" + hash : "";
+  if (window.location.hash !== newHash) {
+    history.replaceState(null, "", window.location.pathname + window.location.search + newHash);
+  }
+}
+
+function loadStateFromHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return false;
+
+  const params = new URLSearchParams(hash);
+  let loaded = false;
+
+  if (params.has("tab")) { currentTab = params.get("tab"); loaded = true; }
+  if (params.has("shot")) { currentShot = params.get("shot"); loaded = true; }
+  if (params.has("task")) { currentTaskSelection = params.get("task"); loaded = true; }
+  if (params.has("prompt")) { currentPromptAgg = params.get("prompt"); loaded = true; }
+  if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
+
+  if (params.has("models")) {
+    const val = params.get("models");
+    checkedModels = val ? new Set(val.split(",").filter((m) => m in DATA.models)) : new Set();
+    loaded = true;
+  }
+
+  if (params.has("tasks")) {
+    const val = params.get("tasks");
+    checkedTasks = val ? new Set(val.split(",").filter((t) => t in DATA.metrics_setup)) : new Set();
+    loaded = true;
+  } else if (loaded && params.has("task")) {
+    // Task selection changed but no explicit tasks override; auto-select
+    checkedTasks = new Set(getBenchmarksForSelection(currentTaskSelection));
+  }
+
+  // If normalization not explicitly set, auto-determine from task selection
+  if (!params.has("norm") && loaded) {
+    currentNormalization = isAggregateSelection(currentTaskSelection) ? "baseline" : "none";
+  }
+
+  return loaded;
+}
+
+// ============================================================
 // Initialization
 // ============================================================
 
@@ -144,15 +222,35 @@ async function init() {
   const response = await fetch("data.json");
   DATA = await response.json();
 
+  // Set defaults
   const defaultModels = DATA.default_models || Object.keys(DATA.models);
   checkedModels = new Set(defaultModels.filter((m) => m in DATA.models));
-
-  populateTaskDropdown();
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
+
+  // Restore state from URL hash (overrides defaults)
+  const hasUrlState = loadStateFromHash();
+
+  // Build UI
+  populateTaskDropdown();
   bindEventListeners();
   buildCheckboxes();
   buildModelCheckboxes();
-  autoSetNormalization();
+
+  if (hasUrlState) {
+    // Sync UI controls to restored state
+    document.getElementById("task-select").value = currentTaskSelection;
+    document.getElementById("prompt-agg-select").value = currentPromptAgg;
+    document.getElementById("norm-select").value = currentNormalization;
+    document.querySelectorAll(".tab-btn").forEach((btn) =>
+      btn.classList.toggle("active", btn.dataset.tab === currentTab));
+    document.querySelectorAll(".shot-btn").forEach((btn) =>
+      btn.classList.toggle("active", btn.dataset.shot === currentShot));
+    syncCheckboxStates();
+    syncModelCheckboxStates();
+  } else {
+    autoSetNormalization();
+  }
+
   renderChart();
 }
 
@@ -505,6 +603,7 @@ function renderChart() {
   if (modelSection) modelSection.style.display = currentTab === "progress" ? "none" : "";
   if (currentTab === "comparison") renderComparisonChart();
   else renderProgressChart();
+  stateToUrl();
 }
 
 function updateDescription() {
@@ -581,7 +680,8 @@ function renderComparisonChart() {
 }
 
 function getModelList() {
-  return Object.keys(DATA.models).filter((m) => checkedModels.has(m));
+  return Object.keys(DATA.models).filter((m) => checkedModels.has(m))
+    .sort((a, b) => getModelLabel(a).localeCompare(getModelLabel(b)));
 }
 
 function getModelLabel(modelDir) {
