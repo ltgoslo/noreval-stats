@@ -588,9 +588,10 @@ function renderGroupedBarChart(groupName) {
     };
   });
 
-  // Grey legend-only traces (scatter so they don't interfere with bar grouping)
+  // Grey legend-only traces (scatter with empty data, placed AFTER bar traces
+  // so bars establish the categorical x-axis first)
   const legendTraces = group.labels.map((lbl, i) => ({
-    x: [null], y: [null], type: "scatter", mode: "markers",
+    x: [], y: [], type: "scatter", mode: "markers",
     name: lbl,
     marker: { color: i === 0 ? "#b0b0b0" : "#707070", size: 10, symbol: "square" },
     showlegend: true,
@@ -603,7 +604,7 @@ function renderGroupedBarChart(groupName) {
     barmode: "group",
     legend: { orientation: "h", y: -0.15 },
   });
-  Plotly.newPlot("chart", [...legendTraces, ...dataTraces], layout, PLOTLY_CONFIG);
+  Plotly.newPlot("chart", [...dataTraces, ...legendTraces], layout, PLOTLY_CONFIG);
 }
 
 function renderSingleBenchmarkBarChart(benchmark) {
