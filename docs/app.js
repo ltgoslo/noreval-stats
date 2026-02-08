@@ -89,7 +89,7 @@ function baselineNorm(raw, benchmark) {
 }
 
 /** Apply current normalization to a raw score.
- *  For min-max, pass allRaw = array of all raw scores for this benchmark. */
+ *  For min-max and z-score, pass allRaw = array of all raw scores for this benchmark. */
 function applyNorm(raw, benchmark, allRaw) {
   if (currentNormalization === "none") return toDisplayScale(raw, benchmark);
   if (currentNormalization === "baseline") return baselineNorm(raw, benchmark);
@@ -98,12 +98,19 @@ function applyNorm(raw, benchmark, allRaw) {
     const mn = Math.min(...allRaw), mx = Math.max(...allRaw);
     return mx === mn ? 50 : ((raw - mn) / (mx - mn)) * 100;
   }
+  if (currentNormalization === "zscore") {
+    if (!allRaw || allRaw.length < 2) return 0;
+    const mean = allRaw.reduce((a, b) => a + b, 0) / allRaw.length;
+    const std = Math.sqrt(allRaw.reduce((s, v) => s + (v - mean) ** 2, 0) / allRaw.length);
+    return std === 0 ? 0 : (raw - mean) / std;
+  }
   return toDisplayScale(raw, benchmark);
 }
 
 function getNormYLabel() {
   if (currentNormalization === "baseline") return "normalized score (baseline=0, perfect=100)";
   if (currentNormalization === "minmax") return "normalized score (min-max across models)";
+  if (currentNormalization === "zscore") return "z-score (standard deviations from mean)";
   return "score (0\u2013100)";
 }
 
@@ -521,12 +528,13 @@ function renderAggregateBarChart() {
   const hoverTexts = [];
   const colors = modelNames.map(getModelColor);
 
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore";
   for (const m of modelNames) {
     let sum = 0, count = 0;
     for (const bench of checkedTasks) {
       const raw = getScore(DATA.models, m, bench, currentShot);
       if (raw !== undefined) {
-        const allRaw = currentNormalization === "minmax"
+        const allRaw = needAllRaw
           ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
           : null;
         sum += applyNorm(raw, bench, allRaw);
@@ -535,20 +543,21 @@ function renderAggregateBarChart() {
     }
     const avg = count > 0 ? sum / count : 0;
     scores.push(avg);
-    hoverTexts.push(getModelLabel(m) + "<br>Avg: " + avg.toFixed(1) + " (" + count + " tasks)");
+    hoverTexts.push(getModelLabel(m) + "<br>Avg: " + avg.toFixed(2) + " (" + count + " tasks)");
   }
 
   const trace = {
     x: labels, y: scores, type: "bar",
     marker: { color: colors, line: { width: 0 } },
-    text: scores.map((s) => s.toFixed(1)), textposition: "outside",
+    text: scores.map((s) => s.toFixed(currentNormalization === "zscore" ? 2 : 1)),
+    textposition: "outside",
     hovertext: hoverTexts, hoverinfo: "text",
   };
 
-  const yMax = computeAggregateYMax(DATA.models, checkedTasks);
+  const yRange = computeAggregateYRange(DATA.models, checkedTasks);
   const layout = getPlotlyLayout({
     title: { text: getAggregateLabel() + " \u2014 aggregate (" + currentShot + "-shot)", font: { size: 16 } },
-    yaxis: { title: getNormYLabel(), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     xaxis: { title: "" },
   });
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
@@ -603,26 +612,29 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const colors = modelNames.map(getModelColor);
+  const allRaw = (currentNormalization !== "none")
+    ? modelNames.map((mm) => getScore(DATA.models, mm, benchmark, currentShot)).filter((v) => v !== undefined)
+    : null;
   const values = modelNames.map((m) => {
     const raw = getScore(DATA.models, m, benchmark, currentShot);
     if (raw == null) return null;
     if (currentNormalization === "none") return toDisplayScale(raw, benchmark);
-    const allRaw = modelNames.map((mm) => getScore(DATA.models, mm, benchmark, currentShot)).filter((v) => v !== undefined);
     return applyNorm(raw, benchmark, allRaw);
   });
 
-  const yMax = computeSingleYMax(DATA.models, benchmark);
+  const yRange = computeSingleYRange(DATA.models, benchmark);
   const yLabel = currentNormalization === "none" ? getMetricYLabel(benchmark) : getNormYLabel();
+  const fmt = currentNormalization === "zscore" ? 2 : 1;
 
   const trace = {
     x: labels, y: values, type: "bar",
     marker: { color: colors, line: { width: 0 } },
-    text: values.map((v) => (v !== null ? v.toFixed(1) : "")), textposition: "outside",
-    hovertemplate: "%{x}: %{y:.1f}<extra></extra>",
+    text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
+    hovertemplate: "%{x}: %{y:." + fmt + "f}<extra></extra>",
   };
   const layout = getPlotlyLayout({
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
-    yaxis: { title: yLabel, range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
   Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
 }
@@ -722,15 +734,23 @@ function renderSingleProgressChart(benchmark) {
 
 const ALL_SHOTS = ["0", "1", "5"];
 
-function computeYMax(values) {
-  if (!values.length) return 100;
+/** Compute [yMin, yMax] range from an array of values.
+ *  For non-negative modes, yMin is 0. For z-score, yMin can be negative. */
+function computeYRange(values) {
+  if (!values.length) return currentNormalization === "zscore" ? [-2, 2] : [0, 100];
   const mx = Math.max(...values);
-  return Math.min(mx + Math.max(mx * 0.15, 2), 115);
+  const mn = Math.min(...values);
+  if (currentNormalization === "zscore") {
+    const pad = Math.max((mx - mn) * 0.15, 0.3);
+    return [mn - pad, mx + pad];
+  }
+  return [0, Math.min(mx + Math.max(mx * 0.15, 2), 115)];
 }
 
-function computeAggregateYMax(dataSource, benchmarks) {
+function computeAggregateYRange(dataSource, benchmarks) {
   const allAvgs = [];
   const entities = Object.keys(dataSource);
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore";
   for (const shot of ALL_SHOTS) {
     for (const entity of entities) {
       if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
@@ -739,7 +759,7 @@ function computeAggregateYMax(dataSource, benchmarks) {
       for (const bench of benchmarks) {
         const raw = getScore(dataSource, entity, bench, shot);
         if (raw !== undefined) {
-          if (currentNormalization === "minmax" && modelNames) {
+          if (needAllRaw && modelNames) {
             const allRaw = modelNames.map((mm) => getScore(dataSource, mm, bench, shot)).filter((v) => v !== undefined);
             sum += applyNorm(raw, bench, allRaw);
           } else {
@@ -751,7 +771,7 @@ function computeAggregateYMax(dataSource, benchmarks) {
       if (count > 0) allAvgs.push(sum / count);
     }
   }
-  return computeYMax(allAvgs);
+  return computeYRange(allAvgs);
 }
 
 function computeRawYMax_display(dataSource, benchmarks) {
@@ -764,10 +784,12 @@ function computeRawYMax_display(dataSource, benchmarks) {
         if (v != null) vals.push(toDisplayScale(v, bench));
       }
   }
-  return computeYMax(vals);
+  if (!vals.length) return 100;
+  const mx = Math.max(...vals);
+  return Math.min(mx + Math.max(mx * 0.15, 2), 115);
 }
 
-function computeSingleYMax(dataSource, benchmark) {
+function computeSingleYRange(dataSource, benchmark) {
   const vals = [];
   const entities = Object.keys(dataSource).filter((e) => dataSource !== DATA.models || checkedModels.has(e));
   for (const shot of ALL_SHOTS) {
@@ -777,7 +799,7 @@ function computeSingleYMax(dataSource, benchmark) {
       else vals.push(applyNorm(raw, benchmark, raws));
     }
   }
-  return computeYMax(vals);
+  return computeYRange(vals);
 }
 
 function computeProgressAggregateYMax() {
@@ -792,7 +814,9 @@ function computeProgressAggregateYMax() {
       if (count > 0) allAvgs.push(sum / count);
     }
   }
-  return computeYMax(allAvgs);
+  if (!allAvgs.length) return 100;
+  const mx = Math.max(...allAvgs);
+  return Math.min(mx + Math.max(mx * 0.15, 2), 115);
 }
 
 function getAggregateLabel() {
