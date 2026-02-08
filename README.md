@@ -2,7 +2,7 @@
 
 Evaluation results and interactive visualizations for Norwegian language models, benchmarked with [lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness) v0.4.10 on the **NorEval** benchmark suite.
 
-**[View the interactive results](https://ltg.github.io/noreval-stats/)**
+**[View the interactive results](https://ltgoslo.github.io/noreval-stats/)**
 
 ## Models
 
@@ -103,7 +103,7 @@ python3 check_missing.py
 - **Hardware**: NVIDIA GH200 120GB GPUs
 - **Framework**: vLLM for model serving
 - **Seeds**: Fixed (random=0, numpy=1234, torch=1234, fewshot=1234)
-- **Prompt variants**: Each benchmark uses multiple prompt phrasings; scores are averaged across variants
+- **Prompt variants**: Each benchmark uses multiple prompt phrasings; scores are max-aggregated across variants
 
 ## License
 
