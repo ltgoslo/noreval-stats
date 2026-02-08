@@ -58,8 +58,8 @@ MODEL_CATEGORIES = {
     "normistral-7b-warm": "norwegian",
     "normistral-11b-warm": "norwegian",
     "normistral-11b-long": "norwegian",
-    "olmo-2-13b (stage 1)": "norwegian",
-    "Apertus-8B-2509": "norwegian",
+    "olmo-2-13b (stage 1)": "multilingual",
+    "Apertus-8B-2509": "multilingual",
     "NorGPT-3B": "norwegian",
     "NorLlama-3B": "norwegian",
     "NorwAI-Mistral-7B": "norwegian",
@@ -233,6 +233,7 @@ def build_metrics_info(metrics_setup):
             "category": config.get("category", "Uncategorized"),
             "evaluation_type": config.get("evaluation_type", ""),
             "metric_scale": config.get("metric_scale", "unit"),
+            "url": config.get("url", ""),
         }
     return info
 

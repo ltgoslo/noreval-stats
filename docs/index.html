@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NorEval Benchmark Results</title>
+    <title>NorEval Benchmark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,13 +12,13 @@
 </head>
 <body>
     <header>
-        <h1>NorEval Benchmark Results</h1>
-        <p class="subtitle">Norwegian language model evaluation with <a href="https://github.com/EleutherAI/lm-evaluation-harness">lm-eval-harness</a> v0.4.10</p>
+        <h1>NorEval Benchmark &#127475;&#127476;</h1>
+        <p class="subtitle">Norwegian language-modeling evaluation with <a href="https://github.com/EleutherAI/lm-evaluation-harness">lm-eval-harness</a> using our <a href="https://aclanthology.org/2025.findings-acl.181/">NorEval benchmark</a></p>
     </header>
 
     <main>
         <nav class="tab-nav">
-            <button class="tab-btn active" data-tab="comparison">Model Comparison</button>
+            <button class="tab-btn active" data-tab="comparison">Base Model Comparison</button>
             <button class="tab-btn" data-tab="progress">NorOLMo Progress</button>
         </nav>
 
@@ -89,11 +89,6 @@
             <div id="model-checkbox-grid" class="model-checkbox-grid"></div>
         </div>
     </main>
-
-    <footer>
-        <p>Evaluated on NVIDIA GH200 120GB GPUs with fixed seeds for reproducibility.
-        Best score across prompt variants reported by default. Normalized scores: 0 = random baseline, 100 = perfect.</p>
-    </footer>
 
     <script src="app.js"></script>
 </body>

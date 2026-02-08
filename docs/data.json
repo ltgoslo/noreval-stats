@@ -8,7 +8,8 @@
       "max_performance": 1.0,
       "category": "linguistic knowledge",
       "evaluation_type": "generation",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/ask-gec"
     },
     "ncb": {
       "pretty_name": "linguistic acceptability (punctuation)",
@@ -18,7 +19,8 @@
       "max_performance": 1.0,
       "category": "linguistic knowledge",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/hcfa/ncb"
     },
     "nocola": {
       "pretty_name": "linguistic acceptability (NoCoLA)",
@@ -28,7 +30,8 @@
       "max_performance": 1.0,
       "category": "linguistic knowledge",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/nocola"
     },
     "norbelebele": {
       "pretty_name": "reading comprehension (Belebele)",
@@ -38,7 +41,8 @@
       "max_performance": 1.0,
       "category": "language understanding",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/norbelebele"
     },
     "norcommonsenseqa_nno": {
       "pretty_name": "multiple-choice QA (commonsense)",
@@ -48,7 +52,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/norcommonsenseqa"
     },
     "norcommonsenseqa_nob": {
       "pretty_name": "multiple-choice QA (commonsense)",
@@ -58,7 +63,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/norcommonsenseqa"
     },
     "norec_document": {
       "pretty_name": "sentiment analysis (document)",
@@ -68,7 +74,8 @@
       "max_performance": 1.0,
       "category": "language understanding",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/norec_document"
     },
     "norec_sentence": {
       "pretty_name": "sentiment analysis (sentence)",
@@ -78,7 +85,8 @@
       "max_performance": 1.0,
       "category": "language understanding",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/norec_sentence"
     },
     "noridiom_nno": {
       "pretty_name": "idiom completion",
@@ -88,7 +96,8 @@
       "max_performance": 1.0,
       "category": "linguistic knowledge",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/Sprakbanken/Norwegian_idioms"
     },
     "noridiom_nob": {
       "pretty_name": "idiom completion",
@@ -98,7 +107,8 @@
       "max_performance": 1.0,
       "category": "linguistic knowledge",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/Sprakbanken/Norwegian_idioms"
     },
     "noropenbookqa_nno": {
       "pretty_name": "reading comprehension (openbookqa)",
@@ -108,7 +118,8 @@
       "max_performance": 1.0,
       "category": "language understanding",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/noropenbookqa"
     },
     "noropenbookqa_nob": {
       "pretty_name": "reading comprehension (openbookqa)",
@@ -118,7 +129,8 @@
       "max_performance": 1.0,
       "category": "language understanding",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/noropenbookqa"
     },
     "noropenbookqa_no_fact_nno": {
       "pretty_name": "multiple-choice QA (openbookqa)",
@@ -128,7 +140,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/noropenbookqa"
     },
     "noropenbookqa_no_fact_nob": {
       "pretty_name": "multiple-choice QA (openbookqa)",
@@ -138,7 +151,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/noropenbookqa"
     },
     "norquad": {
       "pretty_name": "reading comprehension (norquad)",
@@ -148,7 +162,8 @@
       "max_performance": 1.0,
       "category": "language understanding",
       "evaluation_type": "generation",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/norquad"
     },
     "norrewrite_instruct": {
       "pretty_name": "instruction-following",
@@ -158,7 +173,8 @@
       "max_performance": 100.0,
       "category": "generation & summarization",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/norrewrite-instruct"
     },
     "norsummarize_instruct": {
       "pretty_name": "summarization (instructed)",
@@ -168,7 +184,8 @@
       "max_performance": 100.0,
       "category": "generation & summarization",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/norsummarize-instruct"
     },
     "norsumm_nob": {
       "pretty_name": "summarization (norsumm)",
@@ -178,7 +195,8 @@
       "max_performance": 100.0,
       "category": "generation & summarization",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/SamiaT/NorSumm"
     },
     "norsumm_nno": {
       "pretty_name": "summarization (norsumm)",
@@ -188,7 +206,8 @@
       "max_performance": 100.0,
       "category": "generation & summarization",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/SamiaT/NorSumm"
     },
     "norsumm_nob_nno_translation": {
       "pretty_name": "translation (Bokmål → Nynorsk)",
@@ -198,7 +217,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/norsumm-nob-nno-translation"
     },
     "norsumm_nno_nob_translation": {
       "pretty_name": "translation (Nynorsk → Bokmål)",
@@ -208,7 +228,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/norsumm-nob-nno-translation"
     },
     "nortruthfulqa_gen_nno": {
       "pretty_name": "generative QA (truthfulqa)",
@@ -218,7 +239,8 @@
       "max_performance": 100.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/nortruthfulqa_gen"
     },
     "nortruthfulqa_gen_nob": {
       "pretty_name": "generative QA (truthfulqa)",
@@ -228,7 +250,8 @@
       "max_performance": 100.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/nortruthfulqa_gen"
     },
     "nortruthfulqa_mc_nno": {
       "pretty_name": "multiple-choice QA (truthfulqa)",
@@ -238,7 +261,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/nortruthfulqa_mc"
     },
     "nortruthfulqa_mc_nob": {
       "pretty_name": "multiple-choice QA (truthfulqa)",
@@ -248,7 +272,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/nortruthfulqa_mc"
     },
     "nrk_quiz_qa_nno": {
       "pretty_name": "multiple-choice QA (nrk-quiz)",
@@ -258,7 +283,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/nrk_quiz_qa"
     },
     "nrk_quiz_qa_nob": {
       "pretty_name": "multiple-choice QA (nrk-quiz)",
@@ -268,7 +294,8 @@
       "max_performance": 1.0,
       "category": "world knowledge & reasoning",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/nrk_quiz_qa"
     },
     "slide": {
       "pretty_name": "Scandinavian LID",
@@ -278,7 +305,8 @@
       "max_performance": 1.0,
       "category": "linguistic knowledge",
       "evaluation_type": "classification",
-      "metric_scale": "unit"
+      "metric_scale": "unit",
+      "url": "https://huggingface.co/datasets/ltg/slide"
     },
     "tatoeba_eng_nno": {
       "pretty_name": "translation (English → Nynorsk)",
@@ -288,7 +316,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/Helsinki-NLP/tatoeba_mt"
     },
     "tatoeba_eng_nob": {
       "pretty_name": "translation (English → Bokmål)",
@@ -298,7 +327,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/Helsinki-NLP/tatoeba_mt"
     },
     "tatoeba_nno_eng": {
       "pretty_name": "translation (Nynorsk → English)",
@@ -308,7 +338,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/Helsinki-NLP/tatoeba_mt"
     },
     "tatoeba_nob_eng": {
       "pretty_name": "translation (Bokmål → English)",
@@ -318,7 +349,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/Helsinki-NLP/tatoeba_mt"
     },
     "tatoeba_nob_sme": {
       "pretty_name": "translation (Bokmål → Sámi)",
@@ -328,7 +360,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/saami-tatoeba"
     },
     "tatoeba_sme_nob": {
       "pretty_name": "translation (Sámi → Bokmål)",
@@ -338,7 +371,8 @@
       "max_performance": 100.0,
       "category": "translation",
       "evaluation_type": "generation",
-      "metric_scale": "percent"
+      "metric_scale": "percent",
+      "url": "https://huggingface.co/datasets/ltg/saami-tatoeba"
     }
   },
   "task_groups": {
@@ -529,8 +563,8 @@
     "normistral-7b-warm": "norwegian",
     "normistral-11b-warm": "norwegian",
     "normistral-11b-long": "norwegian",
-    "olmo-2-13b (stage 1)": "norwegian",
-    "Apertus-8B-2509": "norwegian",
+    "olmo-2-13b (stage 1)": "multilingual",
+    "Apertus-8B-2509": "multilingual",
     "NorGPT-3B": "norwegian",
     "NorLlama-3B": "norwegian",
     "NorwAI-Mistral-7B": "norwegian",
@@ -3181,6 +3215,20 @@
       }
     },
     "Mistral-7B-v0.1": {
+      "ask_gec": {
+        "0": {
+          "max": 0.0613,
+          "mean": 0.0392,
+          "median": 0.0523,
+          "min": 0.004
+        },
+        "5": {
+          "max": 0.294,
+          "mean": 0.27866,
+          "median": 0.2833,
+          "min": 0.262
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.7,
@@ -7803,6 +7851,26 @@
       }
     },
     "Qwen3-14B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.4061,
+          "mean": 0.394,
+          "median": 0.3962,
+          "min": 0.3774
+        },
+        "1": {
+          "max": 0.4128,
+          "mean": 0.39898,
+          "median": 0.3979,
+          "min": 0.3876
+        },
+        "5": {
+          "max": 0.4183,
+          "mean": 0.41418,
+          "median": 0.4174,
+          "min": 0.4072
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.757143,

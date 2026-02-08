@@ -303,11 +303,12 @@ main {
   letter-spacing: 0.04em;
   padding-bottom: 0.15rem;
   border-bottom: 1px solid var(--border-light);
+  grid-column: 1 / -1;
 }
 
 .model-category-group {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.3rem 1rem;
 }
 
@@ -338,15 +339,6 @@ main {
   flex-shrink: 0;
 }
 
-/* Footer */
-footer {
-  text-align: center;
-  padding: 1.25rem 1rem;
-  color: var(--fg-muted);
-  font-size: 0.8rem;
-  border-top: 1px solid var(--border);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .controls {
@@ -369,5 +361,9 @@ footer {
 
   #chart {
     height: 360px;
+  }
+
+  .model-category-group {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

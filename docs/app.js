@@ -17,12 +17,12 @@ const MODEL_COLORS = [
 ];
 
 const METRIC_DISPLAY = {
-  acc: "accuracy (0\u2013100)",
-  f1: "F1 (0\u2013100)",
-  em: "exact match (0\u2013100)",
+  acc: "accuracy",
+  f1: "F1",
+  em: "exact match",
   bleu: "BLEU",
   rougeL_max: "ROUGE-L",
-  errant_f05: "ERRANT F0.5 (0\u2013100)",
+  errant_f05: "ERRANT F0.5",
   chrf: "chrF",
 };
 
@@ -510,14 +510,61 @@ function updateDescription() {
   if (!descEl) return;
   const sel = currentTaskSelection;
   let desc = "";
-  if (sel.startsWith("__group__")) {
+  let url = "";
+  if (isAggregateSelection(sel)) {
+    desc = getAggregateDescription();
+  } else if (sel.startsWith("__group__")) {
     const g = DATA.task_groups[sel.slice(9)];
-    if (g) { const info = DATA.metrics_setup[g.benchmarks[0]]; if (info) desc = info.description || ""; }
-  } else if (!isAggregateSelection(sel) && DATA.metrics_setup[sel]) {
+    if (g) {
+      const info = DATA.metrics_setup[g.benchmarks[0]];
+      if (info) {
+        desc = info.description || "";
+        url = info.url || "";
+      }
+    }
+  } else if (DATA.metrics_setup[sel]) {
     desc = DATA.metrics_setup[sel].description || "";
+    url = DATA.metrics_setup[sel].url || "";
   }
-  descEl.textContent = desc;
+  descEl.innerHTML = "";
+  if (desc) {
+    descEl.appendChild(document.createTextNode(desc));
+    if (url) {
+      descEl.appendChild(document.createTextNode(" "));
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Dataset \u2197";
+      link.style.color = "var(--accent)";
+      link.style.textDecoration = "none";
+      descEl.appendChild(link);
+    }
+  }
   descEl.style.display = desc ? "block" : "none";
+}
+
+function getAggregateDescription() {
+  const sel = currentTaskSelection;
+  const benchmarks = getBenchmarksForSelection(sel);
+  const count = benchmarks.filter((b) => checkedTasks.has(b)).length;
+  let scope = "";
+  if (sel === "__all__") scope = "all " + count + " tasks";
+  else if (sel.startsWith("__cat__")) scope = count + " tasks in the \"" + sel.slice(7) + "\" category";
+  else if (sel.startsWith("__eval__")) scope = count + " " + sel.slice(8) + " tasks";
+  else if (sel === "__lang__nob") scope = count + " Bokm\u00e5l tasks";
+  else if (sel === "__lang__nno") scope = count + " Nynorsk tasks";
+  else if (sel === "__lang__sme") scope = count + " Northern S\u00e1mi tasks";
+
+  const normDescs = {
+    none: "Scores are shown on their native metric scales without normalization, then averaged.",
+    baseline: "Each task score is normalized to a 0\u2013100 scale where 0 = random baseline performance and 100 = perfect score, then averaged across tasks. This accounts for different chance levels across tasks (e.g. 25% for 4-choice QA vs. 50% for binary classification).",
+    minmax: "Each task score is normalized to 0\u2013100 using the minimum and maximum scores observed across all models for that task, then averaged. This shows relative performance within the evaluated model set.",
+    zscore: "Each task score is converted to a z-score (number of standard deviations from the mean across models), then averaged. This gives equal weight to all tasks regardless of score spread.",
+    percentile: "Each task score is converted to a percentile rank (0 = worst model, 100 = best model) across all evaluated models, then averaged.",
+  };
+  const normDesc = normDescs[currentNormalization] || "";
+  return "Aggregate score across " + scope + ". " + normDesc;
 }
 
 // ============================================================
@@ -597,30 +644,51 @@ function renderGroupedBarChart(groupName) {
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const bench0 = group.benchmarks[0];
+  const useNorm = currentNormalization !== "none";
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
 
   const dataTraces = group.benchmarks.map((bench, i) => {
+    const allRaw = needAllRaw
+      ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
+      : null;
     const values = modelNames.map((m) => {
       const raw = getScore(DATA.models, m, bench, currentShot);
-      return raw != null ? toDisplayScale(raw, bench) : null;
+      if (raw == null) return null;
+      return useNorm ? applyNorm(raw, bench, allRaw) : toDisplayScale(raw, bench);
     });
     const barColors = modelNames.map((m) => {
       const base = getModelColor(m);
       return i === 0 ? base : darkenColor(base, 0.3);
     });
+    const fmt = currentNormalization === "zscore" ? 2 : 1;
     return {
       x: labels, y: values, name: group.labels[i], type: "bar",
       legendgroup: group.labels[i],
       marker: { color: barColors, line: { width: 0 } },
-      text: values.map((v) => (v !== null ? v.toFixed(1) : "")), textposition: "outside",
-      hovertemplate: "%{x}<br>" + group.labels[i] + ": %{y:.1f}<extra></extra>",
+      text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
+      hovertemplate: "%{x}<br>" + group.labels[i] + ": %{y:." + fmt + "f}<extra></extra>",
       showlegend: true,
     };
   });
 
-  const yMax = computeRawYMax_display(DATA.models, group.benchmarks);
+  const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0);
+  let yRange;
+  if (useNorm) {
+    // Compute y-range using normalization across all benchmarks in group
+    const vals = [];
+    for (const shot of ALL_SHOTS) {
+      for (const bench of group.benchmarks) {
+        const raws = modelNames.map((m) => getScore(DATA.models, m, bench, shot)).filter((v) => v !== undefined);
+        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null));
+      }
+    }
+    yRange = computeYRange(vals);
+  } else {
+    yRange = [0, computeRawYMax_display(DATA.models, group.benchmarks)];
+  }
   const layout = getPlotlyLayout({
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
-    yaxis: { title: getMetricYLabel(bench0), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     barmode: "group",
     legend: { x: 0.01, y: 0.99, xanchor: "left", yanchor: "top",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
@@ -713,25 +781,46 @@ function renderGroupProgressChart(groupName) {
   const group = DATA.task_groups[groupName];
   if (!group) return;
   const steps = getSteps();
+  const allStepEntities = steps.map(String);
   const bench0 = group.benchmarks[0];
+  const useNorm = currentNormalization !== "none";
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
+  const fmt = currentNormalization === "zscore" ? 2 : 1;
 
   const traces = group.benchmarks.map((bench, i) => {
+    const allRaw = needAllRaw
+      ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
+      : null;
     const ys = steps.map((s) => {
       const raw = getScore(DATA.progress, s, bench, currentShot);
-      return raw != null ? toDisplayScale(raw, bench) : null;
+      if (raw == null) return null;
+      return useNorm ? applyNorm(raw, bench, allRaw) : toDisplayScale(raw, bench);
     });
     return {
       x: steps, y: ys, mode: "lines+markers", name: group.labels[i],
       line: { width: 2.5 }, marker: { size: 5 },
-      hovertemplate: group.labels[i] + "<br>Step %{x}: %{y:.1f}<extra></extra>",
+      hovertemplate: group.labels[i] + "<br>Step %{x}: %{y:." + fmt + "f}<extra></extra>",
     };
   });
 
-  const yMax = computeRawYMax_display(DATA.progress, group.benchmarks);
+  const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0);
+  let yRange;
+  if (useNorm) {
+    const vals = [];
+    for (const shot of ALL_SHOTS) {
+      for (const bench of group.benchmarks) {
+        const raws = allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot)).filter((v) => v !== undefined);
+        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null));
+      }
+    }
+    yRange = computeYRange(vals);
+  } else {
+    yRange = [0, computeRawYMax_display(DATA.progress, group.benchmarks)];
+  }
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: getMetricYLabel(bench0), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
   Plotly.newPlot("chart", traces, layout, PLOTLY_CONFIG);
 }
