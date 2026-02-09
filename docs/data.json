@@ -539,10 +539,10 @@
     "normistral-7b-warm": "NorMistral 7B",
     "normistral-11b-warm": "NorMistral 11B",
     "normistral-11b-long": "NorMistral 11B Long",
-    "olmo-2-13b (stage 1)": "OLMo-2 13B (stage 1)",
+    "olmo-2-13b (stage 1)": "OLMo 2 13B (stage 1)",
     "Apertus-8B-2509": "Apertus 8B",
-    "NorGPT-3B": "NTNU NorGPT 3B",
-    "NorLlama-3B": "NTNU NorLlama 8B",
+    "NorGPT-3B": "NorwAI NorGPT 3B",
+    "NorLlama-3B": "NorwAI NorLlama 8B",
     "NorwAI-Mistral-7B": "NorwAI Mistral 7B",
     "NorwAI-Mixtral-8x7B": "NorwAI Mixtral 8x7B",
     "nb-gpt-j-6B": "NB-GPT-J 6B",
@@ -11884,6 +11884,18 @@
     },
     "nb-gpt-j-6B": {
       "ask_gec": {
+        "0": {
+          "max": 0.0251,
+          "mean": 0.017033,
+          "median": 0.0143,
+          "min": 0.0117
+        },
+        "1": {
+          "max": 0.0904,
+          "mean": 0.07156,
+          "median": 0.0741,
+          "min": 0.0464
+        },
         "5": {
           "max": 0.1577,
           "mean": 0.13234,

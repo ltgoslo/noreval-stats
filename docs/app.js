@@ -140,6 +140,53 @@ function autoSetNormalization() {
 // URL state (shareable links)
 // ============================================================
 
+// Alias lookup maps (built on init from data)
+let _modelDirToAlias = {};
+let _modelAliasToDir = {};
+let _taskSelToAlias = {};
+let _taskAliasToSel = {};
+
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function buildUrlMaps() {
+  // Model aliases: slugified display name → dir name
+  for (const dir of Object.keys(DATA.models)) {
+    const alias = slugify(getModelLabel(dir));
+    _modelDirToAlias[dir] = alias;
+    _modelAliasToDir[alias] = dir;
+  }
+
+  // Task selection aliases for categories, languages, eval types, groups
+  const cats = new Set();
+  const evals = new Set();
+  for (const info of Object.values(DATA.metrics_setup)) {
+    cats.add(info.category);
+    if (info.evaluation_type) evals.add(info.evaluation_type);
+  }
+  for (const cat of cats) {
+    const sel = "__cat__" + cat, alias = "c:" + slugify(cat);
+    _taskSelToAlias[sel] = alias;
+    _taskAliasToSel[alias] = sel;
+  }
+  for (const et of evals) {
+    const sel = "__eval__" + et, alias = "e:" + slugify(et);
+    _taskSelToAlias[sel] = alias;
+    _taskAliasToSel[alias] = sel;
+  }
+  for (const lang of ["nob", "nno", "sme"]) {
+    const sel = "__lang__" + lang, alias = "l:" + lang;
+    _taskSelToAlias[sel] = alias;
+    _taskAliasToSel[alias] = sel;
+  }
+  for (const gn of Object.keys(DATA.task_groups)) {
+    const sel = "__group__" + gn, alias = "g:" + slugify(gn);
+    _taskSelToAlias[sel] = alias;
+    _taskAliasToSel[alias] = sel;
+  }
+}
+
 function setsEqual(a, b) {
   if (a.size !== b.size) return false;
   for (const item of a) if (!b.has(item)) return false;
@@ -152,17 +199,24 @@ function stateToUrl() {
 
   if (currentTab !== "comparison") params.set("tab", currentTab);
   if (currentShot !== "5") params.set("shot", currentShot);
-  if (currentTaskSelection !== "__all__") params.set("task", currentTaskSelection);
+  if (currentTaskSelection !== "__all__") {
+    params.set("task", _taskSelToAlias[currentTaskSelection] || currentTaskSelection);
+  }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
 
   // Only store normalization if it differs from what auto-set would give
   const autoNorm = isAggregateSelection(currentTaskSelection) ? "baseline" : "none";
   if (currentNormalization !== autoNorm) params.set("norm", currentNormalization);
 
-  // Models: only store if different from defaults
+  // Models: "all" for all, omit for defaults, aliases otherwise
+  const allModelSet = new Set(Object.keys(DATA.models));
   const defaultModelSet = new Set((DATA.default_models || []).filter((m) => m in DATA.models));
   if (!setsEqual(checkedModels, defaultModelSet)) {
-    params.set("models", [...checkedModels].sort().join(","));
+    if (setsEqual(checkedModels, allModelSet)) {
+      params.set("models", "all");
+    } else {
+      params.set("models", [...checkedModels].map((d) => _modelDirToAlias[d] || d).sort().join(","));
+    }
   }
 
   // Tasks: only store if different from what the current task selection auto-selects
@@ -187,13 +241,23 @@ function loadStateFromHash() {
 
   if (params.has("tab")) { currentTab = params.get("tab"); loaded = true; }
   if (params.has("shot")) { currentShot = params.get("shot"); loaded = true; }
-  if (params.has("task")) { currentTaskSelection = params.get("task"); loaded = true; }
+  if (params.has("task")) {
+    const alias = params.get("task");
+    currentTaskSelection = _taskAliasToSel[alias] || alias;
+    loaded = true;
+  }
   if (params.has("prompt")) { currentPromptAgg = params.get("prompt"); loaded = true; }
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
 
   if (params.has("models")) {
     const val = params.get("models");
-    checkedModels = val ? new Set(val.split(",").filter((m) => m in DATA.models)) : new Set();
+    if (val === "all") {
+      checkedModels = new Set(Object.keys(DATA.models));
+    } else {
+      checkedModels = val
+        ? new Set(val.split(",").map((a) => _modelAliasToDir[a] || a).filter((m) => m in DATA.models))
+        : new Set();
+    }
     loaded = true;
   }
 
@@ -227,7 +291,8 @@ async function init() {
   checkedModels = new Set(defaultModels.filter((m) => m in DATA.models));
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
 
-  // Restore state from URL hash (overrides defaults)
+  // Build URL alias maps, then restore state from URL hash
+  buildUrlMaps();
   const hasUrlState = loadStateFromHash();
 
   // Build UI
