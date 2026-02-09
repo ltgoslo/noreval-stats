@@ -380,6 +380,31 @@ main {
   word-break: break-all;
 }
 
+/* Plotly modebar */
+.modebar-container {
+  top: 8px !important;
+  right: 8px !important;
+}
+
+.modebar-group {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: 2px !important;
+}
+
+.modebar-btn {
+  color: var(--fg-muted) !important;
+}
+
+.modebar-btn:hover {
+  color: var(--accent) !important;
+}
+
+.modebar-btn.active {
+  color: var(--accent) !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .controls {

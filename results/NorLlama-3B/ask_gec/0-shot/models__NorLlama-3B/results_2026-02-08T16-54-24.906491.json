@@ -3,27 +3,32 @@
     "ask_gec_p0": {
       "alias": "ask_gec_p0",
       "exact_match,none": 0.0,
-      "exact_match_stderr,none": 0.0
+      "exact_match_stderr,none": 0.0,
+      "errant_f05,none": 0.0
     },
     "ask_gec_p1": {
       "alias": "ask_gec_p1",
       "exact_match,none": 0.0,
-      "exact_match_stderr,none": 0.0
+      "exact_match_stderr,none": 0.0,
+      "errant_f05,none": 0.0
     },
     "ask_gec_p2": {
       "alias": "ask_gec_p2",
       "exact_match,none": 0.0,
-      "exact_match_stderr,none": 0.0
+      "exact_match_stderr,none": 0.0,
+      "errant_f05,none": 0.0
     },
     "ask_gec_p3": {
       "alias": "ask_gec_p3",
       "exact_match,none": 0.0,
-      "exact_match_stderr,none": 0.0
+      "exact_match_stderr,none": 0.0,
+      "errant_f05,none": 0.0
     },
     "ask_gec_p4": {
       "alias": "ask_gec_p4",
       "exact_match,none": 0.0,
-      "exact_match_stderr,none": 0.0
+      "exact_match_stderr,none": 0.0,
+      "errant_f05,none": 0.0
     }
   },
   "group_subtasks": {
