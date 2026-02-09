@@ -838,6 +838,7 @@ function getPlotlyLayout(overrides) {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 60, r: 20, t: 50, b: 100 },
+    xaxis: { automargin: true },
     autosize: true,
     hovermode: "closest",
   }, overrides);

@@ -294,6 +294,10 @@ main {
   gap: 0.75rem;
 }
 
+.model-category-group + .model-category-group {
+  margin-top: 0.25rem;
+}
+
 .model-category-group h4 {
   margin: 0 0 0.3rem;
   font-size: 0.8rem;
