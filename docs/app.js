@@ -833,15 +833,17 @@ function getModelLabel(modelDir) {
 }
 
 function getPlotlyLayout(overrides) {
-  return Object.assign({
+  const result = Object.assign({
     font: { family: "Inter, system-ui, sans-serif", size: 13 },
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 60, r: 20, t: 50, b: 100 },
-    xaxis: { automargin: true },
     autosize: true,
     hovermode: "closest",
   }, overrides);
+  // Deep-merge: ensure automargin is always set so tilted labels aren't clipped
+  result.xaxis = Object.assign({ automargin: true }, result.xaxis);
+  return result;
 }
 
 function plotChart(traces, layout) {

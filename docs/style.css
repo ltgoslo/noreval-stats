@@ -295,7 +295,7 @@ main {
 }
 
 .model-category-group + .model-category-group {
-  margin-top: 0.25rem;
+  margin-top: 0.75rem;
 }
 
 .model-category-group h4 {
