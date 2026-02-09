@@ -31,7 +31,31 @@ const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
 const PLOTLY_CONFIG = {
   responsive: true,
   displaylogo: false,
-  modeBarButtonsToRemove: ["lasso2d", "select2d"],
+  modeBarButtonsToRemove: [
+    "zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d",
+    "autoScale2d", "resetScale2d", "hoverClosestCartesian",
+    "hoverCompareCartesian", "toggleSpikelines",
+  ],
+  toImageButtonOptions: {
+    format: "png",
+    width: 1600,
+    height: 900,
+    scale: 3,
+  },
+  modeBarButtonsToAdd: [
+    {
+      name: "Download as SVG",
+      icon: Plotly.Icons.camera,
+      click: function (gd) {
+        Plotly.downloadImage(gd, {
+          format: "svg",
+          width: 1600,
+          height: 900,
+          filename: "noreval-chart",
+        });
+      },
+    },
+  ],
 };
 
 // ============================================================
