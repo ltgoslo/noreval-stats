@@ -393,16 +393,16 @@ main {
   padding: 2px !important;
 }
 
-.modebar-btn {
-  color: var(--fg-muted) !important;
+.modebar-btn path {
+  fill: var(--fg-muted) !important;
 }
 
-.modebar-btn:hover {
-  color: var(--accent) !important;
+.modebar-btn:hover path {
+  fill: var(--accent) !important;
 }
 
-.modebar-btn.active {
-  color: var(--accent) !important;
+.modebar-btn.active path {
+  fill: var(--accent) !important;
 }
 
 /* Responsive */
