@@ -544,9 +544,7 @@ function buildCheckboxes() {
     catDiv.appendChild(h4);
 
     for (const bench of grouped[cat]) {
-      const info = DATA.metrics_setup[bench];
       const label = document.createElement("label");
-      if (info.description) label.title = info.description;
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -560,6 +558,7 @@ function buildCheckboxes() {
 
       label.appendChild(checkbox);
       label.appendChild(document.createTextNode(" " + getCheckboxDisplayName(bench)));
+      attachTaskTooltip(label, bench);
       catDiv.appendChild(label);
     }
     grid.appendChild(catDiv);
@@ -667,31 +666,29 @@ function syncModelCheckboxStates() {
 }
 
 // ============================================================
-// Model tooltip
+// Generic tooltip
 // ============================================================
 
 let tooltipTimeout = null;
 
-function showModelTooltip(modelDir, event) {
-  const info = (DATA.model_info || {})[modelDir];
-  if (!info) return;
-  const tooltip = document.getElementById("model-tooltip");
-  document.getElementById("tooltip-name").textContent = getModelLabel(modelDir);
-  document.getElementById("tooltip-desc").textContent = info.description || "";
-  const linkEl = document.getElementById("tooltip-link");
-  if (info.huggingface_url) {
-    linkEl.textContent = info.huggingface_url.replace("https://huggingface.co/", "hf.co/");
-    linkEl.style.display = "";
-  } else {
-    linkEl.textContent = "";
-    linkEl.style.display = "none";
-  }
+function showTooltip(event, title, body, footer) {
+  const tooltip = document.getElementById("custom-tooltip");
+  const titleEl = document.getElementById("tooltip-title");
+  const bodyEl = document.getElementById("tooltip-body");
+  const footerEl = document.getElementById("tooltip-footer");
+  titleEl.textContent = title || "";
+  titleEl.style.display = title ? "" : "none";
+  bodyEl.textContent = body || "";
+  bodyEl.style.display = body ? "" : "none";
+  footerEl.textContent = footer || "";
+  footerEl.style.display = footer ? "" : "none";
   positionTooltip(tooltip, event);
   tooltip.classList.add("visible");
 }
 
-function hideModelTooltip() {
-  document.getElementById("model-tooltip").classList.remove("visible");
+function hideTooltip() {
+  clearTimeout(tooltipTimeout);
+  document.getElementById("custom-tooltip").classList.remove("visible");
 }
 
 function positionTooltip(tooltip, event) {
@@ -708,17 +705,34 @@ function positionTooltip(tooltip, event) {
   tooltip.style.top = y + "px";
 }
 
-function attachModelTooltip(element, modelDir) {
+function attachTooltip(element, contentFn) {
   element.addEventListener("mouseenter", (e) => {
-    tooltipTimeout = setTimeout(() => showModelTooltip(modelDir, e), 300);
+    tooltipTimeout = setTimeout(() => { const c = contentFn(); if (c) showTooltip(e, c.title, c.body, c.footer); }, 300);
   });
   element.addEventListener("mousemove", (e) => {
-    const tooltip = document.getElementById("model-tooltip");
+    const tooltip = document.getElementById("custom-tooltip");
     if (tooltip.classList.contains("visible")) positionTooltip(tooltip, e);
   });
-  element.addEventListener("mouseleave", () => {
-    clearTimeout(tooltipTimeout);
-    hideModelTooltip();
+  element.addEventListener("mouseleave", () => hideTooltip());
+}
+
+function attachModelTooltip(element, modelDir) {
+  attachTooltip(element, () => {
+    const info = (DATA.model_info || {})[modelDir];
+    if (!info) return null;
+    const footer = info.huggingface_url ? info.huggingface_url.replace("https://huggingface.co/", "hf.co/") : "";
+    return { title: getModelLabel(modelDir), body: info.description || "", footer };
+  });
+}
+
+function attachTaskTooltip(element, bench) {
+  attachTooltip(element, () => {
+    const info = DATA.metrics_setup[bench];
+    if (!info) return null;
+    const metric = METRIC_DISPLAY[info.main_metric] || info.main_metric;
+    const body = (info.description || "") + (info.description ? "  \u2022  " : "") + "Metric: " + metric;
+    const footer = info.url ? info.url.replace("https://huggingface.co/", "hf.co/") : "";
+    return { title: info.pretty_name, body, footer };
   });
 }
 
@@ -825,14 +839,43 @@ function getPlotlyLayout(overrides) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 60, r: 20, t: 50, b: 100 },
     autosize: true,
+    hovermode: "closest",
   }, overrides);
+}
+
+function plotChart(traces, layout) {
+  Plotly.newPlot("chart", traces, layout, PLOTLY_CONFIG);
+  const chartEl = document.getElementById("chart");
+  chartEl.on("plotly_hover", onChartHover);
+  chartEl.on("plotly_unhover", hideTooltip);
+}
+
+function onChartHover(data) {
+  if (!data.points || !data.points.length) return;
+  const pt = data.points[0];
+  if (pt.y == null) return;
+  const fmt = currentNormalization === "zscore" ? 2 : 1;
+  const scoreStr = Number(pt.y).toFixed(fmt);
+  const isProgress = currentTab === "progress";
+  const sel = currentTaskSelection;
+
+  let title = isProgress ? "Step " + pt.x : String(pt.x);
+  let body;
+  if (isAggregateSelection(sel)) {
+    body = "Average: " + scoreStr + (pt.customdata != null ? " (" + pt.customdata + " tasks)" : "");
+  } else if (sel.startsWith("__group__") && pt.data.name) {
+    body = pt.data.name + ": " + scoreStr;
+  } else {
+    body = "Score: " + scoreStr;
+  }
+  showTooltip(data.event, title, body);
 }
 
 function renderAggregateBarChart() {
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const scores = [];
-  const hoverTexts = [];
+  const taskCounts = [];
   const colors = modelNames.map(getModelColor);
 
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
@@ -848,12 +891,8 @@ function renderAggregateBarChart() {
         count++;
       }
     }
-    const avg = count > 0 ? sum / count : 0;
-    scores.push(avg);
-    const mInfo = (DATA.model_info || {})[m];
-    let ht = getModelLabel(m) + "<br>Avg: " + avg.toFixed(2) + " (" + count + " tasks)";
-    if (mInfo && mInfo.description) ht += "<br><br><i>" + mInfo.description + "</i>";
-    hoverTexts.push(ht);
+    scores.push(count > 0 ? sum / count : 0);
+    taskCounts.push(count);
   }
 
   const trace = {
@@ -861,7 +900,8 @@ function renderAggregateBarChart() {
     marker: { color: colors, line: { width: 0 } },
     text: scores.map((s) => s.toFixed(currentNormalization === "zscore" ? 2 : 1)),
     textposition: "outside",
-    hovertext: hoverTexts, hoverinfo: "text",
+    customdata: taskCounts,
+    hoverinfo: "none",
   };
 
   const yRange = computeAggregateYRange(DATA.models, checkedTasks);
@@ -870,7 +910,7 @@ function renderAggregateBarChart() {
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     xaxis: { title: "" },
   });
-  Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
+  plotChart([trace], layout);
 }
 
 function renderGroupedBarChart(groupName) {
@@ -901,7 +941,7 @@ function renderGroupedBarChart(groupName) {
       legendgroup: group.labels[i],
       marker: { color: barColors, line: { width: 0 } },
       text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
-      hovertemplate: "%{x}<br>" + group.labels[i] + ": %{y:." + fmt + "f}<extra></extra>",
+      hoverinfo: "none",
       showlegend: true,
     };
   });
@@ -928,7 +968,7 @@ function renderGroupedBarChart(groupName) {
     legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
   });
-  Plotly.newPlot("chart", dataTraces, layout, PLOTLY_CONFIG);
+  plotChart(dataTraces, layout);
 }
 
 function renderSingleBenchmarkBarChart(benchmark) {
@@ -955,13 +995,13 @@ function renderSingleBenchmarkBarChart(benchmark) {
     x: labels, y: values, type: "bar",
     marker: { color: colors, line: { width: 0 } },
     text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
-    hovertemplate: "%{x}: %{y:." + fmt + "f}<extra></extra>",
+    hoverinfo: "none",
   };
   const layout = getPlotlyLayout({
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
-  Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
+  plotChart([trace], layout);
 }
 
 // ============================================================
@@ -997,11 +1037,10 @@ function renderAggregateProgressChart() {
     return count > 0 ? sum / count : null;
   });
 
-  const fmt = currentNormalization === "zscore" ? 2 : 1;
   const trace = {
     x: steps, y: scores, mode: "lines+markers", name: "NorOLMo",
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
-    hovertemplate: "Step %{x}<br>Score: %{y:." + fmt + "f}<extra></extra>",
+    hoverinfo: "none",
   };
   const yRange = computeProgressAggregateYRange();
   const layout = getPlotlyLayout({
@@ -1009,7 +1048,7 @@ function renderAggregateProgressChart() {
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
-  Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
+  plotChart([trace], layout);
 }
 
 function renderGroupProgressChart(groupName) {
@@ -1035,7 +1074,7 @@ function renderGroupProgressChart(groupName) {
       x: steps, y: ys, mode: "lines+markers", name: group.labels[i],
       line: { color: PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length], width: 2.5 },
       marker: { size: 5 },
-      hovertemplate: group.labels[i] + "<br>Step %{x}: %{y:." + fmt + "f}<extra></extra>",
+      hoverinfo: "none",
     };
   });
 
@@ -1058,7 +1097,7 @@ function renderGroupProgressChart(groupName) {
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
-  Plotly.newPlot("chart", traces, layout, PLOTLY_CONFIG);
+  plotChart(traces, layout);
 }
 
 function renderSingleProgressChart(benchmark) {
@@ -1073,14 +1112,14 @@ function renderSingleProgressChart(benchmark) {
   const trace = {
     x: steps, y: ys, mode: "lines+markers", name: info.pretty_name,
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
-    hovertemplate: "Step %{x}: %{y:.1f}<extra></extra>",
+    hoverinfo: "none",
   };
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(benchmark), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
-  Plotly.newPlot("chart", [trace], layout, PLOTLY_CONFIG);
+  plotChart([trace], layout);
 }
 
 // ============================================================

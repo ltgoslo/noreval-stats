@@ -339,8 +339,8 @@ main {
   flex-shrink: 0;
 }
 
-/* Model tooltip */
-.model-tooltip {
+/* Custom tooltip (shared across models, tasks, chart hover) */
+.custom-tooltip {
   display: none;
   position: fixed;
   z-index: 1000;
@@ -356,21 +356,21 @@ main {
   pointer-events: none;
 }
 
-.model-tooltip.visible {
+.custom-tooltip.visible {
   display: block;
 }
 
-.model-tooltip-name {
+.tooltip-title {
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
 
-.model-tooltip-desc {
+.tooltip-body {
   color: var(--fg-muted);
   margin-bottom: 0.35rem;
 }
 
-.model-tooltip-link {
+.tooltip-footer {
   color: var(--accent);
   font-size: 0.75rem;
   word-break: break-all;

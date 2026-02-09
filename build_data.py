@@ -143,11 +143,11 @@ MODEL_INFO = {
         "huggingface_url": "https://huggingface.co/NorGLM/NorLlama-3B",
     },
     "NorwAI-Mistral-7B": {
-        "description": "A 7B parameter model continue-pretrained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
+        "description": "A 7B parameter model continually-trained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
         "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mistral-7B",
     },
     "NorwAI-Mixtral-8x7B": {
-        "description": "A 45B parameter MoE model continue-pretrained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
+        "description": "A 45B parameter MoE model continually-trained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
         "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mixtral-8x7B",
     },
     "nb-gpt-j-6B": {
