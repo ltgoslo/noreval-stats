@@ -596,6 +596,108 @@
     "olmo-2-13b (stage 1)": "#8b5cf6",
     "OLMo-2-1124-13B": "#06b6d4"
   },
+  "model_info": {
+    "norolmo-13b": {
+      "description": "A fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo.",
+      "huggingface_url": "https://huggingface.co/HPLT/NorOLMo-13B"
+    },
+    "normistral-7b-warm": {
+      "description": "A 7B parameter Norwegian language model initialized from Mistral-7B-v0.1 and continually-trained on 260 billion subword tokens of Norwegian data. Trained by the Language Technology Group at the University of Oslo.",
+      "huggingface_url": "https://huggingface.co/norallm/normistral-7b-warm"
+    },
+    "normistral-11b-warm": {
+      "description": "An 11.4B parameter Norwegian language model based on Mistral-Nemo-Base-2407, continually-trained on 250 billion tokens of Norwegian, Scandinavian, Sámi and code data. Trained by the Language Technology Group at the University of Oslo.",
+      "huggingface_url": "https://huggingface.co/norallm/normistral-11b-warm"
+    },
+    "normistral-11b-long": {
+      "description": "An 11.4B parameter Norwegian language model with extended context length, based on normistral-11b-warm.",
+      "huggingface_url": "https://huggingface.co/norallm/normistral-11b-long"
+    },
+    "norbert4-xlarge": {
+      "description": "The fourth generation NorBERT model (987M parameters) for Norwegian encoding/decoding. Trained from scratch on 600B tokens of Norwegian Bokmål, Nynorsk and Northern Sámi. Trained by the Language Technology Group at the University of Oslo.",
+      "huggingface_url": "https://huggingface.co/ltg/norbert4-xlarge"
+    },
+    "olmo-2-13b (stage 1)": {
+      "description": "A specific stage 1 checkpoint of OLMo 2 13B, a 13B parameter open language model trained on 5 trillion tokens by the Allen Institute for AI.",
+      "huggingface_url": "https://huggingface.co/allenai/OLMo-2-1124-13B"
+    },
+    "Apertus-8B-2509": {
+      "description": "An 8B parameter multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens.",
+      "huggingface_url": "https://huggingface.co/swiss-ai/Apertus-8B-2509"
+    },
+    "NorGPT-3B": {
+      "description": "A 3B parameter generative pretrained transformer for Norwegian based on GPT-2 architecture. Part of the NorGLM suite trained on ~25B tokens.",
+      "huggingface_url": "https://huggingface.co/NorGLM/NorGPT-3B"
+    },
+    "NorLlama-3B": {
+      "description": "A 3B parameter generative pretrained transformer for Norwegian based on Llama architecture. Part of the NorGLM suite.",
+      "huggingface_url": "https://huggingface.co/NorGLM/NorLlama-3B"
+    },
+    "NorwAI-Mistral-7B": {
+      "description": "A 7B parameter model continue-pretrained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
+      "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mistral-7B"
+    },
+    "NorwAI-Mixtral-8x7B": {
+      "description": "A 45B parameter MoE model continue-pretrained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
+      "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mixtral-8x7B"
+    },
+    "nb-gpt-j-6B": {
+      "description": "A 6B parameter Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models.",
+      "huggingface_url": "https://huggingface.co/NbAiLab/nb-gpt-j-6B"
+    },
+    "EuroLLM-22B-2512": {
+      "description": "A 22B parameter multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window.",
+      "huggingface_url": "https://huggingface.co/utter-project/EuroLLM-22B-2512"
+    },
+    "EuroLLM-9B-2512": {
+      "description": "A 9B parameter multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension.",
+      "huggingface_url": "https://huggingface.co/utter-project/EuroLLM-9B-2512"
+    },
+    "gemma-3-12b-pt": {
+      "description": "A 12B parameter multimodal model from Google trained on 12 trillion tokens. Supports 140+ languages with text and image input.",
+      "huggingface_url": "https://huggingface.co/google/gemma-3-12b-pt"
+    },
+    "gemma-3-27b-pt": {
+      "description": "A 27B parameter multimodal model from Google trained on 14 trillion tokens. Supports text and image understanding with 128k context window.",
+      "huggingface_url": "https://huggingface.co/google/gemma-3-27b-pt"
+    },
+    "Llama-3.1-8B": {
+      "description": "An 8B parameter multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length.",
+      "huggingface_url": "https://huggingface.co/meta-llama/Llama-3.1-8B"
+    },
+    "Mistral-7B-v0.1": {
+      "description": "A 7B parameter generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention.",
+      "huggingface_url": "https://huggingface.co/mistralai/Mistral-7B-v0.1"
+    },
+    "Mistral-Nemo-Base-2407": {
+      "description": "A 12B parameter pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support.",
+      "huggingface_url": "https://huggingface.co/mistralai/Mistral-Nemo-Base-2407"
+    },
+    "OLMo-2-1124-13B": {
+      "description": "A 13B parameter open language model from the Allen Institute for AI trained on 5 trillion tokens. Licensed under Apache 2.0.",
+      "huggingface_url": "https://huggingface.co/allenai/OLMo-2-1124-13B"
+    },
+    "Olmo-3-1025-7B": {
+      "description": "A 7B parameter open language model from the Allen Institute for AI trained on 5.93 trillion tokens with 65k context length.",
+      "huggingface_url": "https://huggingface.co/allenai/Olmo-3-1025-7B"
+    },
+    "Olmo-3-1125-32B": {
+      "description": "A 32B parameter open language model from the Allen Institute for AI trained on 5.50 trillion tokens with 65k context length.",
+      "huggingface_url": "https://huggingface.co/allenai/Olmo-3-1125-32B"
+    },
+    "Qwen3-14B": {
+      "description": "A 14.8B parameter language model from Qwen supporting thinking and non-thinking modes. Multilingual with 100+ language support.",
+      "huggingface_url": "https://huggingface.co/Qwen/Qwen3-14B"
+    },
+    "Qwen3-32B": {
+      "description": "A 32.8B parameter language model from Qwen with advanced reasoning capabilities. Supports 100+ languages.",
+      "huggingface_url": "https://huggingface.co/Qwen/Qwen3-32B"
+    },
+    "Qwen3-8B": {
+      "description": "An 8.2B parameter language model from Qwen supporting seamless switching between thinking and non-thinking modes. Multilingual with 100+ language support.",
+      "huggingface_url": "https://huggingface.co/Qwen/Qwen3-8B"
+    }
+  },
   "default_models": [
     "norolmo-13b",
     "normistral-7b-warm",
@@ -606,6 +708,26 @@
   ],
   "models": {
     "Apertus-8B-2509": {
+      "ask_gec": {
+        "0": {
+          "max": 0.4531,
+          "mean": 0.34014,
+          "median": 0.3439,
+          "min": 0.1457
+        },
+        "1": {
+          "max": 0.467,
+          "mean": 0.45192,
+          "median": 0.4472,
+          "min": 0.4399
+        },
+        "5": {
+          "max": 0.4937,
+          "mean": 0.48578,
+          "median": 0.4847,
+          "min": 0.4803
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.732143,
@@ -718,6 +840,12 @@
           "mean": 0.786503,
           "median": 0.789637,
           "min": 0.562337
+        },
+        "5": {
+          "max": 0.934638,
+          "mean": 0.881018,
+          "median": 0.880471,
+          "min": 0.802181
         }
       },
       "norec_sentence": {
@@ -1938,6 +2066,26 @@
       }
     },
     "EuroLLM-9B-2512": {
+      "ask_gec": {
+        "0": {
+          "max": 0.4692,
+          "mean": 0.36716,
+          "median": 0.4239,
+          "min": 0.1066
+        },
+        "1": {
+          "max": 0.4568,
+          "mean": 0.44668,
+          "median": 0.4492,
+          "min": 0.4328
+        },
+        "5": {
+          "max": 0.4736,
+          "mean": 0.46858,
+          "median": 0.4705,
+          "min": 0.4559
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.785714,
@@ -2050,6 +2198,12 @@
           "mean": 0.883975,
           "median": 0.880325,
           "min": 0.867273
+        },
+        "5": {
+          "max": 0.910189,
+          "mean": 0.893251,
+          "median": 0.889519,
+          "min": 0.875061
         }
       },
       "norec_sentence": {
@@ -2594,6 +2748,26 @@
       }
     },
     "Llama-3.1-8B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.1645,
+          "mean": 0.11832,
+          "median": 0.1235,
+          "min": 0.066
+        },
+        "1": {
+          "max": 0.3737,
+          "mean": 0.35804,
+          "median": 0.3673,
+          "min": 0.3331
+        },
+        "5": {
+          "max": 0.4121,
+          "mean": 0.40786,
+          "median": 0.4103,
+          "min": 0.3975
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.757143,
@@ -2706,6 +2880,12 @@
           "mean": 0.899384,
           "median": 0.907697,
           "min": 0.837717
+        },
+        "5": {
+          "max": 0.9438,
+          "mean": 0.935095,
+          "median": 0.935114,
+          "min": 0.92665
         }
       },
       "norec_sentence": {
@@ -4594,6 +4774,26 @@
       }
     },
     "NorGPT-3B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.0151,
+          "mean": 0.0062,
+          "median": 0.0036,
+          "min": 0.0025
+        },
+        "1": {
+          "max": 0.0043,
+          "mean": 0.0039,
+          "median": 0.0039,
+          "min": 0.0035
+        },
+        "5": {
+          "max": 0.0118,
+          "mean": 0.0104,
+          "median": 0.0106,
+          "min": 0.0082
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.817857,
@@ -7964,6 +8164,26 @@
       }
     },
     "Olmo-3-1025-7B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.2104,
+          "mean": 0.14648,
+          "median": 0.1883,
+          "min": 0.0213
+        },
+        "1": {
+          "max": 0.2698,
+          "mean": 0.2493,
+          "median": 0.2419,
+          "min": 0.2309
+        },
+        "5": {
+          "max": 0.2868,
+          "mean": 0.2765,
+          "median": 0.2764,
+          "min": 0.266
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.707143,
@@ -8076,6 +8296,12 @@
           "mean": 0.855759,
           "median": 0.879037,
           "min": 0.733162
+        },
+        "5": {
+          "max": 0.918422,
+          "mean": 0.901944,
+          "median": 0.912759,
+          "min": 0.84987
         }
       },
       "norec_sentence": {
@@ -9416,6 +9642,26 @@
           "min": 0.542084
         }
       },
+      "norec_document": {
+        "0": {
+          "max": 0.861356,
+          "mean": 0.59159,
+          "median": 0.431421,
+          "min": 0.402322
+        },
+        "1": {
+          "max": 0.96234,
+          "mean": 0.947535,
+          "median": 0.949093,
+          "min": 0.924771
+        },
+        "5": {
+          "max": 0.957266,
+          "mean": 0.952779,
+          "median": 0.952713,
+          "min": 0.946207
+        }
+      },
       "norec_sentence": {
         "0": {
           "max": 0.71994,
@@ -9958,6 +10204,26 @@
       }
     },
     "Qwen3-32B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.4032,
+          "mean": 0.36524,
+          "median": 0.3657,
+          "min": 0.327
+        },
+        "1": {
+          "max": 0.3979,
+          "mean": 0.38122,
+          "median": 0.3812,
+          "min": 0.3539
+        },
+        "5": {
+          "max": 0.3976,
+          "mean": 0.38528,
+          "median": 0.3875,
+          "min": 0.3658
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.745238,
@@ -10064,6 +10330,12 @@
           "mean": 0.706706,
           "median": 0.682323,
           "min": 0.420811
+        },
+        "1": {
+          "max": 0.956267,
+          "mean": 0.943843,
+          "median": 0.946074,
+          "min": 0.918634
         }
       },
       "norec_sentence": {
@@ -10734,6 +11006,18 @@
           "mean": 0.62465,
           "median": 0.660084,
           "min": 0.403426
+        },
+        "1": {
+          "max": 0.935066,
+          "mean": 0.905513,
+          "median": 0.906391,
+          "min": 0.874708
+        },
+        "5": {
+          "max": 0.93882,
+          "mean": 0.918768,
+          "median": 0.928192,
+          "min": 0.891901
         }
       },
       "norec_sentence": {
@@ -13440,6 +13724,46 @@
           "min": 0.435798
         }
       },
+      "noridiom_nno": {
+        "0": {
+          "max": 0.595506,
+          "mean": 0.408989,
+          "median": 0.449438,
+          "min": 0.0
+        },
+        "1": {
+          "max": 0.629213,
+          "mean": 0.467416,
+          "median": 0.573034,
+          "min": 0.033708
+        },
+        "5": {
+          "max": 0.696629,
+          "mean": 0.561798,
+          "median": 0.674157,
+          "min": 0.089888
+        }
+      },
+      "noridiom_nob": {
+        "0": {
+          "max": 0.430915,
+          "mean": 0.235773,
+          "median": 0.338801,
+          "min": 0.002208
+        },
+        "1": {
+          "max": 0.467508,
+          "mean": 0.274132,
+          "median": 0.417035,
+          "min": 0.002839
+        },
+        "5": {
+          "max": 0.556467,
+          "mean": 0.377918,
+          "median": 0.526814,
+          "min": 0.028391
+        }
+      },
       "noropenbookqa_nno": {
         "0": {
           "max": 0.311111,
@@ -13518,6 +13842,186 @@
           "mean": 0.272193,
           "median": 0.275401,
           "min": 0.259358
+        }
+      },
+      "norquad": {
+        "0": {
+          "max": 0.307956,
+          "mean": 0.224045,
+          "median": 0.226644,
+          "min": 0.10034
+        },
+        "1": {
+          "max": 0.271305,
+          "mean": 0.198702,
+          "median": 0.199548,
+          "min": 0.118666
+        },
+        "5": {
+          "max": 0.319895,
+          "mean": 0.25078,
+          "median": 0.243538,
+          "min": 0.175023
+        }
+      },
+      "norrewrite_instruct": {
+        "0": {
+          "max": 1.78016,
+          "mean": 1.78016,
+          "median": 1.78016,
+          "min": 1.78016
+        },
+        "1": {
+          "max": 2.207143,
+          "mean": 2.207143,
+          "median": 2.207143,
+          "min": 2.207143
+        },
+        "5": {
+          "max": 4.853216,
+          "mean": 4.853216,
+          "median": 4.853216,
+          "min": 4.853216
+        }
+      },
+      "norsummarize_instruct": {
+        "0": {
+          "max": 0.995275,
+          "mean": 0.995275,
+          "median": 0.995275,
+          "min": 0.995275
+        },
+        "1": {
+          "max": 1.399568,
+          "mean": 1.399568,
+          "median": 1.399568,
+          "min": 1.399568
+        },
+        "5": {
+          "max": 2.227317,
+          "mean": 2.227317,
+          "median": 2.227317,
+          "min": 2.227317
+        }
+      },
+      "norsumm_nob": {
+        "0": {
+          "max": 26.258732,
+          "mean": 16.808711,
+          "median": 18.461345,
+          "min": 4.069835
+        },
+        "1": {
+          "max": 18.820006,
+          "mean": 14.149071,
+          "median": 14.805563,
+          "min": 8.463704
+        },
+        "5": {
+          "max": 23.683064,
+          "mean": 18.377683,
+          "median": 21.937337,
+          "min": 8.108644
+        }
+      },
+      "norsumm_nno": {
+        "0": {
+          "max": 20.660091,
+          "mean": 13.833291,
+          "median": 14.243544,
+          "min": 4.379437
+        },
+        "1": {
+          "max": 16.44575,
+          "mean": 12.44105,
+          "median": 13.180762,
+          "min": 6.738748
+        },
+        "5": {
+          "max": 22.340925,
+          "mean": 17.127813,
+          "median": 20.609691,
+          "min": 7.099581
+        }
+      },
+      "norsumm_nob_nno_translation": {
+        "0": {
+          "max": 42.797763,
+          "mean": 29.453732,
+          "median": 29.73079,
+          "min": 15.555585
+        },
+        "1": {
+          "max": 37.141645,
+          "mean": 30.251281,
+          "median": 34.977196,
+          "min": 13.909088
+        },
+        "5": {
+          "max": 58.365329,
+          "mean": 51.757529,
+          "median": 52.222301,
+          "min": 44.220186
+        }
+      },
+      "norsumm_nno_nob_translation": {
+        "0": {
+          "max": 38.63362,
+          "mean": 28.364575,
+          "median": 28.56134,
+          "min": 17.702
+        },
+        "1": {
+          "max": 40.212859,
+          "mean": 28.15756,
+          "median": 30.149856,
+          "min": 12.117669
+        },
+        "5": {
+          "max": 52.921888,
+          "mean": 49.683505,
+          "median": 49.721228,
+          "min": 46.369676
+        }
+      },
+      "nortruthfulqa_gen_nno": {
+        "0": {
+          "max": 23.614603,
+          "mean": 15.727595,
+          "median": 14.559383,
+          "min": 12.020823
+        },
+        "1": {
+          "max": 24.198097,
+          "mean": 17.487164,
+          "median": 16.722298,
+          "min": 11.025136
+        },
+        "5": {
+          "max": 34.787982,
+          "mean": 32.199532,
+          "median": 32.277988,
+          "min": 29.183603
+        }
+      },
+      "nortruthfulqa_gen_nob": {
+        "0": {
+          "max": 23.705014,
+          "mean": 15.993354,
+          "median": 15.166688,
+          "min": 10.793514
+        },
+        "1": {
+          "max": 24.764345,
+          "mean": 19.543136,
+          "median": 20.93591,
+          "min": 12.792651
+        },
+        "5": {
+          "max": 33.517707,
+          "mean": 32.012761,
+          "median": 32.446637,
+          "min": 29.819824
         }
       },
       "nortruthfulqa_mc_nno": {
@@ -13618,6 +14122,126 @@
           "mean": 0.310849,
           "median": 0.315396,
           "min": 0.197266
+        }
+      },
+      "tatoeba_eng_nno": {
+        "0": {
+          "max": 18.41675,
+          "mean": 11.083497,
+          "median": 11.524497,
+          "min": 2.868242
+        },
+        "1": {
+          "max": 28.482368,
+          "mean": 22.563299,
+          "median": 24.981052,
+          "min": 11.808724
+        },
+        "5": {
+          "max": 37.025257,
+          "mean": 32.914786,
+          "median": 33.450567,
+          "min": 27.732751
+        }
+      },
+      "tatoeba_eng_nob": {
+        "0": {
+          "max": 23.403463,
+          "mean": 16.974899,
+          "median": 20.765428,
+          "min": 2.965278
+        },
+        "1": {
+          "max": 39.158387,
+          "mean": 29.419962,
+          "median": 31.920279,
+          "min": 14.680901
+        },
+        "5": {
+          "max": 47.117062,
+          "mean": 43.358129,
+          "median": 45.482607,
+          "min": 35.350239
+        }
+      },
+      "tatoeba_nno_eng": {
+        "0": {
+          "max": 18.462583,
+          "mean": 13.029223,
+          "median": 14.79637,
+          "min": 4.061569
+        },
+        "1": {
+          "max": 31.726118,
+          "mean": 27.621547,
+          "median": 31.457765,
+          "min": 15.844538
+        },
+        "5": {
+          "max": 44.06468,
+          "mean": 39.620434,
+          "median": 42.374413,
+          "min": 29.668232
+        }
+      },
+      "tatoeba_nob_eng": {
+        "0": {
+          "max": 29.195303,
+          "mean": 20.717461,
+          "median": 23.293468,
+          "min": 7.087605
+        },
+        "1": {
+          "max": 37.808332,
+          "mean": 31.770538,
+          "median": 33.969379,
+          "min": 21.335061
+        },
+        "5": {
+          "max": 44.613494,
+          "mean": 40.792554,
+          "median": 43.882532,
+          "min": 30.791657
+        }
+      },
+      "tatoeba_nob_sme": {
+        "0": {
+          "max": 4.412489,
+          "mean": 1.537143,
+          "median": 0.42012,
+          "min": 0.149853
+        },
+        "1": {
+          "max": 7.765685,
+          "mean": 5.391778,
+          "median": 4.517951,
+          "min": 3.321346
+        },
+        "5": {
+          "max": 20.995933,
+          "mean": 16.035366,
+          "median": 15.496639,
+          "min": 11.950954
+        }
+      },
+      "tatoeba_sme_nob": {
+        "0": {
+          "max": 8.638475,
+          "mean": 4.435999,
+          "median": 3.905933,
+          "min": 0.635776
+        },
+        "1": {
+          "max": 23.622727,
+          "mean": 16.378727,
+          "median": 18.972772,
+          "min": 6.19134
+        },
+        "5": {
+          "max": 38.293753,
+          "mean": 35.148686,
+          "median": 36.750981,
+          "min": 26.985656
         }
       }
     },

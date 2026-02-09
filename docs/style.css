@@ -339,6 +339,43 @@ main {
   flex-shrink: 0;
 }
 
+/* Model tooltip */
+.model-tooltip {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  max-width: 360px;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--fg);
+  pointer-events: none;
+}
+
+.model-tooltip.visible {
+  display: block;
+}
+
+.model-tooltip-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.model-tooltip-desc {
+  color: var(--fg-muted);
+  margin-bottom: 0.35rem;
+}
+
+.model-tooltip-link {
+  color: var(--accent);
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .controls {

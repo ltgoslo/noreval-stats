@@ -104,6 +104,110 @@ MODEL_COLOR_MAP = {
     "OLMo-2-1124-13B": "#06b6d4",      # cyan
 }
 
+# Model information: short description + HuggingFace URL
+MODEL_INFO = {
+    "norolmo-13b": {
+        "description": "A fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo.",
+        "huggingface_url": "https://huggingface.co/HPLT/NorOLMo-13B",
+    },
+    "normistral-7b-warm": {
+        "description": "A 7B parameter Norwegian language model initialized from Mistral-7B-v0.1 and continually-trained on 260 billion subword tokens of Norwegian data. Trained by the Language Technology Group at the University of Oslo.",
+        "huggingface_url": "https://huggingface.co/norallm/normistral-7b-warm",
+    },
+    "normistral-11b-warm": {
+        "description": "An 11.4B parameter Norwegian language model based on Mistral-Nemo-Base-2407, continually-trained on 250 billion tokens of Norwegian, Scandinavian, Sámi and code data. Trained by the Language Technology Group at the University of Oslo.",
+        "huggingface_url": "https://huggingface.co/norallm/normistral-11b-warm",
+    },
+    "normistral-11b-long": {
+        "description": "An 11.4B parameter Norwegian language model with extended context length, based on normistral-11b-warm.",
+        "huggingface_url": "https://huggingface.co/norallm/normistral-11b-long",
+    },
+    "norbert4-xlarge": {
+        "description": "The fourth generation NorBERT model (987M parameters) for Norwegian encoding/decoding. Trained from scratch on 600B tokens of Norwegian Bokmål, Nynorsk and Northern Sámi. Trained by the Language Technology Group at the University of Oslo.",
+        "huggingface_url": "https://huggingface.co/ltg/norbert4-xlarge",
+    },
+    "olmo-2-13b (stage 1)": {
+        "description": "A specific stage 1 checkpoint of OLMo 2 13B, a 13B parameter open language model trained on 5 trillion tokens by the Allen Institute for AI.",
+        "huggingface_url": "https://huggingface.co/allenai/OLMo-2-1124-13B",
+    },
+    "Apertus-8B-2509": {
+        "description": "An 8B parameter multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens.",
+        "huggingface_url": "https://huggingface.co/swiss-ai/Apertus-8B-2509",
+    },
+    "NorGPT-3B": {
+        "description": "A 3B parameter generative pretrained transformer for Norwegian based on GPT-2 architecture. Part of the NorGLM suite trained on ~25B tokens.",
+        "huggingface_url": "https://huggingface.co/NorGLM/NorGPT-3B",
+    },
+    "NorLlama-3B": {
+        "description": "A 3B parameter generative pretrained transformer for Norwegian based on Llama architecture. Part of the NorGLM suite.",
+        "huggingface_url": "https://huggingface.co/NorGLM/NorLlama-3B",
+    },
+    "NorwAI-Mistral-7B": {
+        "description": "A 7B parameter model continue-pretrained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
+        "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mistral-7B",
+    },
+    "NorwAI-Mixtral-8x7B": {
+        "description": "A 45B parameter MoE model continue-pretrained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
+        "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mixtral-8x7B",
+    },
+    "nb-gpt-j-6B": {
+        "description": "A 6B parameter Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models.",
+        "huggingface_url": "https://huggingface.co/NbAiLab/nb-gpt-j-6B",
+    },
+    "EuroLLM-22B-2512": {
+        "description": "A 22B parameter multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window.",
+        "huggingface_url": "https://huggingface.co/utter-project/EuroLLM-22B-2512",
+    },
+    "EuroLLM-9B-2512": {
+        "description": "A 9B parameter multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension.",
+        "huggingface_url": "https://huggingface.co/utter-project/EuroLLM-9B-2512",
+    },
+    "gemma-3-12b-pt": {
+        "description": "A 12B parameter multimodal model from Google trained on 12 trillion tokens. Supports 140+ languages with text and image input.",
+        "huggingface_url": "https://huggingface.co/google/gemma-3-12b-pt",
+    },
+    "gemma-3-27b-pt": {
+        "description": "A 27B parameter multimodal model from Google trained on 14 trillion tokens. Supports text and image understanding with 128k context window.",
+        "huggingface_url": "https://huggingface.co/google/gemma-3-27b-pt",
+    },
+    "Llama-3.1-8B": {
+        "description": "An 8B parameter multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length.",
+        "huggingface_url": "https://huggingface.co/meta-llama/Llama-3.1-8B",
+    },
+    "Mistral-7B-v0.1": {
+        "description": "A 7B parameter generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention.",
+        "huggingface_url": "https://huggingface.co/mistralai/Mistral-7B-v0.1",
+    },
+    "Mistral-Nemo-Base-2407": {
+        "description": "A 12B parameter pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support.",
+        "huggingface_url": "https://huggingface.co/mistralai/Mistral-Nemo-Base-2407",
+    },
+    "OLMo-2-1124-13B": {
+        "description": "A 13B parameter open language model from the Allen Institute for AI trained on 5 trillion tokens. Licensed under Apache 2.0.",
+        "huggingface_url": "https://huggingface.co/allenai/OLMo-2-1124-13B",
+    },
+    "Olmo-3-1025-7B": {
+        "description": "A 7B parameter open language model from the Allen Institute for AI trained on 5.93 trillion tokens with 65k context length.",
+        "huggingface_url": "https://huggingface.co/allenai/Olmo-3-1025-7B",
+    },
+    "Olmo-3-1125-32B": {
+        "description": "A 32B parameter open language model from the Allen Institute for AI trained on 5.50 trillion tokens with 65k context length.",
+        "huggingface_url": "https://huggingface.co/allenai/Olmo-3-1125-32B",
+    },
+    "Qwen3-14B": {
+        "description": "A 14.8B parameter language model from Qwen supporting thinking and non-thinking modes. Multilingual with 100+ language support.",
+        "huggingface_url": "https://huggingface.co/Qwen/Qwen3-14B",
+    },
+    "Qwen3-32B": {
+        "description": "A 32.8B parameter language model from Qwen with advanced reasoning capabilities. Supports 100+ languages.",
+        "huggingface_url": "https://huggingface.co/Qwen/Qwen3-32B",
+    },
+    "Qwen3-8B": {
+        "description": "An 8.2B parameter language model from Qwen supporting seamless switching between thinking and non-thinking modes. Multilingual with 100+ language support.",
+        "huggingface_url": "https://huggingface.co/Qwen/Qwen3-8B",
+    },
+}
+
 # Task groups for visual pairing (two bars/lines per model)
 TASK_GROUPS = {
     "multiple-choice QA (commonsense)": {
@@ -310,6 +414,7 @@ def main():
         "model_display_names": MODEL_DISPLAY_NAMES,
         "model_categories": MODEL_CATEGORIES,
         "model_colors": MODEL_COLOR_MAP,
+        "model_info": MODEL_INFO,
         "default_models": DEFAULT_MODELS,
         "models": models,
         "progress": progress,

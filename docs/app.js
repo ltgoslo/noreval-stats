@@ -653,6 +653,7 @@ function buildModelCheckboxes() {
       label.appendChild(checkbox);
       label.appendChild(colorDot);
       label.appendChild(document.createTextNode(" " + getModelLabel(modelDir)));
+      attachModelTooltip(label, modelDir);
       catDiv.appendChild(label);
     }
     grid.appendChild(catDiv);
@@ -662,6 +663,62 @@ function buildModelCheckboxes() {
 function syncModelCheckboxStates() {
   document.querySelectorAll("#model-checkbox-grid input[type=checkbox]").forEach((cb) => {
     cb.checked = checkedModels.has(cb.dataset.model);
+  });
+}
+
+// ============================================================
+// Model tooltip
+// ============================================================
+
+let tooltipTimeout = null;
+
+function showModelTooltip(modelDir, event) {
+  const info = (DATA.model_info || {})[modelDir];
+  if (!info) return;
+  const tooltip = document.getElementById("model-tooltip");
+  document.getElementById("tooltip-name").textContent = getModelLabel(modelDir);
+  document.getElementById("tooltip-desc").textContent = info.description || "";
+  const linkEl = document.getElementById("tooltip-link");
+  if (info.huggingface_url) {
+    linkEl.textContent = info.huggingface_url.replace("https://huggingface.co/", "hf.co/");
+    linkEl.style.display = "";
+  } else {
+    linkEl.textContent = "";
+    linkEl.style.display = "none";
+  }
+  positionTooltip(tooltip, event);
+  tooltip.classList.add("visible");
+}
+
+function hideModelTooltip() {
+  document.getElementById("model-tooltip").classList.remove("visible");
+}
+
+function positionTooltip(tooltip, event) {
+  const pad = 12;
+  tooltip.style.left = "0px";
+  tooltip.style.top = "0px";
+  tooltip.classList.add("visible");
+  const rect = tooltip.getBoundingClientRect();
+  let x = event.clientX + pad;
+  let y = event.clientY + pad;
+  if (x + rect.width > window.innerWidth - pad) x = event.clientX - rect.width - pad;
+  if (y + rect.height > window.innerHeight - pad) y = event.clientY - rect.height - pad;
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+}
+
+function attachModelTooltip(element, modelDir) {
+  element.addEventListener("mouseenter", (e) => {
+    tooltipTimeout = setTimeout(() => showModelTooltip(modelDir, e), 300);
+  });
+  element.addEventListener("mousemove", (e) => {
+    const tooltip = document.getElementById("model-tooltip");
+    if (tooltip.classList.contains("visible")) positionTooltip(tooltip, e);
+  });
+  element.addEventListener("mouseleave", () => {
+    clearTimeout(tooltipTimeout);
+    hideModelTooltip();
   });
 }
 
@@ -793,7 +850,10 @@ function renderAggregateBarChart() {
     }
     const avg = count > 0 ? sum / count : 0;
     scores.push(avg);
-    hoverTexts.push(getModelLabel(m) + "<br>Avg: " + avg.toFixed(2) + " (" + count + " tasks)");
+    const mInfo = (DATA.model_info || {})[m];
+    let ht = getModelLabel(m) + "<br>Avg: " + avg.toFixed(2) + " (" + count + " tasks)";
+    if (mInfo && mInfo.description) ht += "<br><br><i>" + mInfo.description + "</i>";
+    hoverTexts.push(ht);
   }
 
   const trace = {
