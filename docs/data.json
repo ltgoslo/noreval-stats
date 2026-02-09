@@ -588,12 +588,21 @@
     "Qwen3-32B": "multilingual",
     "Qwen3-8B": "multilingual"
   },
+  "model_colors": {
+    "norolmo-13b": "#6366f1",
+    "normistral-7b-warm": "#f43f5e",
+    "normistral-11b-warm": "#10b981",
+    "normistral-11b-long": "#f59e0b",
+    "olmo-2-13b (stage 1)": "#8b5cf6",
+    "OLMo-2-1124-13B": "#06b6d4"
+  },
   "default_models": [
     "norolmo-13b",
     "normistral-7b-warm",
     "normistral-11b-warm",
     "normistral-11b-long",
-    "olmo-2-13b (stage 1)"
+    "olmo-2-13b (stage 1)",
+    "OLMo-2-1124-13B"
   ],
   "models": {
     "Apertus-8B-2509": {
@@ -1253,6 +1262,26 @@
       }
     },
     "EuroLLM-22B-2512": {
+      "ask_gec": {
+        "0": {
+          "max": 0.4901,
+          "mean": 0.4207,
+          "median": 0.452,
+          "min": 0.2982
+        },
+        "1": {
+          "max": 0.4763,
+          "mean": 0.46998,
+          "median": 0.4685,
+          "min": 0.4639
+        },
+        "5": {
+          "max": 0.4972,
+          "mean": 0.4935,
+          "median": 0.4951,
+          "min": 0.4849
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.803571,
@@ -7260,6 +7289,12 @@
           "median": 0.2033,
           "min": 0.1224
         },
+        "1": {
+          "max": 0.2641,
+          "mean": 0.25186,
+          "median": 0.2495,
+          "min": 0.2417
+        },
         "5": {
           "max": 0.2854,
           "mean": 0.28272,
@@ -8585,6 +8620,26 @@
       }
     },
     "Olmo-3-1125-32B": {
+      "ask_gec": {
+        "0": {
+          "max": 0.3575,
+          "mean": 0.31222,
+          "median": 0.3347,
+          "min": 0.2511
+        },
+        "1": {
+          "max": 0.3699,
+          "mean": 0.36308,
+          "median": 0.366,
+          "min": 0.353
+        },
+        "5": {
+          "max": 0.3904,
+          "mean": 0.38706,
+          "median": 0.3862,
+          "min": 0.3839
+        }
+      },
       "ncb": {
         "0": {
           "max": 0.705952,

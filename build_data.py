@@ -91,7 +91,18 @@ DEFAULT_MODELS = [
     "normistral-11b-warm",
     "normistral-11b-long",
     "olmo-2-13b (stage 1)",
+    "OLMo-2-1124-13B",
 ]
+
+# Hand-picked colors for default models (from the MODEL_COLORS palette in app.js)
+MODEL_COLOR_MAP = {
+    "norolmo-13b": "#6366f1",          # indigo
+    "normistral-7b-warm": "#f43f5e",   # rose
+    "normistral-11b-warm": "#10b981",  # emerald
+    "normistral-11b-long": "#f59e0b",  # amber
+    "olmo-2-13b (stage 1)": "#8b5cf6", # violet
+    "OLMo-2-1124-13B": "#06b6d4",      # cyan
+}
 
 # Task groups for visual pairing (two bars/lines per model)
 TASK_GROUPS = {
@@ -298,6 +309,7 @@ def main():
         "shared_language_benchmarks": shared_language_benchmarks,
         "model_display_names": MODEL_DISPLAY_NAMES,
         "model_categories": MODEL_CATEGORIES,
+        "model_colors": MODEL_COLOR_MAP,
         "default_models": DEFAULT_MODELS,
         "models": models,
         "progress": progress,

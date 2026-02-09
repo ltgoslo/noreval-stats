@@ -26,6 +26,8 @@ const METRIC_DISPLAY = {
   chrf: "chrF",
 };
 
+const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
+
 const PLOTLY_CONFIG = {
   responsive: true,
   displaylogo: false,
@@ -55,8 +57,14 @@ function darkenColor(hex, amount) {
 }
 
 function getModelColor(modelDir) {
-  const allModels = Object.keys(DATA.models);
-  return MODEL_COLORS[allModels.indexOf(modelDir) % MODEL_COLORS.length];
+  if (DATA.model_colors && DATA.model_colors[modelDir]) {
+    return DATA.model_colors[modelDir];
+  }
+  const assignedColors = new Set(Object.values(DATA.model_colors || {}));
+  const availableColors = MODEL_COLORS.filter((c) => !assignedColors.has(c));
+  const unassignedModels = Object.keys(DATA.models).filter((m) => !(DATA.model_colors && DATA.model_colors[m]));
+  const idx = unassignedModels.indexOf(modelDir);
+  return availableColors[idx % availableColors.length];
 }
 
 // ============================================================
@@ -965,7 +973,8 @@ function renderGroupProgressChart(groupName) {
     });
     return {
       x: steps, y: ys, mode: "lines+markers", name: group.labels[i],
-      line: { width: 2.5 }, marker: { size: 5 },
+      line: { color: PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length], width: 2.5 },
+      marker: { size: 5 },
       hovertemplate: group.labels[i] + "<br>Step %{x}: %{y:." + fmt + "f}<extra></extra>",
     };
   });
