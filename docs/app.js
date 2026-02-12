@@ -28,18 +28,14 @@ const METRIC_DISPLAY = {
   bleu_max: "BLEU (best ref.)",
   bleu_avg: "BLEU (avg ref.)",
   bleu_acc: "BLEU accuracy",
-  bleu_diff: "BLEU difference",
   chrf: "chrF",
   rougeL_max: "ROUGE-L (best ref.)",
   rougeL_avg: "ROUGE-L (avg ref.)",
   rougeL_acc: "ROUGE-L accuracy",
-  rougeL_diff: "ROUGE-L difference",
   rouge1_max: "ROUGE-1 (best ref.)",
   rouge1_acc: "ROUGE-1 accuracy",
-  rouge1_diff: "ROUGE-1 difference",
   rouge2_max: "ROUGE-2 (best ref.)",
   rouge2_acc: "ROUGE-2 accuracy",
-  rouge2_diff: "ROUGE-2 difference",
   errant_f05: "ERRANT F0.5",
 };
 
@@ -47,12 +43,12 @@ const METRIC_SCALES = {
   acc: "unit", acc_norm: "unit", f1: "unit", em: "unit", exact_match: "unit",
   errant_f05: "unit", fscore: "unit",
   bleu: "percent", bleu_max: "percent", bleu_avg: "percent",
-  bleu_acc: "unit", bleu_diff: "percent",
+  bleu_acc: "unit",
   chrf: "percent",
   rougeL_max: "percent", rougeL_avg: "percent",
-  rougeL_acc: "unit", rougeL_diff: "percent",
-  rouge1_max: "percent", rouge1_acc: "unit", rouge1_diff: "percent",
-  rouge2_max: "percent", rouge2_acc: "unit", rouge2_diff: "percent",
+  rougeL_acc: "unit",
+  rouge1_max: "percent", rouge1_acc: "unit",
+  rouge2_max: "percent", rouge2_acc: "unit",
 };
 
 const METRIC_DESCRIPTIONS = {
@@ -65,19 +61,15 @@ const METRIC_DESCRIPTIONS = {
   bleu: "Measures n-gram overlap between generated and reference text.",
   bleu_max: "Highest BLEU score across multiple reference texts.",
   bleu_avg: "Average BLEU score across multiple reference texts.",
-  bleu_acc: "Whether the correct reference scores higher in BLEU than incorrect ones.",
-  bleu_diff: "BLEU score gap between correct and incorrect references.",
+  bleu_acc: "Fraction of examples where the generation is more similar (by BLEU) to correct answers than incorrect ones.",
   chrf: "Character-level F-score between generated and reference text.",
   rougeL_max: "Longest common subsequence overlap with the best-matching reference.",
   rougeL_avg: "Average longest common subsequence overlap across references.",
-  rougeL_acc: "Whether the correct reference scores higher in ROUGE-L than incorrect ones.",
-  rougeL_diff: "ROUGE-L score gap between correct and incorrect references.",
+  rougeL_acc: "Fraction of examples where the generation is more similar (by ROUGE-L) to correct answers than incorrect ones.",
   rouge1_max: "Unigram overlap with the best-matching reference.",
-  rouge1_acc: "Whether the correct reference has higher ROUGE-1 than incorrect ones.",
-  rouge1_diff: "ROUGE-1 score gap between correct and incorrect references.",
+  rouge1_acc: "Fraction of examples where the generation is more similar (by ROUGE-1) to correct answers than incorrect ones.",
   rouge2_max: "Bigram overlap with the best-matching reference.",
-  rouge2_acc: "Whether the correct reference has higher ROUGE-2 than incorrect ones.",
-  rouge2_diff: "ROUGE-2 score gap between correct and incorrect references.",
+  rouge2_acc: "Fraction of examples where the generation is more similar (by ROUGE-2) to correct answers than incorrect ones.",
   errant_f05: "Grammar error correction metric emphasizing precision (F0.5) over recall.",
 };
 
@@ -759,9 +751,19 @@ function buildCheckboxes() {
     catDiv.className = "checkbox-category";
     const h4 = document.createElement("h4");
     h4.textContent = cat;
+    h4.style.cursor = "pointer";
+    const catBenches = grouped[cat];
+    h4.addEventListener("click", () => {
+      const allChecked = catBenches.every((b) => checkedTasks.has(b));
+      for (const b of catBenches) {
+        if (allChecked) checkedTasks.delete(b); else checkedTasks.add(b);
+      }
+      syncCheckboxStates();
+      onTaskCheckboxChange();
+    });
     catDiv.appendChild(h4);
 
-    for (const bench of grouped[cat]) {
+    for (const bench of catBenches) {
       const label = document.createElement("label");
 
       const checkbox = document.createElement("input");
@@ -847,9 +849,19 @@ function buildModelCheckboxes() {
     catDiv.className = "model-category-group";
     const h4 = document.createElement("h4");
     h4.textContent = groupLabels[groupKey];
+    h4.style.cursor = "pointer";
+    const groupModels = groups[groupKey];
+    h4.addEventListener("click", () => {
+      const allChecked = groupModels.every((m) => checkedModels.has(m));
+      for (const m of groupModels) {
+        if (allChecked) checkedModels.delete(m); else checkedModels.add(m);
+      }
+      syncModelCheckboxStates();
+      renderChart();
+    });
     catDiv.appendChild(h4);
 
-    for (const modelDir of groups[groupKey]) {
+    for (const modelDir of groupModels) {
       const label = document.createElement("label");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -1020,7 +1032,6 @@ function updateDescription() {
       descEl.appendChild(link);
     }
     if (metricDesc) {
-      descEl.appendChild(document.createElement("br"));
       const metricSpan = document.createElement("span");
       metricSpan.className = "metric-description";
       metricSpan.textContent = metricDesc;

@@ -190,7 +190,8 @@ main {
 }
 
 .metric-description {
-  font-style: italic;
+  display: block;
+  margin-top: 0.4rem;
   color: var(--fg);
 }
 

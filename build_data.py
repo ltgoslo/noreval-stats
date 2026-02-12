@@ -275,6 +275,15 @@ STANDALONE_BENCHMARKS = [
 ]
 
 
+# Metrics to exclude globally from the metric selector
+EXCLUDED_METRICS = {"bleu_diff", "rouge1_diff", "rouge2_diff", "rougeL_diff"}
+
+# Per-benchmark metric exclusions
+EXCLUDED_METRICS_PER_BENCHMARK = {
+    "ask_gec": {"exact_match"},
+}
+
+
 def load_metrics_setup():
     with open(BASE_DIR / "metrics_setup.yaml") as f:
         return yaml.safe_load(f)
@@ -300,6 +309,9 @@ def extract_benchmark_scores(results_json_path, benchmark_name):
         data = json.load(f)
 
     results = data.get("results", {})
+    bench_exclusions = EXCLUDED_METRICS | EXCLUDED_METRICS_PER_BENCHMARK.get(
+        benchmark_name, set()
+    )
 
     # Collect values per metric across prompt variants
     metric_values = {}  # metric_name -> list of values
@@ -311,6 +323,8 @@ def extract_benchmark_scores(results_json_path, benchmark_name):
                 if "_stderr,none" in key:
                     continue
                 metric_name = key[: -len(",none")]
+                if metric_name in bench_exclusions:
+                    continue
                 if isinstance(val, (int, float)):
                     if metric_name not in metric_values:
                         metric_values[metric_name] = []
