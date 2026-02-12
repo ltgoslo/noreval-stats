@@ -4,7 +4,7 @@
 let DATA = null;
 let currentTab = "comparison";
 let currentShot = "5";
-let currentTaskSelection = "__all__";
+let currentTaskSelection = "__all_macro__";
 let currentPromptAgg = "max";
 let currentNormalization = "baseline"; // auto-set based on view
 let checkedTasks = new Set();
@@ -194,6 +194,12 @@ function buildUrlMaps() {
     _modelAliasToDir[alias] = dir;
   }
 
+  // Aliases for aggregate selection types
+  _taskSelToAlias["__all__"] = "all-micro";
+  _taskAliasToSel["all-micro"] = "__all__";
+  _taskSelToAlias["__custom__"] = "custom";
+  _taskAliasToSel["custom"] = "__custom__";
+
   // Task selection aliases for categories, languages, eval types, groups
   const cats = new Set();
   const evals = new Set();
@@ -235,7 +241,7 @@ function stateToUrl() {
 
   if (currentTab !== "comparison") params.set("tab", currentTab);
   if (currentShot !== "5") params.set("shot", currentShot);
-  if (currentTaskSelection !== "__all__") {
+  if (currentTaskSelection !== "__all_macro__") {
     params.set("task", _taskSelToAlias[currentTaskSelection] || currentTaskSelection);
   }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
@@ -467,7 +473,10 @@ function bindEventListeners() {
 
   document.getElementById("select-all-btn").addEventListener("click", () => {
     checkedTasks = new Set(Object.keys(DATA.metrics_setup));
+    currentTaskSelection = "__all__";
+    document.getElementById("task-select").value = "__all__";
     syncCheckboxStates();
+    autoSetNormalization();
     renderChart();
   });
   document.getElementById("select-none-btn").addEventListener("click", () => {
@@ -493,11 +502,12 @@ function bindEventListeners() {
 // ============================================================
 
 function isAggregateSelection(sel) {
-  return sel === "__all__" || sel.startsWith("__cat__") || sel.startsWith("__lang__") || sel.startsWith("__eval__");
+  return sel === "__all__" || sel === "__all_macro__" || sel === "__custom__" || sel.startsWith("__cat__") || sel.startsWith("__lang__") || sel.startsWith("__eval__");
 }
 
 function getBenchmarksForSelection(sel) {
-  if (sel === "__all__") return Object.keys(DATA.metrics_setup);
+  if (sel === "__all__" || sel === "__all_macro__") return Object.keys(DATA.metrics_setup);
+  if (sel === "__custom__") return [];
   if (sel.startsWith("__cat__")) {
     const c = sel.slice(7);
     return Object.keys(DATA.metrics_setup).filter((b) => DATA.metrics_setup[b].category === c);
@@ -526,6 +536,57 @@ function getBenchmarksForSelection(sel) {
   }
   if (DATA.metrics_setup[sel]) return [sel];
   return [];
+}
+
+function isMacroSelection() {
+  return currentTaskSelection === "__all_macro__";
+}
+
+/** Group benchmarks by task_groups for macro-averaging.
+ *  Returns array of arrays: each inner array is a group of benchmarks to average first. */
+function getMacroGroups(benchmarks) {
+  const benchSet = benchmarks instanceof Set ? benchmarks : new Set(benchmarks);
+  const groups = [];
+  const assigned = new Set();
+  for (const [, group] of Object.entries(DATA.task_groups)) {
+    const members = group.benchmarks.filter((b) => benchSet.has(b));
+    if (members.length > 0) {
+      groups.push(members);
+      members.forEach((b) => assigned.add(b));
+    }
+  }
+  for (const bench of benchSet) {
+    if (!assigned.has(bench)) groups.push([bench]);
+  }
+  return groups;
+}
+
+/** Compute aggregate score over benchmarks using a scoring function.
+ *  macro=true: average within task groups first, then across groups.
+ *  macro=false: simple micro-average across all benchmarks.
+ *  scoreFn(bench) should return the normalized score or undefined.
+ *  Returns { score, count } or null. */
+function aggregateScores(benchmarks, scoreFn, macro) {
+  if (macro) {
+    const groups = getMacroGroups(benchmarks);
+    let groupSum = 0, groupCount = 0;
+    for (const group of groups) {
+      let sum = 0, count = 0;
+      for (const bench of group) {
+        const s = scoreFn(bench);
+        if (s !== undefined) { sum += s; count++; }
+      }
+      if (count > 0) { groupSum += sum / count; groupCount++; }
+    }
+    return groupCount > 0 ? { score: groupSum / groupCount, count: groupCount } : null;
+  } else {
+    let sum = 0, count = 0;
+    for (const bench of benchmarks) {
+      const s = scoreFn(bench);
+      if (s !== undefined) { sum += s; count++; }
+    }
+    return count > 0 ? { score: sum / count, count } : null;
+  }
 }
 
 /** Find the dropdown value for a single benchmark (group or standalone) */
@@ -618,12 +679,10 @@ function onTaskCheckboxChange() {
       }
     }
   }
-  // Otherwise, aggregate
-  if (!isAggregateSelection(currentTaskSelection)) {
-    currentTaskSelection = "__all__";
-    document.getElementById("task-select").value = "__all__";
-    autoSetNormalization();
-  }
+  // Otherwise, micro-average over custom selection
+  currentTaskSelection = "__custom__";
+  document.getElementById("task-select").value = "__custom__";
+  autoSetNormalization();
   renderChart();
 }
 
@@ -819,16 +878,23 @@ function updateDescription() {
 
 function getAggregateDescription() {
   const sel = currentTaskSelection;
-  const benchmarks = getBenchmarksForSelection(sel);
-  const count = benchmarks.filter((b) => checkedTasks.has(b)).length;
+  const count = sel === "__custom__" ? checkedTasks.size : getBenchmarksForSelection(sel).filter((b) => checkedTasks.has(b)).length;
+  const macro = isMacroSelection();
   let scope = "";
-  if (sel === "__all__") scope = "all " + count + " tasks";
+  if (sel === "__all_macro__") {
+    const groups = getMacroGroups(checkedTasks);
+    scope = "all " + count + " tasks (" + groups.length + " groups, macro-averaged)";
+  } else if (sel === "__all__") scope = "all " + count + " tasks (micro-averaged)";
+  else if (sel === "__custom__") scope = count + " selected tasks (micro-averaged)";
   else if (sel.startsWith("__cat__")) scope = count + " tasks in the \"" + sel.slice(7) + "\" category";
   else if (sel.startsWith("__eval__")) scope = count + " " + sel.slice(8) + " tasks";
   else if (sel === "__lang__nob") scope = count + " Bokm\u00e5l tasks";
   else if (sel === "__lang__nno") scope = count + " Nynorsk tasks";
   else if (sel === "__lang__sme") scope = count + " Northern S\u00e1mi tasks";
 
+  const avgDesc = macro
+    ? "Scores are first averaged within each task group (e.g. Bokm\u00e5l/Nynorsk pairs), then averaged across groups. This prevents tasks with language variants from being double-weighted. "
+    : "";
   const normDescs = {
     none: "Scores are shown on their native metric scales without normalization, then averaged.",
     baseline: "Each task score is normalized to a 0\u2013100 scale where 0 = random baseline performance and 100 = perfect score, then averaged across tasks. This accounts for different chance levels across tasks (e.g. 25% for 4-choice QA vs. 50% for binary classification).",
@@ -837,7 +903,7 @@ function getAggregateDescription() {
     percentile: "Each task score is converted to a percentile rank (0 = worst model, 100 = best model) across all evaluated models, then averaged.",
   };
   const normDesc = normDescs[currentNormalization] || "";
-  return "Aggregate score across " + scope + ". " + normDesc;
+  return "Aggregate score across " + scope + ". " + avgDesc + normDesc;
 }
 
 // ============================================================
@@ -893,7 +959,8 @@ function onChartHover(data) {
   let title = isProgress ? "Step " + pt.x : String(pt.x);
   let body;
   if (isAggregateSelection(sel)) {
-    body = "Average: " + scoreStr + (pt.customdata != null ? " (" + pt.customdata + " tasks)" : "");
+    const unit = isMacroSelection() ? "groups" : "tasks";
+    body = "Average: " + scoreStr + (pt.customdata != null ? " (" + pt.customdata + " " + unit + ")" : "");
   } else if (sel.startsWith("__group__") && pt.data.name) {
     body = pt.data.name + ": " + scoreStr;
   } else {
@@ -910,20 +977,18 @@ function renderAggregateBarChart() {
   const colors = modelNames.map(getModelColor);
 
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
+  const macro = isMacroSelection();
   for (const m of modelNames) {
-    let sum = 0, count = 0;
-    for (const bench of checkedTasks) {
+    const result = aggregateScores(checkedTasks, (bench) => {
       const raw = getScore(DATA.models, m, bench, currentShot);
-      if (raw !== undefined) {
-        const allRaw = needAllRaw
-          ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
-          : null;
-        sum += applyNorm(raw, bench, allRaw);
-        count++;
-      }
-    }
-    scores.push(count > 0 ? sum / count : 0);
-    taskCounts.push(count);
+      if (raw === undefined) return undefined;
+      const allRaw = needAllRaw
+        ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
+        : null;
+      return applyNorm(raw, bench, allRaw);
+    }, macro);
+    scores.push(result ? result.score : 0);
+    taskCounts.push(result ? result.count : 0);
   }
 
   const trace = {
@@ -935,9 +1000,10 @@ function renderAggregateBarChart() {
     hoverinfo: "none",
   };
 
+  const avgLabel = macro ? "macro-avg" : "micro-avg";
   const yRange = computeAggregateYRange(DATA.models, checkedTasks);
   const layout = getPlotlyLayout({
-    title: { text: getAggregateLabel() + " \u2014 aggregate (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     xaxis: { title: "" },
   });
@@ -1053,19 +1119,18 @@ function getSteps() {
 function renderAggregateProgressChart() {
   const steps = getSteps();
   const allStepEntities = steps.map(String);
+  const macro = isMacroSelection();
+  const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   const scores = steps.map((step) => {
-    let sum = 0, count = 0;
-    for (const bench of checkedTasks) {
+    const result = aggregateScores(checkedTasks, (bench) => {
       const raw = getScore(DATA.progress, step, bench, currentShot);
-      if (raw !== undefined) {
-        const allRaw = (currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile")
-          ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
-          : null;
-        sum += applyNorm(raw, bench, allRaw);
-        count++;
-      }
-    }
-    return count > 0 ? sum / count : null;
+      if (raw === undefined) return undefined;
+      const allRaw = needAllRaw
+        ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
+        : null;
+      return applyNorm(raw, bench, allRaw);
+    }, macro);
+    return result ? result.score : null;
   });
 
   const trace = {
@@ -1073,9 +1138,10 @@ function renderAggregateProgressChart() {
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
     hoverinfo: "none",
   };
+  const avgLabel = macro ? "macro-avg" : "micro-avg";
   const yRange = computeProgressAggregateYRange();
   const layout = getPlotlyLayout({
-    title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
@@ -1176,24 +1242,21 @@ function computeAggregateYRange(dataSource, benchmarks) {
   const allAvgs = [];
   const entities = Object.keys(dataSource);
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
+  const macro = isMacroSelection();
   for (const shot of ALL_SHOTS) {
+    const modelNames = dataSource === DATA.models ? getModelList() : null;
     for (const entity of entities) {
       if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
-      let sum = 0, count = 0;
-      const modelNames = dataSource === DATA.models ? getModelList() : null;
-      for (const bench of benchmarks) {
+      const result = aggregateScores(benchmarks, (bench) => {
         const raw = getScore(dataSource, entity, bench, shot);
-        if (raw !== undefined) {
-          if (needAllRaw && modelNames) {
-            const allRaw = modelNames.map((mm) => getScore(dataSource, mm, bench, shot)).filter((v) => v !== undefined);
-            sum += applyNorm(raw, bench, allRaw);
-          } else {
-            sum += applyNorm(raw, bench, null);
-          }
-          count++;
+        if (raw === undefined) return undefined;
+        if (needAllRaw && modelNames) {
+          const allRaw = modelNames.map((mm) => getScore(dataSource, mm, bench, shot)).filter((v) => v !== undefined);
+          return applyNorm(raw, bench, allRaw);
         }
-      }
-      if (count > 0) allAvgs.push(sum / count);
+        return applyNorm(raw, bench, null);
+      }, macro);
+      if (result) allAvgs.push(result.score);
     }
   }
   return computeYRange(allAvgs);
@@ -1231,20 +1294,18 @@ function computeProgressAggregateYRange() {
   const allAvgs = [];
   const allStepEntities = Object.keys(DATA.progress);
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
+  const macro = isMacroSelection();
   for (const shot of ALL_SHOTS) {
     for (const step of allStepEntities) {
-      let sum = 0, count = 0;
-      for (const bench of checkedTasks) {
+      const result = aggregateScores(checkedTasks, (bench) => {
         const raw = getScore(DATA.progress, step, bench, shot);
-        if (raw !== undefined) {
-          const allRaw = needAllRaw
-            ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot)).filter((v) => v !== undefined)
-            : null;
-          sum += applyNorm(raw, bench, allRaw);
-          count++;
-        }
-      }
-      if (count > 0) allAvgs.push(sum / count);
+        if (raw === undefined) return undefined;
+        const allRaw = needAllRaw
+          ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot)).filter((v) => v !== undefined)
+          : null;
+        return applyNorm(raw, bench, allRaw);
+      }, macro);
+      if (result) allAvgs.push(result.score);
     }
   }
   return computeYRange(allAvgs);
@@ -1252,7 +1313,8 @@ function computeProgressAggregateYRange() {
 
 function getAggregateLabel() {
   const sel = currentTaskSelection;
-  if (sel === "__all__") return "all tasks";
+  if (sel === "__all_macro__" || sel === "__all__") return "all tasks";
+  if (sel === "__custom__") return checkedTasks.size + " tasks";
   if (sel.startsWith("__cat__")) return sel.slice(7);
   if (sel.startsWith("__eval__")) return sel.slice(8) + " tasks";
   if (sel === "__lang__nob") return "Bokm\u00e5l tasks";
