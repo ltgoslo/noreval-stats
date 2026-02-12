@@ -290,40 +290,55 @@ def find_latest_results_json(directory):
     return files[-1]
 
 
-def extract_benchmark_scores(results_json_path, benchmark_name, main_metric):
-    """Extract max/mean/median of main_metric across all prompt variants.
+def extract_benchmark_scores(results_json_path, benchmark_name):
+    """Extract max/mean/median of all non-stderr metrics across prompt variants.
 
-    Returns dict {"max": ..., "mean": ..., "median": ...} or None.
+    Returns dict {metric_name: {"max": ..., "mean": ..., "median": ..., "min": ...}, ...}
+    or None if no metrics found.
     """
     with open(results_json_path) as f:
         data = json.load(f)
 
-    metric_key = f"{main_metric},none"
     results = data.get("results", {})
 
-    values = []
+    # Collect values per metric across prompt variants
+    metric_values = {}  # metric_name -> list of values
     for task_key, task_results in results.items():
         if task_key == benchmark_name or task_key.startswith(f"{benchmark_name}_p"):
-            if metric_key in task_results:
-                val = task_results[metric_key]
+            for key, val in task_results.items():
+                if not key.endswith(",none"):
+                    continue
+                if "_stderr,none" in key:
+                    continue
+                metric_name = key[: -len(",none")]
                 if isinstance(val, (int, float)):
-                    values.append(val)
+                    if metric_name not in metric_values:
+                        metric_values[metric_name] = []
+                    metric_values[metric_name].append(val)
 
-    if not values:
+    if not metric_values:
         return None
-    return {
-        "max": round(max(values), 6),
-        "mean": round(statistics.mean(values), 6),
-        "median": round(statistics.median(values), 6),
-        "min": round(min(values), 6),
-    }
+
+    out = {}
+    for metric_name, values in metric_values.items():
+        out[metric_name] = {
+            "max": round(max(values), 6),
+            "mean": round(statistics.mean(values), 6),
+            "median": round(statistics.median(values), 6),
+            "min": round(min(values), 6),
+        }
+    return out
 
 
 def process_model_dir(model_path, metrics_setup):
-    """Process a single model/checkpoint directory, returning scores dict."""
+    """Process a single model/checkpoint directory, returning scores dict.
+
+    Returns (scores, discovered_metrics) where discovered_metrics is
+    {benchmark: set_of_metric_names}.
+    """
     scores = {}
+    discovered_metrics = {}
     for benchmark, config in metrics_setup.items():
-        main_metric = config["main_metric"]
         bench_scores = {}
         for shot_key, shot_dir_name in SHOT_DIRS.items():
             shot_path = os.path.join(model_path, benchmark, shot_dir_name)
@@ -332,29 +347,38 @@ def process_model_dir(model_path, metrics_setup):
             results_file = find_latest_results_json(shot_path)
             if results_file is None:
                 continue
-            agg = extract_benchmark_scores(results_file, benchmark, main_metric)
+            agg = extract_benchmark_scores(results_file, benchmark)
             if agg is not None:
                 bench_scores[shot_key] = agg
+                if benchmark not in discovered_metrics:
+                    discovered_metrics[benchmark] = set()
+                discovered_metrics[benchmark].update(agg.keys())
         if bench_scores:
             scores[benchmark] = bench_scores
-    return scores
+    return scores, discovered_metrics
 
 
-def build_metrics_info(metrics_setup):
+def build_metrics_info(metrics_setup, discovered_metrics):
     """Build the metrics_setup section for data.json."""
     info = {}
     for benchmark, config in metrics_setup.items():
         max_perf = 100.0 if config.get("metric_scale") == "percent" else 1.0
+        main_metric = config["main_metric"]
+        # Build available_metrics list: main_metric first, then others sorted
+        disc = discovered_metrics.get(benchmark, set())
+        others = sorted(disc - {main_metric})
+        available_metrics = [main_metric] + others if main_metric in disc else sorted(disc)
         info[benchmark] = {
             "pretty_name": config["pretty_name"],
             "description": config.get("description", ""),
-            "main_metric": config["main_metric"],
+            "main_metric": main_metric,
             "random_baseline": config["random_baseline"],
             "max_performance": max_perf,
             "category": config.get("category", "Uncategorized"),
             "evaluation_type": config.get("evaluation_type", ""),
             "metric_scale": config.get("metric_scale", "unit"),
             "url": config.get("url", ""),
+            "available_metrics": available_metrics,
         }
     return info
 
@@ -366,14 +390,19 @@ def main():
 
     # Process models in results/
     models = {}
+    all_discovered_metrics = {}  # benchmark -> set of metric names
     if RESULTS_DIR.is_dir():
         for model_dir in sorted(os.listdir(RESULTS_DIR)):
             model_path = RESULTS_DIR / model_dir
             if not model_path.is_dir():
                 continue
             print(f"Processing model: {model_dir}")
-            scores = process_model_dir(str(model_path), metrics_setup)
+            scores, disc = process_model_dir(str(model_path), metrics_setup)
             models[model_dir] = scores
+            for bench, mset in disc.items():
+                if bench not in all_discovered_metrics:
+                    all_discovered_metrics[bench] = set()
+                all_discovered_metrics[bench].update(mset)
 
     # Process checkpoints in NorOLMo_progress/
     progress = {}
@@ -388,8 +417,12 @@ def main():
                 continue
             step = int(step_str)
             print(f"Processing checkpoint: step {step}")
-            scores = process_model_dir(str(ckpt_path), metrics_setup)
+            scores, disc = process_model_dir(str(ckpt_path), metrics_setup)
             progress[step] = scores
+            for bench, mset in disc.items():
+                if bench not in all_discovered_metrics:
+                    all_discovered_metrics[bench] = set()
+                all_discovered_metrics[bench].update(mset)
 
     # Language benchmark lists
     nno_benchmarks = [b for b in metrics_setup if "_nno" in b]
@@ -404,7 +437,7 @@ def main():
 
     # Build output
     output = {
-        "metrics_setup": build_metrics_info(metrics_setup),
+        "metrics_setup": build_metrics_info(metrics_setup, all_discovered_metrics),
         "task_groups": TASK_GROUPS,
         "standalone_benchmarks": STANDALONE_BENCHMARKS,
         "nno_benchmarks": sorted(nno_benchmarks),

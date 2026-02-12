@@ -7,6 +7,7 @@ let currentShot = "5";
 let currentTaskSelection = "__all_macro__";
 let currentPromptAgg = "max";
 let currentNormalization = "baseline"; // auto-set based on view
+let currentMetric = null; // null = use main_metric; set for individual task views
 let checkedTasks = new Set();
 let checkedModels = new Set();
 
@@ -18,12 +19,66 @@ const MODEL_COLORS = [
 
 const METRIC_DISPLAY = {
   acc: "accuracy",
+  acc_norm: "accuracy (normalized)",
   f1: "F1",
   em: "exact match",
+  exact_match: "exact match",
+  fscore: "F-score",
   bleu: "BLEU",
-  rougeL_max: "ROUGE-L",
-  errant_f05: "ERRANT F0.5",
+  bleu_max: "BLEU (best ref.)",
+  bleu_avg: "BLEU (avg ref.)",
+  bleu_acc: "BLEU accuracy",
+  bleu_diff: "BLEU difference",
   chrf: "chrF",
+  rougeL_max: "ROUGE-L (best ref.)",
+  rougeL_avg: "ROUGE-L (avg ref.)",
+  rougeL_acc: "ROUGE-L accuracy",
+  rougeL_diff: "ROUGE-L difference",
+  rouge1_max: "ROUGE-1 (best ref.)",
+  rouge1_acc: "ROUGE-1 accuracy",
+  rouge1_diff: "ROUGE-1 difference",
+  rouge2_max: "ROUGE-2 (best ref.)",
+  rouge2_acc: "ROUGE-2 accuracy",
+  rouge2_diff: "ROUGE-2 difference",
+  errant_f05: "ERRANT F0.5",
+};
+
+const METRIC_SCALES = {
+  acc: "unit", acc_norm: "unit", f1: "unit", em: "unit", exact_match: "unit",
+  errant_f05: "unit", fscore: "unit",
+  bleu: "percent", bleu_max: "percent", bleu_avg: "percent",
+  bleu_acc: "unit", bleu_diff: "percent",
+  chrf: "percent",
+  rougeL_max: "percent", rougeL_avg: "percent",
+  rougeL_acc: "unit", rougeL_diff: "percent",
+  rouge1_max: "percent", rouge1_acc: "unit", rouge1_diff: "percent",
+  rouge2_max: "percent", rouge2_acc: "unit", rouge2_diff: "percent",
+};
+
+const METRIC_DESCRIPTIONS = {
+  acc: "Proportion of correctly classified examples.",
+  acc_norm: "Accuracy after normalizing for answer option length.",
+  f1: "Harmonic mean of precision and recall.",
+  em: "Proportion of predictions that exactly match the reference.",
+  exact_match: "Proportion of predictions that exactly match the reference.",
+  fscore: "Token-level overlap between predicted and reference text.",
+  bleu: "Measures n-gram overlap between generated and reference text.",
+  bleu_max: "Highest BLEU score across multiple reference texts.",
+  bleu_avg: "Average BLEU score across multiple reference texts.",
+  bleu_acc: "Whether the correct reference scores higher in BLEU than incorrect ones.",
+  bleu_diff: "BLEU score gap between correct and incorrect references.",
+  chrf: "Character-level F-score between generated and reference text.",
+  rougeL_max: "Longest common subsequence overlap with the best-matching reference.",
+  rougeL_avg: "Average longest common subsequence overlap across references.",
+  rougeL_acc: "Whether the correct reference scores higher in ROUGE-L than incorrect ones.",
+  rougeL_diff: "ROUGE-L score gap between correct and incorrect references.",
+  rouge1_max: "Unigram overlap with the best-matching reference.",
+  rouge1_acc: "Whether the correct reference has higher ROUGE-1 than incorrect ones.",
+  rouge1_diff: "ROUGE-1 score gap between correct and incorrect references.",
+  rouge2_max: "Bigram overlap with the best-matching reference.",
+  rouge2_acc: "Whether the correct reference has higher ROUGE-2 than incorrect ones.",
+  rouge2_diff: "ROUGE-2 score gap between correct and incorrect references.",
+  errant_f05: "Grammar error correction metric emphasizing precision (F0.5) over recall.",
 };
 
 const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
@@ -99,18 +154,20 @@ function getModelColor(modelDir) {
 // Score access (prompt aggregation aware)
 // ============================================================
 
-/** Get raw score from data source, respecting prompt aggregation mode */
-function getScore(dataSource, entity, bench, shot) {
-  const obj = dataSource[entity]?.[bench]?.[shot];
+/** Get raw score from data source, respecting prompt aggregation mode.
+ *  metric defaults to the benchmark's main_metric if not provided. */
+function getScore(dataSource, entity, bench, shot, metric) {
+  metric = metric || DATA.metrics_setup[bench]?.main_metric;
+  const obj = dataSource[entity]?.[bench]?.[shot]?.[metric];
   if (obj === undefined || obj === null) return undefined;
   if (typeof obj === "number") return obj; // backward compat
   return obj[currentPromptAgg];
 }
 
 /** Convert raw stored score to 0-100 display scale */
-function toDisplayScale(value, benchmark) {
-  const info = DATA.metrics_setup[benchmark];
-  return info.metric_scale === "unit" ? value * 100 : value;
+function toDisplayScale(value, benchmark, metric) {
+  const scale = metric ? (METRIC_SCALES[metric] || "unit") : DATA.metrics_setup[benchmark].metric_scale;
+  return scale === "unit" ? value * 100 : value;
 }
 
 // ============================================================
@@ -125,12 +182,13 @@ function baselineNorm(raw, benchmark) {
 }
 
 /** Apply current normalization to a raw score.
- *  For min-max, z-score, and percentile, pass allRaw = array of all raw scores for this benchmark. */
-function applyNorm(raw, benchmark, allRaw) {
-  if (currentNormalization === "none") return toDisplayScale(raw, benchmark);
+ *  For min-max, z-score, and percentile, pass allRaw = array of all raw scores for this benchmark.
+ *  Optional metric parameter for correct display scale of non-main metrics. */
+function applyNorm(raw, benchmark, allRaw, metric) {
+  if (currentNormalization === "none") return toDisplayScale(raw, benchmark, metric);
   if (currentNormalization === "baseline") return baselineNorm(raw, benchmark);
   if (currentNormalization === "minmax") {
-    if (!allRaw || allRaw.length < 2) return toDisplayScale(raw, benchmark);
+    if (!allRaw || allRaw.length < 2) return toDisplayScale(raw, benchmark, metric);
     const mn = Math.min(...allRaw), mx = Math.max(...allRaw);
     return mx === mn ? 50 : ((raw - mn) / (mx - mn)) * 100;
   }
@@ -146,7 +204,7 @@ function applyNorm(raw, benchmark, allRaw) {
     const equal = allRaw.filter((v) => v === raw).length;
     return ((below + (equal - 1) / 2) / (allRaw.length - 1)) * 100;
   }
-  return toDisplayScale(raw, benchmark);
+  return toDisplayScale(raw, benchmark, metric);
 }
 
 function getNormYLabel() {
@@ -157,9 +215,9 @@ function getNormYLabel() {
   return "score (0\u2013100)";
 }
 
-function getMetricYLabel(benchmark) {
-  const info = DATA.metrics_setup[benchmark];
-  return METRIC_DISPLAY[info.main_metric] || info.main_metric;
+function getMetricYLabel(benchmark, metric) {
+  const m = metric || DATA.metrics_setup[benchmark].main_metric;
+  return METRIC_DISPLAY[m] || m;
 }
 
 function autoSetNormalization() {
@@ -170,6 +228,68 @@ function autoSetNormalization() {
     currentNormalization = "none";
   }
   document.getElementById("norm-select").value = currentNormalization;
+}
+
+// ============================================================
+// Metric selector
+// ============================================================
+
+/** Get the effective metric for the current individual/group view */
+function getEffectiveMetric(benchmark) {
+  return currentMetric || DATA.metrics_setup[benchmark]?.main_metric;
+}
+
+/** Populate the metric selector for the given benchmark(s) and show it.
+ *  For groups, takes the intersection of available metrics. */
+function populateMetricSelector(benchmarks) {
+  const select = document.getElementById("metric-select");
+  const control = document.getElementById("metric-control");
+  if (!select || !control) return;
+
+  // Get available metrics (intersection for groups)
+  let metrics = null;
+  for (const bench of benchmarks) {
+    const info = DATA.metrics_setup[bench];
+    if (!info || !info.available_metrics) continue;
+    const set = new Set(info.available_metrics);
+    metrics = metrics ? new Set([...metrics].filter((m) => set.has(m))) : set;
+  }
+  if (!metrics || metrics.size <= 1) {
+    hideMetricSelector();
+    return;
+  }
+
+  // Order: main_metric of first benchmark first, then others sorted
+  const mainMetric = DATA.metrics_setup[benchmarks[0]]?.main_metric;
+  const ordered = [];
+  if (mainMetric && metrics.has(mainMetric)) ordered.push(mainMetric);
+  for (const m of [...metrics].sort()) {
+    if (m !== mainMetric) ordered.push(m);
+  }
+
+  select.innerHTML = "";
+  for (const m of ordered) {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = METRIC_DISPLAY[m] || m;
+    if (m === mainMetric) opt.textContent += " (default)";
+    select.appendChild(opt);
+  }
+
+  // Preserve current metric if still available, otherwise reset to main
+  if (currentMetric && metrics.has(currentMetric)) {
+    select.value = currentMetric;
+  } else {
+    currentMetric = mainMetric;
+    select.value = mainMetric;
+  }
+  control.style.display = "";
+}
+
+function hideMetricSelector() {
+  const control = document.getElementById("metric-control");
+  if (control) control.style.display = "none";
+  currentMetric = null;
 }
 
 // ============================================================
@@ -246,6 +366,13 @@ function stateToUrl() {
   }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
 
+  // Only store metric if it differs from main_metric for the current task
+  if (currentMetric && !isAggregateSelection(currentTaskSelection)) {
+    const benchmarks = getBenchmarksForSelection(currentTaskSelection);
+    const mainMetric = benchmarks.length > 0 ? DATA.metrics_setup[benchmarks[0]]?.main_metric : null;
+    if (currentMetric !== mainMetric) params.set("metric", currentMetric);
+  }
+
   // Only store normalization if it differs from what auto-set would give
   const autoNorm = isAggregateSelection(currentTaskSelection) ? "baseline" : "none";
   if (currentNormalization !== autoNorm) params.set("norm", currentNormalization);
@@ -289,6 +416,7 @@ function loadStateFromHash() {
     loaded = true;
   }
   if (params.has("prompt")) { currentPromptAgg = params.get("prompt"); loaded = true; }
+  if (params.has("metric")) { currentMetric = params.get("metric"); loaded = true; }
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
 
   if (params.has("models")) {
@@ -459,6 +587,11 @@ function bindEventListeners() {
 
   document.getElementById("norm-select").addEventListener("change", (e) => {
     currentNormalization = e.target.value;
+    renderChart();
+  });
+
+  document.getElementById("metric-select").addEventListener("change", (e) => {
+    currentMetric = e.target.value;
     renderChart();
   });
 
@@ -824,6 +957,17 @@ function attachTaskTooltip(element, bench) {
 // ============================================================
 
 function renderChart() {
+  // Show/hide metric selector based on task selection
+  const sel = currentTaskSelection;
+  if (isAggregateSelection(sel)) {
+    hideMetricSelector();
+  } else if (sel.startsWith("__group__")) {
+    const g = DATA.task_groups[sel.slice(9)];
+    if (g) populateMetricSelector(g.benchmarks);
+  } else if (DATA.metrics_setup[sel]) {
+    populateMetricSelector([sel]);
+  }
+
   updateDescription();
   // Hide model checkboxes on progress tab (only one model)
   const modelSection = document.getElementById("model-checkboxes");
@@ -839,6 +983,7 @@ function updateDescription() {
   const sel = currentTaskSelection;
   let desc = "";
   let url = "";
+  let metricDesc = "";
   if (isAggregateSelection(sel)) {
     desc = getAggregateDescription();
   } else if (sel.startsWith("__group__")) {
@@ -848,11 +993,17 @@ function updateDescription() {
       if (info) {
         desc = info.description || "";
         url = info.url || "";
+        const metric = getEffectiveMetric(g.benchmarks[0]);
+        const metricName = METRIC_DISPLAY[metric] || metric;
+        metricDesc = "Metric: " + metricName + ". " + (METRIC_DESCRIPTIONS[metric] || "");
       }
     }
   } else if (DATA.metrics_setup[sel]) {
     desc = DATA.metrics_setup[sel].description || "";
     url = DATA.metrics_setup[sel].url || "";
+    const metric = getEffectiveMetric(sel);
+    const metricName = METRIC_DISPLAY[metric] || metric;
+    metricDesc = "Metric: " + metricName + ". " + (METRIC_DESCRIPTIONS[metric] || "");
   }
   descEl.innerHTML = "";
   if (desc) {
@@ -867,6 +1018,13 @@ function updateDescription() {
       link.textContent = displayUrl;
       link.style.color = "var(--accent)";
       descEl.appendChild(link);
+    }
+    if (metricDesc) {
+      descEl.appendChild(document.createElement("br"));
+      const metricSpan = document.createElement("span");
+      metricSpan.className = "metric-description";
+      metricSpan.textContent = metricDesc;
+      descEl.appendChild(metricSpan);
     }
   }
   descEl.style.display = desc ? "block" : "none";
@@ -1009,6 +1167,7 @@ function renderAggregateBarChart() {
 function renderGroupedBarChart(groupName) {
   const group = DATA.task_groups[groupName];
   if (!group) return;
+  const metric = getEffectiveMetric(group.benchmarks[0]);
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const bench0 = group.benchmarks[0];
@@ -1017,12 +1176,12 @@ function renderGroupedBarChart(groupName) {
 
   const dataTraces = group.benchmarks.map((bench, i) => {
     const allRaw = needAllRaw
-      ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
+      ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot, metric)).filter((v) => v !== undefined)
       : null;
     const values = modelNames.map((m) => {
-      const raw = getScore(DATA.models, m, bench, currentShot);
+      const raw = getScore(DATA.models, m, bench, currentShot, metric);
       if (raw == null) return null;
-      return useNorm ? applyNorm(raw, bench, allRaw) : toDisplayScale(raw, bench);
+      return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
     const barColors = modelNames.map((m) => {
       const base = getModelColor(m);
@@ -1039,20 +1198,20 @@ function renderGroupedBarChart(groupName) {
     };
   });
 
-  const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0);
+  const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
   let yRange;
   if (useNorm) {
     // Compute y-range using normalization across all benchmarks in group
     const vals = [];
     for (const shot of ALL_SHOTS) {
       for (const bench of group.benchmarks) {
-        const raws = modelNames.map((m) => getScore(DATA.models, m, bench, shot)).filter((v) => v !== undefined);
-        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null));
+        const raws = modelNames.map((m) => getScore(DATA.models, m, bench, shot, metric)).filter((v) => v !== undefined);
+        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null, metric));
       }
     }
     yRange = computeYRange(vals);
   } else {
-    yRange = [0, computeRawYMax_display(DATA.models, group.benchmarks)];
+    yRange = [0, computeRawYMax_display(DATA.models, group.benchmarks, metric)];
   }
   const layout = getPlotlyLayout({
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
@@ -1067,21 +1226,22 @@ function renderGroupedBarChart(groupName) {
 function renderSingleBenchmarkBarChart(benchmark) {
   const info = DATA.metrics_setup[benchmark];
   if (!info) return;
+  const metric = getEffectiveMetric(benchmark);
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const colors = modelNames.map(getModelColor);
   const allRaw = (currentNormalization !== "none")
-    ? modelNames.map((mm) => getScore(DATA.models, mm, benchmark, currentShot)).filter((v) => v !== undefined)
+    ? modelNames.map((mm) => getScore(DATA.models, mm, benchmark, currentShot, metric)).filter((v) => v !== undefined)
     : null;
   const values = modelNames.map((m) => {
-    const raw = getScore(DATA.models, m, benchmark, currentShot);
+    const raw = getScore(DATA.models, m, benchmark, currentShot, metric);
     if (raw == null) return null;
-    if (currentNormalization === "none") return toDisplayScale(raw, benchmark);
-    return applyNorm(raw, benchmark, allRaw);
+    if (currentNormalization === "none") return toDisplayScale(raw, benchmark, metric);
+    return applyNorm(raw, benchmark, allRaw, metric);
   });
 
-  const yRange = computeSingleYRange(DATA.models, benchmark);
-  const yLabel = currentNormalization === "none" ? getMetricYLabel(benchmark) : getNormYLabel();
+  const yRange = computeSingleYRange(DATA.models, benchmark, metric);
+  const yLabel = currentNormalization === "none" ? getMetricYLabel(benchmark, metric) : getNormYLabel();
   const fmt = currentNormalization === "zscore" ? 2 : 1;
 
   const trace = {
@@ -1147,6 +1307,7 @@ function renderAggregateProgressChart() {
 function renderGroupProgressChart(groupName) {
   const group = DATA.task_groups[groupName];
   if (!group) return;
+  const metric = getEffectiveMetric(group.benchmarks[0]);
   const steps = getSteps();
   const allStepEntities = steps.map(String);
   const bench0 = group.benchmarks[0];
@@ -1156,12 +1317,12 @@ function renderGroupProgressChart(groupName) {
 
   const traces = group.benchmarks.map((bench, i) => {
     const allRaw = needAllRaw
-      ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
+      ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot, metric)).filter((v) => v !== undefined)
       : null;
     const ys = steps.map((s) => {
-      const raw = getScore(DATA.progress, s, bench, currentShot);
+      const raw = getScore(DATA.progress, s, bench, currentShot, metric);
       if (raw == null) return null;
-      return useNorm ? applyNorm(raw, bench, allRaw) : toDisplayScale(raw, bench);
+      return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
     return {
       x: steps, y: ys, mode: "lines+markers", name: group.labels[i],
@@ -1171,19 +1332,19 @@ function renderGroupProgressChart(groupName) {
     };
   });
 
-  const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0);
+  const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
   let yRange;
   if (useNorm) {
     const vals = [];
     for (const shot of ALL_SHOTS) {
       for (const bench of group.benchmarks) {
-        const raws = allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot)).filter((v) => v !== undefined);
-        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null));
+        const raws = allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot, metric)).filter((v) => v !== undefined);
+        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null, metric));
       }
     }
     yRange = computeYRange(vals);
   } else {
-    yRange = [0, computeRawYMax_display(DATA.progress, group.benchmarks)];
+    yRange = [0, computeRawYMax_display(DATA.progress, group.benchmarks, metric)];
   }
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
@@ -1196,12 +1357,13 @@ function renderGroupProgressChart(groupName) {
 function renderSingleProgressChart(benchmark) {
   const info = DATA.metrics_setup[benchmark];
   if (!info) return;
+  const metric = getEffectiveMetric(benchmark);
   const steps = getSteps();
   const ys = steps.map((s) => {
-    const raw = getScore(DATA.progress, s, benchmark, currentShot);
-    return raw != null ? toDisplayScale(raw, benchmark) : null;
+    const raw = getScore(DATA.progress, s, benchmark, currentShot, metric);
+    return raw != null ? toDisplayScale(raw, benchmark, metric) : null;
   });
-  const yMax = computeRawYMax_display(DATA.progress, [benchmark]);
+  const yMax = computeRawYMax_display(DATA.progress, [benchmark], metric);
   const trace = {
     x: steps, y: ys, mode: "lines+markers", name: info.pretty_name,
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
@@ -1210,7 +1372,7 @@ function renderSingleProgressChart(benchmark) {
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: getMetricYLabel(benchmark), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: getMetricYLabel(benchmark, metric), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
   plotChart([trace], layout);
 }
@@ -1258,14 +1420,14 @@ function computeAggregateYRange(dataSource, benchmarks) {
   return computeYRange(allAvgs);
 }
 
-function computeRawYMax_display(dataSource, benchmarks) {
+function computeRawYMax_display(dataSource, benchmarks, metric) {
   const vals = [];
   for (const entity of Object.keys(dataSource)) {
     if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
     for (const shot of ALL_SHOTS)
       for (const bench of benchmarks) {
-        const v = getScore(dataSource, entity, bench, shot);
-        if (v != null) vals.push(toDisplayScale(v, bench));
+        const v = getScore(dataSource, entity, bench, shot, metric);
+        if (v != null) vals.push(toDisplayScale(v, bench, metric));
       }
   }
   if (!vals.length) return 100;
@@ -1273,14 +1435,14 @@ function computeRawYMax_display(dataSource, benchmarks) {
   return Math.min(mx + Math.max(mx * 0.15, 2), 115);
 }
 
-function computeSingleYRange(dataSource, benchmark) {
+function computeSingleYRange(dataSource, benchmark, metric) {
   const vals = [];
   const entities = Object.keys(dataSource).filter((e) => dataSource !== DATA.models || checkedModels.has(e));
   for (const shot of ALL_SHOTS) {
-    const raws = entities.map((e) => getScore(dataSource, e, benchmark, shot)).filter((v) => v !== undefined);
+    const raws = entities.map((e) => getScore(dataSource, e, benchmark, shot, metric)).filter((v) => v !== undefined);
     for (const raw of raws) {
-      if (currentNormalization === "none") vals.push(toDisplayScale(raw, benchmark));
-      else vals.push(applyNorm(raw, benchmark, raws));
+      if (currentNormalization === "none") vals.push(toDisplayScale(raw, benchmark, metric));
+      else vals.push(applyNorm(raw, benchmark, raws, metric));
     }
   }
   return computeYRange(vals);

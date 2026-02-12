@@ -189,6 +189,11 @@ main {
   line-height: 1.5;
 }
 
+.metric-description {
+  font-style: italic;
+  color: var(--fg);
+}
+
 /* Chart */
 #chart-container {
   background: var(--surface);
