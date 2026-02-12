@@ -192,7 +192,7 @@ main {
 .metric-description {
   display: block;
   margin-top: 0.4rem;
-  color: var(--fg);
+  color: var(--fg-muted);
 }
 
 /* Chart */
@@ -409,6 +409,23 @@ main {
 
 .modebar-btn.active path {
   fill: var(--accent) !important;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }
 
 /* Responsive */
