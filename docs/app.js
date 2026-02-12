@@ -542,23 +542,19 @@ function isMacroSelection() {
   return currentTaskSelection === "__all_macro__";
 }
 
-/** Group benchmarks by task_groups for macro-averaging.
- *  Returns array of arrays: each inner array is a group of benchmarks to average first. */
+/** Group benchmarks by high-level category for macro-averaging.
+ *  Returns array of arrays: each inner array is all benchmarks in one category. */
 function getMacroGroups(benchmarks) {
   const benchSet = benchmarks instanceof Set ? benchmarks : new Set(benchmarks);
-  const groups = [];
-  const assigned = new Set();
-  for (const [, group] of Object.entries(DATA.task_groups)) {
-    const members = group.benchmarks.filter((b) => benchSet.has(b));
-    if (members.length > 0) {
-      groups.push(members);
-      members.forEach((b) => assigned.add(b));
-    }
-  }
+  const categoryGroups = {};
   for (const bench of benchSet) {
-    if (!assigned.has(bench)) groups.push([bench]);
+    const info = DATA.metrics_setup[bench];
+    if (!info) continue;
+    const cat = info.category;
+    if (!categoryGroups[cat]) categoryGroups[cat] = [];
+    categoryGroups[cat].push(bench);
   }
-  return groups;
+  return Object.values(categoryGroups);
 }
 
 /** Compute aggregate score over benchmarks using a scoring function.
@@ -883,7 +879,7 @@ function getAggregateDescription() {
   let scope = "";
   if (sel === "__all_macro__") {
     const groups = getMacroGroups(checkedTasks);
-    scope = "all " + count + " tasks (" + groups.length + " groups, macro-averaged)";
+    scope = "all " + count + " tasks (" + groups.length + " categories, macro-averaged)";
   } else if (sel === "__all__") scope = "all " + count + " tasks (micro-averaged)";
   else if (sel === "__custom__") scope = count + " selected tasks (micro-averaged)";
   else if (sel.startsWith("__cat__")) scope = count + " tasks in the \"" + sel.slice(7) + "\" category";
@@ -893,7 +889,7 @@ function getAggregateDescription() {
   else if (sel === "__lang__sme") scope = count + " Northern S\u00e1mi tasks";
 
   const avgDesc = macro
-    ? "Scores are first averaged within each task group (e.g. Bokm\u00e5l/Nynorsk pairs), then averaged across groups. This prevents tasks with language variants from being double-weighted. "
+    ? "Scores are first averaged within each task category, then averaged across categories. This gives equal weight to each category regardless of how many tasks it contains. "
     : "";
   const normDescs = {
     none: "Scores are shown on their native metric scales without normalization, then averaged.",
@@ -959,7 +955,7 @@ function onChartHover(data) {
   let title = isProgress ? "Step " + pt.x : String(pt.x);
   let body;
   if (isAggregateSelection(sel)) {
-    const unit = isMacroSelection() ? "groups" : "tasks";
+    const unit = isMacroSelection() ? "categories" : "tasks";
     body = "Average: " + scoreStr + (pt.customdata != null ? " (" + pt.customdata + " " + unit + ")" : "");
   } else if (sel.startsWith("__group__") && pt.data.name) {
     body = pt.data.name + ": " + scoreStr;
