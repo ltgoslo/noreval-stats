@@ -22,6 +22,7 @@ const METRIC_DISPLAY = {
   acc_norm: "accuracy (normalized)",
   f1: "F1",
   em: "exact match",
+  em_first: "exact match (first word)",
   exact_match: "exact match",
   fscore: "F-score",
   bleu: "BLEU",
@@ -40,7 +41,7 @@ const METRIC_DISPLAY = {
 };
 
 const METRIC_SCALES = {
-  acc: "unit", acc_norm: "unit", f1: "unit", em: "unit", exact_match: "unit",
+  acc: "unit", acc_norm: "unit", f1: "unit", em: "unit", em_first: "unit", exact_match: "unit",
   errant_f05: "unit", fscore: "unit",
   bleu: "percent", bleu_max: "percent", bleu_avg: "percent",
   bleu_acc: "unit",
@@ -56,6 +57,7 @@ const METRIC_DESCRIPTIONS = {
   acc_norm: "Accuracy after normalizing for answer option length.",
   f1: "Harmonic mean of precision and recall.",
   em: "Proportion of predictions that exactly match the reference.",
+  em_first: "Exact match accuracy of the first generated word against the correct completion word.",
   exact_match: "Proportion of predictions that exactly match the reference.",
   fscore: "Token-level overlap between predicted and reference text.",
   bleu: "Measures n-gram overlap between generated and reference text.",
@@ -156,9 +158,17 @@ function getScore(dataSource, entity, bench, shot, metric) {
   return obj[currentPromptAgg];
 }
 
+/** Extract the base metric name from a subtask metric like "acc: Person: 1→2" → "acc" */
+function getBaseMetric(metric) {
+  if (!metric) return metric;
+  const sep = metric.indexOf(": ");
+  return sep !== -1 && METRIC_SCALES[metric.slice(0, sep)] ? metric.slice(0, sep) : metric;
+}
+
 /** Convert raw stored score to 0-100 display scale */
 function toDisplayScale(value, benchmark, metric) {
-  const scale = metric ? (METRIC_SCALES[metric] || "unit") : DATA.metrics_setup[benchmark].metric_scale;
+  const base = metric ? getBaseMetric(metric) : null;
+  const scale = base ? (METRIC_SCALES[base] || "unit") : DATA.metrics_setup[benchmark].metric_scale;
   return scale === "unit" ? value * 100 : value;
 }
 
@@ -209,7 +219,10 @@ function getNormYLabel() {
 
 function getMetricYLabel(benchmark, metric) {
   const m = metric || DATA.metrics_setup[benchmark].main_metric;
-  return METRIC_DISPLAY[m] || m;
+  if (METRIC_DISPLAY[m]) return METRIC_DISPLAY[m];
+  const base = getBaseMetric(m);
+  if (base !== m && METRIC_DISPLAY[base]) return METRIC_DISPLAY[base];
+  return m;
 }
 
 function autoSetNormalization() {
@@ -251,21 +264,78 @@ function populateMetricSelector(benchmarks) {
     return;
   }
 
-  // Order: main_metric of first benchmark first, then others sorted
   const mainMetric = DATA.metrics_setup[benchmarks[0]]?.main_metric;
-  const ordered = [];
-  if (mainMetric && metrics.has(mainMetric)) ordered.push(mainMetric);
-  for (const m of [...metrics].sort()) {
-    if (m !== mainMetric) ordered.push(m);
+  const info = DATA.metrics_setup[benchmarks[0]];
+  const hasSubtasks = info && info.subtasks;
+
+  // Separate base metrics from subtask metrics (contain ": ")
+  const baseMetrics = [];
+  const subtaskMetrics = [];
+  for (const m of metrics) {
+    if (m.indexOf(": ") !== -1 && METRIC_SCALES[m.slice(0, m.indexOf(": "))]) {
+      subtaskMetrics.push(m);
+    } else {
+      baseMetrics.push(m);
+    }
+  }
+
+  // Order base metrics: main_metric first, then sorted
+  const orderedBase = [];
+  if (mainMetric && baseMetrics.includes(mainMetric)) orderedBase.push(mainMetric);
+  for (const m of baseMetrics.sort()) {
+    if (m !== mainMetric) orderedBase.push(m);
   }
 
   select.innerHTML = "";
-  for (const m of ordered) {
+
+  // Add base metrics (no optgroup needed if no subtask metrics)
+  for (const m of orderedBase) {
     const opt = document.createElement("option");
     opt.value = m;
     opt.textContent = METRIC_DISPLAY[m] || m;
     if (m === mainMetric) opt.textContent += " (default)";
     select.appendChild(opt);
+  }
+
+  // Group subtask metrics by category (e.g. "Person" vs "Number") and base metric
+  if (subtaskMetrics.length > 0 && hasSubtasks) {
+    // Group by base metric (acc, acc_norm, etc.)
+    const byBaseMetric = {};
+    for (const m of subtaskMetrics) {
+      const base = getBaseMetric(m);
+      if (!byBaseMetric[base]) byBaseMetric[base] = [];
+      byBaseMetric[base].push(m);
+    }
+
+    for (const base of Object.keys(byBaseMetric).sort()) {
+      const items = byBaseMetric[base].sort();
+      // Sub-group by phenomenon category (Person / Number / etc.)
+      const byCategory = {};
+      for (const m of items) {
+        // m is like "acc: Person: 1→2" or "acc: Number: SG→PL"
+        const afterBase = m.slice(base.length + 2); // "Person: 1→2"
+        const catSep = afterBase.indexOf(": ");
+        const cat = catSep !== -1 ? afterBase.slice(0, catSep) : "Subtasks";
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push(m);
+      }
+
+      for (const cat of Object.keys(byCategory).sort()) {
+        const group = document.createElement("optgroup");
+        const baseLabel = METRIC_DISPLAY[base] || base;
+        group.label = baseLabel + " \u2014 " + cat;
+        for (const m of byCategory[cat]) {
+          const opt = document.createElement("option");
+          opt.value = m;
+          // Display just the specific part, e.g. "1→2" or "SG→PL"
+          const afterBase = m.slice(base.length + 2);
+          const catSep = afterBase.indexOf(": ");
+          opt.textContent = catSep !== -1 ? afterBase.slice(catSep + 2) : afterBase;
+          group.appendChild(opt);
+        }
+        select.appendChild(group);
+      }
+    }
   }
 
   // Preserve current metric if still available, otherwise reset to main
@@ -989,6 +1059,21 @@ function renderChart() {
   stateToUrl();
 }
 
+/** Look up description for a subtask metric like "acc: Person: 1→2".
+ *  Returns the subtask description string, or null if not a subtask metric. */
+function getSubtaskDescription(benchmark, metric) {
+  if (!metric || metric.indexOf(": ") === -1) return null;
+  const info = DATA.metrics_setup[benchmark];
+  if (!info || !info.subtasks) return null;
+  // Find the subtask whose pretty_name matches the label portion
+  const base = getBaseMetric(metric);
+  const label = metric.slice(base.length + 2); // e.g. "Person: 1→2"
+  for (const st of Object.values(info.subtasks)) {
+    if (st.pretty_name === label) return st.description || null;
+  }
+  return null;
+}
+
 function updateDescription() {
   const descEl = document.getElementById("task-description");
   if (!descEl) return;
@@ -1007,7 +1092,13 @@ function updateDescription() {
         url = info.url || "";
         const metric = getEffectiveMetric(g.benchmarks[0]);
         const metricName = METRIC_DISPLAY[metric] || metric;
-        metricDesc = "Metric: " + metricName + ". " + (METRIC_DESCRIPTIONS[metric] || "");
+        const baseMetric = getBaseMetric(metric);
+        const subtaskDesc = getSubtaskDescription(g.benchmarks[0], metric);
+        if (subtaskDesc) {
+          metricDesc = "Metric: " + metricName + ". " + subtaskDesc;
+        } else {
+          metricDesc = "Metric: " + metricName + ". " + (METRIC_DESCRIPTIONS[baseMetric] || METRIC_DESCRIPTIONS[metric] || "");
+        }
       }
     }
   } else if (DATA.metrics_setup[sel]) {
@@ -1015,7 +1106,14 @@ function updateDescription() {
     url = DATA.metrics_setup[sel].url || "";
     const metric = getEffectiveMetric(sel);
     const metricName = METRIC_DISPLAY[metric] || metric;
-    metricDesc = "Metric: " + metricName + ". " + (METRIC_DESCRIPTIONS[metric] || "");
+    const baseMetric = getBaseMetric(metric);
+    // For subtask metrics, show the subtask description
+    const subtaskDesc = getSubtaskDescription(sel, metric);
+    if (subtaskDesc) {
+      metricDesc = "Metric: " + metricName + ". " + subtaskDesc;
+    } else {
+      metricDesc = "Metric: " + metricName + ". " + (METRIC_DESCRIPTIONS[baseMetric] || METRIC_DESCRIPTIONS[metric] || "");
+    }
   }
   descEl.innerHTML = "";
   if (desc) {

@@ -28,6 +28,7 @@ SHOT_DIRS = {"0": "0-shot", "1": "1-shot", "5": "5-shot"}
 MODEL_DISPLAY_NAMES = {
     # Norwegian models
     "norolmo-13b": "NorOLMo 13B",
+    "norolmo-13b-stage1": "NorOLMo 13B (stage 1)",
     "normistral-7b-warm": "NorMistral 7B",
     "normistral-11b-warm": "NorMistral 11B",
     "normistral-11b-long": "NorMistral 11B Long",
@@ -58,6 +59,7 @@ MODEL_DISPLAY_NAMES = {
 # Model category: "norwegian" or "multilingual"
 MODEL_CATEGORIES = {
     "norolmo-13b": "norwegian",
+    "norolmo-13b-stage1": "norwegian",
     "normistral-7b-warm": "norwegian",
     "normistral-11b-warm": "norwegian",
     "normistral-11b-long": "norwegian",
@@ -108,6 +110,10 @@ MODEL_COLOR_MAP = {
 MODEL_INFO = {
     "norolmo-13b": {
         "description": "A fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo.",
+        "huggingface_url": "https://huggingface.co/HPLT/NorOLMo-13B",
+    },
+    "norolmo-13b-stage1": {
+        "description": "The final stage-1 checkpoint of NorOLMo-13B (after 24,000 steps). NorOLMo is a fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo.",
         "huggingface_url": "https://huggingface.co/HPLT/NorOLMo-13B",
     },
     "normistral-7b-warm": {
@@ -271,6 +277,7 @@ STANDALONE_BENCHMARKS = [
     "ask_gec",
     "ncb",
     "nocola",
+    "noreval_multiblimp",
     "slide",
 ]
 
@@ -299,8 +306,11 @@ def find_latest_results_json(directory):
     return files[-1]
 
 
-def extract_benchmark_scores(results_json_path, benchmark_name):
+def extract_benchmark_scores(results_json_path, benchmark_name, subtasks=None):
     """Extract max/mean/median of all non-stderr metrics across prompt variants.
+
+    For benchmarks with subtasks (e.g. noreval_multiblimp), also extracts
+    per-subtask metrics as virtual metric names like "acc: Person: 1→2".
 
     Returns dict {metric_name: {"max": ..., "mean": ..., "median": ..., "min": ...}, ...}
     or None if no metrics found.
@@ -330,6 +340,29 @@ def extract_benchmark_scores(results_json_path, benchmark_name):
                         metric_values[metric_name] = []
                     metric_values[metric_name].append(val)
 
+    # Extract subtask metrics (e.g. MultiBLiMP per-phenomenon scores)
+    if subtasks:
+        for subtask_code, subtask_info in subtasks.items():
+            subtask_key = f"{benchmark_name}_{subtask_code}"
+            if subtask_key not in results:
+                continue
+            task_results = results[subtask_key]
+            pretty_name = subtask_info["pretty_name"]
+            for key, val in task_results.items():
+                if not key.endswith(",none"):
+                    continue
+                if "_stderr,none" in key:
+                    continue
+                base_metric = key[: -len(",none")]
+                if base_metric in bench_exclusions:
+                    continue
+                if isinstance(val, (int, float)):
+                    # Create a virtual metric name: "acc: Person: 1→2"
+                    virtual_name = f"{base_metric}: {pretty_name}"
+                    if virtual_name not in metric_values:
+                        metric_values[virtual_name] = []
+                    metric_values[virtual_name].append(val)
+
     if not metric_values:
         return None
 
@@ -353,6 +386,7 @@ def process_model_dir(model_path, metrics_setup):
     scores = {}
     discovered_metrics = {}
     for benchmark, config in metrics_setup.items():
+        subtasks = config.get("subtasks")
         bench_scores = {}
         for shot_key, shot_dir_name in SHOT_DIRS.items():
             shot_path = os.path.join(model_path, benchmark, shot_dir_name)
@@ -361,7 +395,7 @@ def process_model_dir(model_path, metrics_setup):
             results_file = find_latest_results_json(shot_path)
             if results_file is None:
                 continue
-            agg = extract_benchmark_scores(results_file, benchmark)
+            agg = extract_benchmark_scores(results_file, benchmark, subtasks)
             if agg is not None:
                 bench_scores[shot_key] = agg
                 if benchmark not in discovered_metrics:
@@ -380,9 +414,19 @@ def build_metrics_info(metrics_setup, discovered_metrics):
         main_metric = config["main_metric"]
         # Build available_metrics list: main_metric first, then others sorted
         disc = discovered_metrics.get(benchmark, set())
-        others = sorted(disc - {main_metric})
-        available_metrics = [main_metric] + others if main_metric in disc else sorted(disc)
-        info[benchmark] = {
+        # Separate base metrics from subtask metrics (contain ": ")
+        base_metrics = {m for m in disc if ": " not in m}
+        subtask_metrics = sorted(m for m in disc if ": " in m)
+        base_others = sorted(base_metrics - {main_metric})
+        available_metrics = (
+            ([main_metric] if main_metric in disc else [])
+            + base_others
+            + subtask_metrics
+        )
+        if not available_metrics:
+            available_metrics = sorted(disc)
+
+        entry = {
             "pretty_name": config["pretty_name"],
             "description": config.get("description", ""),
             "main_metric": main_metric,
@@ -394,6 +438,19 @@ def build_metrics_info(metrics_setup, discovered_metrics):
             "url": config.get("url", ""),
             "available_metrics": available_metrics,
         }
+
+        # Include subtask metadata for frontend tooltips/descriptions
+        subtasks = config.get("subtasks")
+        if subtasks:
+            entry["subtasks"] = {
+                code: {
+                    "pretty_name": st["pretty_name"],
+                    "description": st.get("description", ""),
+                }
+                for code, st in subtasks.items()
+            }
+
+        info[benchmark] = entry
     return info
 
 
@@ -440,7 +497,7 @@ def main():
 
     # Language benchmark lists
     nno_benchmarks = [b for b in metrics_setup if "_nno" in b]
-    sme_benchmarks = [b for b in metrics_setup if "_sme" in b]
+    sme_benchmarks = [b for b in metrics_setup if "_sme" in b] + ["noreval_multiblimp"]
     nob_nno_translation_benchmarks = [
         "norsumm_nob_nno_translation",
         "norsumm_nno_nob_translation",

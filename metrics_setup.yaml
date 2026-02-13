@@ -70,22 +70,71 @@ norec_sentence:
   evaluation_type: classification
   metric_scale: unit
   url: https://huggingface.co/datasets/ltg/norec_sentence
-noridiom_nno:
-  pretty_name: idiom completion
-  description: "Idiom completion based on the NorIdiom dataset, the model is given the first N-1 words of an idiom and must predict the final word. The main metric is exact match (EM), with a random baseline of 0.0 since the model must predict a specific word."
-  main_metric: em
-  random_baseline: 0.0
+noreval_multiblimp:
+  pretty_name: linguistic acceptability (MultiBLiMP)
+  description: "Linguistic acceptability based on the MultiBLiMP dataset (Jumelet et al., 2025), a multilingual benchmark of minimal pairs. For Northern Sámi, it tests subject-verb and subject-participle agreement for person (1st/2nd/3rd) and number (singular/dual/plural). The agreement is tested on finite verbs, auxiliaries, and participles. The model must assign higher probability to the grammatical sentence in each minimal pair. The main metric is micro-averaged accuracy across all subtasks, with a random baseline of 0.5."
+  main_metric: acc
+  random_baseline: 0.5
   category: linguistic knowledge
   evaluation_type: classification
+  metric_scale: unit
+  url: https://huggingface.co/datasets/jumelet/multiblimp
+  subtasks:
+    "1-2":
+      pretty_name: "Person: 1→2"
+      description: "Correct sentence has 1st person agreement; distractor has 2nd person. Mostly subject-participle agreement (n=24)."
+    "1-3":
+      pretty_name: "Person: 1→3"
+      description: "Correct sentence has 1st person agreement; distractor has 3rd person. Mostly subject-participle agreement (n=24)."
+    "1-23":
+      pretty_name: "Person: 1→2|3"
+      description: "Correct sentence has 1st person agreement; distractor has 2nd or 3rd person. Subject-participle agreement (n=2)."
+    "2-1":
+      pretty_name: "Person: 2→1"
+      description: "Correct sentence has 2nd person agreement; distractor has 1st person. Subject-verb agreement on finite verbs and auxiliaries (n=75)."
+    "2-3":
+      pretty_name: "Person: 2→3"
+      description: "Correct sentence has 2nd person agreement; distractor has 3rd person. Subject-verb agreement on finite verbs and auxiliaries (n=84)."
+    "3-1":
+      pretty_name: "Person: 3→1"
+      description: "Correct sentence has 3rd person agreement; distractor has 1st person. Subject-verb agreement on finite verbs and auxiliaries (n=380)."
+    "3-2":
+      pretty_name: "Person: 3→2"
+      description: "Correct sentence has 3rd person agreement; distractor has 2nd person. Subject-verb agreement on finite verbs and auxiliaries (n=371)."
+    "SG-PL":
+      pretty_name: "Number: SG→PL"
+      description: "Correct sentence has singular agreement; distractor has plural. Mostly subject-verb agreement on finite verbs and auxiliaries (n=356)."
+    "PL-SG":
+      pretty_name: "Number: PL→SG"
+      description: "Correct sentence has plural agreement; distractor has singular. Subject-verb agreement on finite verbs and auxiliaries (n=341)."
+    "SG-DU":
+      pretty_name: "Number: SG→DU"
+      description: "Correct sentence has singular agreement; distractor has dual. Mostly subject-verb agreement on finite verbs and auxiliaries (n=373)."
+    "DU-SG":
+      pretty_name: "Number: DU→SG"
+      description: "Correct sentence has dual agreement; distractor has singular. Subject-verb agreement on finite verbs and auxiliaries (n=89)."
+    "PL-DU":
+      pretty_name: "Number: PL→DU"
+      description: "Correct sentence has plural agreement; distractor has dual. Subject-verb agreement on finite verbs and auxiliaries (n=333)."
+    "DU-PL":
+      pretty_name: "Number: DU→PL"
+      description: "Correct sentence has dual agreement; distractor has plural. Subject-verb agreement on finite verbs and auxiliaries (n=84)."
+noridiom_nno:
+  pretty_name: idiom completion
+  description: "Idiom completion based on the NorIdiom dataset, the model is given the first N-1 words of an idiom and must generate the completion. The main metric is em_first (exact match of the first generated word against the correct completion word), with a random baseline of 0.0. Additional metrics include em (exact match of the full completion) and fscore (token overlap F1)."
+  main_metric: em_first
+  random_baseline: 0.0
+  category: linguistic knowledge
+  evaluation_type: generation
   metric_scale: unit
   url: https://huggingface.co/datasets/Sprakbanken/Norwegian_idioms
 noridiom_nob:
   pretty_name: idiom completion
-  description: "Idiom completion based on the NorIdiom dataset, the model is given the first N-1 words of an idiom and must predict the final word. The main metric is exact match (EM), with a random baseline of 0.0 since the model must predict a specific word."
-  main_metric: em
+  description: "Idiom completion based on the NorIdiom dataset, the model is given the first N-1 words of an idiom and must generate the completion. The main metric is em_first (exact match of the first generated word against the correct completion word), with a random baseline of 0.0. Additional metrics include em (exact match of the full completion) and fscore (token overlap F1)."
+  main_metric: em_first
   random_baseline: 0.0
   category: linguistic knowledge
-  evaluation_type: classification
+  evaluation_type: generation
   metric_scale: unit
   url: https://huggingface.co/datasets/Sprakbanken/Norwegian_idioms
 noropenbookqa_nno:

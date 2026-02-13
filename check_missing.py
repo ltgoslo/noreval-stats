@@ -51,7 +51,11 @@ def check_model_dir(model_path, benchmarks):
 
 
 def check_main_metrics(base_paths, metrics_setup):
-    """Check that each results JSON contains its expected main_metric."""
+    """Check that each results JSON contains its expected main_metric.
+
+    For benchmarks with subtasks (e.g. noreval_multiblimp), also checks
+    that all expected subtask entries are present in the results.
+    """
     issues = []
     for base_path in base_paths:
         if not os.path.isdir(base_path):
@@ -63,6 +67,7 @@ def check_main_metrics(base_paths, metrics_setup):
             for benchmark, config in metrics_setup.items():
                 main_metric = config["main_metric"]
                 metric_key = f"{main_metric},none"
+                subtasks = config.get("subtasks", {})
                 bench_path = os.path.join(model_path, benchmark)
                 if not os.path.isdir(bench_path):
                     continue
@@ -74,12 +79,25 @@ def check_main_metrics(base_paths, metrics_setup):
                         try:
                             with open(results_file) as f:
                                 data = json.load(f)
-                            for task_name, task_results in data.get("results", {}).items():
+                            results = data.get("results", {})
+
+                            # Check main_metric in all result entries
+                            for task_name, task_results in results.items():
                                 if metric_key not in task_results:
                                     issues.append((
                                         model_dir, benchmark, shot, task_name,
                                         f"missing {metric_key}",
                                     ))
+
+                            # For benchmarks with subtasks, check each expected subtask
+                            if subtasks:
+                                for subtask_key in subtasks:
+                                    full_key = f"{benchmark}_{subtask_key}"
+                                    if full_key not in results:
+                                        issues.append((
+                                            model_dir, benchmark, shot, full_key,
+                                            "missing subtask entry",
+                                        ))
                         except Exception as e:
                             issues.append((
                                 model_dir, benchmark, shot, results_file,
