@@ -288,6 +288,7 @@ EXCLUDED_METRICS = {"bleu_diff", "rouge1_diff", "rouge2_diff", "rougeL_diff"}
 # Per-benchmark metric exclusions
 EXCLUDED_METRICS_PER_BENCHMARK = {
     "ask_gec": {"exact_match"},
+    "noreval_multiblimp": {"acc_norm"},
 }
 
 

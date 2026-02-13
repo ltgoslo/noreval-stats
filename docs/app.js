@@ -1027,8 +1027,7 @@ function attachTaskTooltip(element, bench) {
   attachTooltip(element, () => {
     const info = DATA.metrics_setup[bench];
     if (!info) return null;
-    const metric = METRIC_DISPLAY[info.main_metric] || info.main_metric;
-    const body = (info.description || "") + (info.description ? "  \u2022  " : "") + "Metric: " + metric;
+    const body = info.description || "";
     const footer = info.url ? info.url.replace("https://huggingface.co/", "hf.co/") : "";
     return { title: info.pretty_name, body, footer };
   });
