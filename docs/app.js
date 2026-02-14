@@ -10,6 +10,7 @@ let currentNormalization = "baseline"; // auto-set based on view
 let currentMetric = null; // null = use main_metric; set for individual task views
 let checkedTasks = new Set();
 let checkedModels = new Set();
+let showStderr = false;
 
 const MODEL_COLORS = [
   "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#8b5cf6",
@@ -133,6 +134,11 @@ function darkenColor(hex, amount) {
   return rgbToHex(r * (1 - amount), g * (1 - amount), b * (1 - amount));
 }
 
+function hexToRgba(hex, alpha) {
+  const [r, g, b] = hexToRgb(hex);
+  return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
+}
+
 function getModelColor(modelDir) {
   if (DATA.model_colors && DATA.model_colors[modelDir]) {
     return DATA.model_colors[modelDir];
@@ -156,6 +162,35 @@ function getScore(dataSource, entity, bench, shot, metric) {
   if (obj === undefined || obj === null) return undefined;
   if (typeof obj === "number") return obj; // backward compat
   return obj[currentPromptAgg];
+}
+
+/** Get raw stderr from data source, respecting prompt aggregation mode. */
+function getStderr(dataSource, entity, bench, shot, metric) {
+  metric = metric || DATA.metrics_setup[bench]?.main_metric;
+  const obj = dataSource[entity]?.[bench]?.[shot]?.[metric];
+  if (obj === undefined || obj === null) return undefined;
+  if (typeof obj === "number") return undefined; // old format, no stderr
+  const key = currentPromptAgg + "_stderr";
+  const se = obj[key];
+  return (se !== undefined && se !== null) ? se : undefined;
+}
+
+/** Scale a raw stderr value for display, applying the same transform as the score.
+ *  Only works for "none" and "baseline" normalization. */
+function scaleStderr(se, benchmark, metric) {
+  if (se === undefined || se === null) return undefined;
+  if (currentNormalization === "none") return toDisplayScale(se, benchmark, metric);
+  if (currentNormalization === "baseline") {
+    const info = DATA.metrics_setup[benchmark];
+    const range = info.max_performance - info.random_baseline;
+    return range === 0 ? 0 : (se / range) * 100;
+  }
+  return undefined; // not supported for other normalizations
+}
+
+/** Check if stderr display is compatible with the current normalization mode. */
+function isStderrCompatible() {
+  return currentNormalization === "none" || currentNormalization === "baseline";
 }
 
 /** Extract the base metric name from a subtask metric like "acc: Person: 1→2" → "acc" */
@@ -233,6 +268,20 @@ function autoSetNormalization() {
     currentNormalization = "none";
   }
   document.getElementById("norm-select").value = currentNormalization;
+  updateStderrToggleState();
+}
+
+function updateStderrToggleState() {
+  const control = document.getElementById("stderr-control");
+  const toggle = document.getElementById("stderr-toggle");
+  if (!control || !toggle) return;
+  if (isStderrCompatible()) {
+    control.classList.remove("disabled");
+  } else {
+    control.classList.add("disabled");
+    toggle.checked = false;
+    showStderr = false;
+  }
 }
 
 // ============================================================
@@ -427,6 +476,7 @@ function stateToUrl() {
     params.set("task", _taskSelToAlias[currentTaskSelection] || currentTaskSelection);
   }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
+  if (showStderr) params.set("se", "1");
 
   // Only store metric if it differs from main_metric for the current task
   if (currentMetric && !isAggregateSelection(currentTaskSelection)) {
@@ -480,6 +530,7 @@ function loadStateFromHash() {
   if (params.has("prompt")) { currentPromptAgg = params.get("prompt"); loaded = true; }
   if (params.has("metric")) { currentMetric = params.get("metric"); loaded = true; }
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
+  if (params.has("se")) { showStderr = params.get("se") === "1"; loaded = true; }
 
   if (params.has("models")) {
     const val = params.get("models");
@@ -538,12 +589,14 @@ async function init() {
     document.getElementById("task-select").value = currentTaskSelection;
     document.getElementById("prompt-agg-select").value = currentPromptAgg;
     document.getElementById("norm-select").value = currentNormalization;
+    document.getElementById("stderr-toggle").checked = showStderr;
     document.querySelectorAll(".tab-btn").forEach((btn) =>
       btn.classList.toggle("active", btn.dataset.tab === currentTab));
     document.querySelectorAll(".shot-btn").forEach((btn) =>
       btn.classList.toggle("active", btn.dataset.shot === currentShot));
     syncCheckboxStates();
     syncModelCheckboxStates();
+    updateStderrToggleState();
   } else {
     autoSetNormalization();
   }
@@ -649,6 +702,12 @@ function bindEventListeners() {
 
   document.getElementById("norm-select").addEventListener("change", (e) => {
     currentNormalization = e.target.value;
+    updateStderrToggleState();
+    renderChart();
+  });
+
+  document.getElementById("stderr-toggle").addEventListener("change", (e) => {
+    showStderr = e.target.checked;
     renderChart();
   });
 
@@ -755,28 +814,53 @@ function getMacroGroups(benchmarks) {
 /** Compute aggregate score over benchmarks using a scoring function.
  *  macro=true: average within task groups first, then across groups.
  *  macro=false: simple micro-average across all benchmarks.
- *  scoreFn(bench) should return the normalized score or undefined.
- *  Returns { score, count } or null. */
+ *  scoreFn(bench) should return { score, stderr } or undefined.
+ *    (For backward compat, a plain number is treated as { score: number }.)
+ *  Returns { score, count, stderr } or null. */
 function aggregateScores(benchmarks, scoreFn, macro) {
   if (macro) {
     const groups = getMacroGroups(benchmarks);
-    let groupSum = 0, groupCount = 0;
+    let groupSum = 0, groupCount = 0, groupSe2 = 0;
     for (const group of groups) {
-      let sum = 0, count = 0;
+      let sum = 0, count = 0, se2 = 0;
       for (const bench of group) {
-        const s = scoreFn(bench);
-        if (s !== undefined) { sum += s; count++; }
+        const r = scoreFn(bench);
+        if (r === undefined) continue;
+        const s = (typeof r === "number") ? r : r.score;
+        if (s === undefined) continue;
+        sum += s; count++;
+        const se = (typeof r === "object" && r.stderr != null) ? r.stderr : 0;
+        se2 += se * se;
       }
-      if (count > 0) { groupSum += sum / count; groupCount++; }
+      if (count > 0) {
+        groupSum += sum / count;
+        groupSe2 += se2 / (count * count);
+        groupCount++;
+      }
     }
-    return groupCount > 0 ? { score: groupSum / groupCount, count: groupCount } : null;
+    if (groupCount === 0) return null;
+    return {
+      score: groupSum / groupCount,
+      count: groupCount,
+      stderr: Math.sqrt(groupSe2) / groupCount,
+    };
   } else {
-    let sum = 0, count = 0;
+    let sum = 0, count = 0, se2 = 0;
     for (const bench of benchmarks) {
-      const s = scoreFn(bench);
-      if (s !== undefined) { sum += s; count++; }
+      const r = scoreFn(bench);
+      if (r === undefined) continue;
+      const s = (typeof r === "number") ? r : r.score;
+      if (s === undefined) continue;
+      sum += s; count++;
+      const se = (typeof r === "object" && r.stderr != null) ? r.stderr : 0;
+      se2 += se * se;
     }
-    return count > 0 ? { score: sum / count, count } : null;
+    if (count === 0) return null;
+    return {
+      score: sum / count,
+      count,
+      stderr: Math.sqrt(se2) / count,
+    };
   }
 }
 
@@ -1218,15 +1302,31 @@ function onChartHover(data) {
   const isProgress = currentTab === "progress";
   const sel = currentTaskSelection;
 
+  // Extract stderr from customdata if available
+  let seStr = "";
+  if (showStderr && pt.customdata != null) {
+    if (isAggregateSelection(sel)) {
+      // customdata is {count, stderr}
+      const cd = pt.customdata;
+      if (cd && typeof cd === "object" && cd.stderr != null) {
+        seStr = " \u00b1 " + Number(cd.stderr).toFixed(fmt);
+      }
+    } else if (typeof pt.customdata === "number" && pt.customdata > 0) {
+      seStr = " \u00b1 " + Number(pt.customdata).toFixed(fmt);
+    }
+  }
+
   let title = isProgress ? "Step " + pt.x : String(pt.x);
   let body;
   if (isAggregateSelection(sel)) {
     const unit = isMacroSelection() ? "categories" : "tasks";
-    body = "Average: " + scoreStr + (pt.customdata != null ? " (" + pt.customdata + " " + unit + ")" : "");
+    const cd = pt.customdata;
+    const countStr = cd && typeof cd === "object" ? cd.count : cd;
+    body = "Average: " + scoreStr + seStr + (countStr != null ? " (" + countStr + " " + unit + ")" : "");
   } else if (sel.startsWith("__group__") && pt.data.name) {
-    body = pt.data.name + ": " + scoreStr;
+    body = pt.data.name + ": " + scoreStr + seStr;
   } else {
-    body = "Score: " + scoreStr;
+    body = "Score: " + scoreStr + seStr;
   }
   showTooltip(data.event, title, body);
 }
@@ -1236,9 +1336,11 @@ function renderAggregateBarChart() {
   const labels = modelNames.map(getModelLabel);
   const scores = [];
   const taskCounts = [];
+  const aggStderrs = [];
   const colors = modelNames.map(getModelColor);
 
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
+  const wantSE = showStderr && isStderrCompatible();
   const macro = isMacroSelection();
   for (const m of modelNames) {
     const result = aggregateScores(checkedTasks, (bench) => {
@@ -1247,10 +1349,13 @@ function renderAggregateBarChart() {
       const allRaw = needAllRaw
         ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
         : null;
-      return applyNorm(raw, bench, allRaw);
+      const score = applyNorm(raw, bench, allRaw);
+      const se = wantSE ? scaleStderr(getStderr(DATA.models, m, bench, currentShot), bench) : undefined;
+      return { score, stderr: se };
     }, macro);
     scores.push(result ? result.score : 0);
     taskCounts.push(result ? result.count : 0);
+    aggStderrs.push(result ? result.stderr : 0);
   }
 
   const trace = {
@@ -1258,9 +1363,15 @@ function renderAggregateBarChart() {
     marker: { color: colors, line: { width: 0 } },
     text: scores.map((s) => s.toFixed(currentNormalization === "zscore" ? 2 : 1)),
     textposition: "outside",
-    customdata: taskCounts,
+    customdata: taskCounts.map((c, i) => ({ count: c, stderr: aggStderrs[i] })),
     hoverinfo: "none",
   };
+  if (wantSE) {
+    trace.error_y = {
+      type: "data", array: aggStderrs, visible: true,
+      color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
+    };
+  }
 
   const avgLabel = macro ? "macro-avg" : "micro-avg";
   const yRange = computeAggregateYRange(DATA.models, checkedTasks);
@@ -1282,6 +1393,7 @@ function renderGroupedBarChart(groupName) {
   const useNorm = currentNormalization !== "none";
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
 
+  const wantSE = showStderr && isStderrCompatible();
   const dataTraces = group.benchmarks.map((bench, i) => {
     const allRaw = needAllRaw
       ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot, metric)).filter((v) => v !== undefined)
@@ -1291,19 +1403,31 @@ function renderGroupedBarChart(groupName) {
       if (raw == null) return null;
       return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
+    const seValues = wantSE ? modelNames.map((m) => {
+      const se = getStderr(DATA.models, m, bench, currentShot, metric);
+      return scaleStderr(se, bench, metric);
+    }) : null;
     const barColors = modelNames.map((m) => {
       const base = getModelColor(m);
       return i === 0 ? base : darkenColor(base, 0.3);
     });
     const fmt = currentNormalization === "zscore" ? 2 : 1;
-    return {
+    const trace = {
       x: labels, y: values, name: group.labels[i], type: "bar",
       legendgroup: group.labels[i],
       marker: { color: barColors, line: { width: 0 } },
       text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
+      customdata: seValues || values.map(() => null),
       hoverinfo: "none",
       showlegend: true,
     };
+    if (wantSE && seValues) {
+      trace.error_y = {
+        type: "data", array: seValues.map((v) => v || 0), visible: true,
+        color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
+      };
+    }
+    return trace;
   });
 
   const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
@@ -1348,6 +1472,12 @@ function renderSingleBenchmarkBarChart(benchmark) {
     return applyNorm(raw, benchmark, allRaw, metric);
   });
 
+  const wantSE = showStderr && isStderrCompatible();
+  const seValues = wantSE ? modelNames.map((m) => {
+    const se = getStderr(DATA.models, m, benchmark, currentShot, metric);
+    return scaleStderr(se, benchmark, metric);
+  }) : null;
+
   const yRange = computeSingleYRange(DATA.models, benchmark, metric);
   const yLabel = currentNormalization === "none" ? getMetricYLabel(benchmark, metric) : getNormYLabel();
   const fmt = currentNormalization === "zscore" ? 2 : 1;
@@ -1356,8 +1486,15 @@ function renderSingleBenchmarkBarChart(benchmark) {
     x: labels, y: values, type: "bar",
     marker: { color: colors, line: { width: 0 } },
     text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
+    customdata: seValues || values.map(() => null),
     hoverinfo: "none",
   };
+  if (wantSE && seValues) {
+    trace.error_y = {
+      type: "data", array: seValues.map((v) => v || 0), visible: true,
+      color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
+    };
+  }
   const layout = getPlotlyLayout({
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
@@ -1380,28 +1517,60 @@ function getSteps() {
   return Object.keys(DATA.progress).map(Number).sort((a, b) => a - b);
 }
 
+/** Create a shaded band trace around a line trace for SE visualization. */
+function makeBandTrace(xValues, yValues, seValues, color) {
+  const upper = [], lower = [], xs = [];
+  for (let i = 0; i < xValues.length; i++) {
+    if (yValues[i] != null && seValues[i] != null) {
+      xs.push(xValues[i]);
+      upper.push(yValues[i] + seValues[i]);
+      lower.push(yValues[i] - seValues[i]);
+    }
+  }
+  if (xs.length === 0) return null;
+  return {
+    x: xs.concat(xs.slice().reverse()),
+    y: upper.concat(lower.slice().reverse()),
+    fill: "toself",
+    fillcolor: hexToRgba(color, 0.15),
+    line: { color: "transparent" },
+    showlegend: false,
+    hoverinfo: "skip",
+  };
+}
+
 function renderAggregateProgressChart() {
   const steps = getSteps();
   const allStepEntities = steps.map(String);
   const macro = isMacroSelection();
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
-  const scores = steps.map((step) => {
-    const result = aggregateScores(checkedTasks, (bench) => {
+  const wantSE = showStderr && isStderrCompatible();
+  const aggResults = steps.map((step) => {
+    return aggregateScores(checkedTasks, (bench) => {
       const raw = getScore(DATA.progress, step, bench, currentShot);
       if (raw === undefined) return undefined;
       const allRaw = needAllRaw
         ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
         : null;
-      return applyNorm(raw, bench, allRaw);
+      const score = applyNorm(raw, bench, allRaw);
+      const se = wantSE ? scaleStderr(getStderr(DATA.progress, step, bench, currentShot), bench) : undefined;
+      return { score, stderr: se };
     }, macro);
-    return result ? result.score : null;
   });
+  const scores = aggResults.map((r) => r ? r.score : null);
+  const aggSes = aggResults.map((r) => r ? r.stderr : null);
 
-  const trace = {
+  const traces = [];
+  if (wantSE) {
+    const band = makeBandTrace(steps, scores, aggSes, MODEL_COLORS[0]);
+    if (band) traces.push(band);
+  }
+  traces.push({
     x: steps, y: scores, mode: "lines+markers", name: "NorOLMo",
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
+    customdata: aggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
     hoverinfo: "none",
-  };
+  });
   const avgLabel = macro ? "macro-avg" : "micro-avg";
   const yRange = computeProgressAggregateYRange();
   const layout = getPlotlyLayout({
@@ -1409,7 +1578,7 @@ function renderAggregateProgressChart() {
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
   });
-  plotChart([trace], layout);
+  plotChart(traces, layout);
 }
 
 function renderGroupProgressChart(groupName) {
@@ -1423,7 +1592,9 @@ function renderGroupProgressChart(groupName) {
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   const fmt = currentNormalization === "zscore" ? 2 : 1;
 
-  const traces = group.benchmarks.map((bench, i) => {
+  const wantSE = showStderr && isStderrCompatible();
+  const traces = [];
+  group.benchmarks.forEach((bench, i) => {
     const allRaw = needAllRaw
       ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot, metric)).filter((v) => v !== undefined)
       : null;
@@ -1432,12 +1603,22 @@ function renderGroupProgressChart(groupName) {
       if (raw == null) return null;
       return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
-    return {
+    const ses = wantSE ? steps.map((s) => {
+      const se = getStderr(DATA.progress, s, bench, currentShot, metric);
+      return scaleStderr(se, bench, metric);
+    }) : null;
+    const lineColor = PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length];
+    if (wantSE && ses) {
+      const band = makeBandTrace(steps, ys, ses, lineColor);
+      if (band) traces.push(band);
+    }
+    traces.push({
       x: steps, y: ys, mode: "lines+markers", name: group.labels[i],
-      line: { color: PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length], width: 2.5 },
+      line: { color: lineColor, width: 2.5 },
       marker: { size: 5 },
+      customdata: ses || ys.map(() => null),
       hoverinfo: "none",
-    };
+    });
   });
 
   const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
@@ -1467,22 +1648,33 @@ function renderSingleProgressChart(benchmark) {
   if (!info) return;
   const metric = getEffectiveMetric(benchmark);
   const steps = getSteps();
+  const wantSE = showStderr && isStderrCompatible();
   const ys = steps.map((s) => {
     const raw = getScore(DATA.progress, s, benchmark, currentShot, metric);
     return raw != null ? toDisplayScale(raw, benchmark, metric) : null;
   });
+  const ses = wantSE ? steps.map((s) => {
+    const se = getStderr(DATA.progress, s, benchmark, currentShot, metric);
+    return scaleStderr(se, benchmark, metric);
+  }) : null;
   const yMax = computeRawYMax_display(DATA.progress, [benchmark], metric);
-  const trace = {
+  const traces = [];
+  if (wantSE && ses) {
+    const band = makeBandTrace(steps, ys, ses, MODEL_COLORS[0]);
+    if (band) traces.push(band);
+  }
+  traces.push({
     x: steps, y: ys, mode: "lines+markers", name: info.pretty_name,
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
+    customdata: ses || ys.map(() => null),
     hoverinfo: "none",
-  };
+  });
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(benchmark, metric), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
   });
-  plotChart([trace], layout);
+  plotChart(traces, layout);
 }
 
 // ============================================================

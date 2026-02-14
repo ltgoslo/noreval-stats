@@ -9,6 +9,7 @@ Output: docs/data.json
 """
 
 import json
+import math
 import os
 import glob
 import statistics
@@ -307,27 +308,66 @@ def find_latest_results_json(directory):
     return files[-1]
 
 
-def extract_benchmark_scores(results_json_path, benchmark_name, subtasks=None):
+def _get_stderr(task_results, metric_name, n_samples, metric_scale):
+    """Get stderr for a metric from task results, estimating if missing.
+
+    Returns float or None.
+    """
+    stderr_key = f"{metric_name}_stderr,none"
+    se = task_results.get(stderr_key)
+    if isinstance(se, (int, float)):
+        return se
+    # stderr is "N/A" or missing — estimate from metric value and sample count
+    if n_samples and n_samples > 1:
+        val_key = f"{metric_name},none"
+        val = task_results.get(val_key)
+        if isinstance(val, (int, float)):
+            if metric_scale == "percent":
+                # val is on 0-100 scale; convert to 0-1, compute, convert back
+                p = max(0.0, min(1.0, val / 100.0))
+                if p > 0 and p < 1:
+                    return math.sqrt(p * (1 - p) / n_samples) * 100
+            else:
+                p = max(0.0, min(1.0, val))
+                if p > 0 and p < 1:
+                    return math.sqrt(p * (1 - p) / n_samples)
+    return None
+
+
+def extract_benchmark_scores(
+    results_json_path, benchmark_name, subtasks=None, metrics_setup_entry=None
+):
     """Extract max/mean/median of all non-stderr metrics across prompt variants.
 
     For benchmarks with subtasks (e.g. noreval_multiblimp), also extracts
     per-subtask metrics as virtual metric names like "acc: Person: 1→2".
 
-    Returns dict {metric_name: {"max": ..., "mean": ..., "median": ..., "min": ...}, ...}
+    Returns dict {metric_name: {"max": ..., "mean": ..., "median": ..., "min": ...,
+                                 "max_stderr": ..., ...}, ...}
     or None if no metrics found.
     """
     with open(results_json_path) as f:
         data = json.load(f)
 
     results = data.get("results", {})
+    n_samples_dict = data.get("n-samples", {})
     bench_exclusions = EXCLUDED_METRICS | EXCLUDED_METRICS_PER_BENCHMARK.get(
         benchmark_name, set()
     )
+    metric_scale = (
+        metrics_setup_entry.get("metric_scale", "unit")
+        if metrics_setup_entry
+        else "unit"
+    )
 
-    # Collect values per metric across prompt variants
-    metric_values = {}  # metric_name -> list of values
+    # Collect (value, stderr) pairs per metric across prompt variants
+    metric_values = {}  # metric_name -> list of (value, stderr_or_None)
     for task_key, task_results in results.items():
         if task_key == benchmark_name or task_key.startswith(f"{benchmark_name}_p"):
+            # Get sample count for this task key
+            ns_entry = n_samples_dict.get(task_key, {})
+            n_samples = ns_entry.get("effective") or ns_entry.get("original")
+
             for key, val in task_results.items():
                 if not key.endswith(",none"):
                     continue
@@ -337,9 +377,10 @@ def extract_benchmark_scores(results_json_path, benchmark_name, subtasks=None):
                 if metric_name in bench_exclusions:
                     continue
                 if isinstance(val, (int, float)):
+                    se = _get_stderr(task_results, metric_name, n_samples, metric_scale)
                     if metric_name not in metric_values:
                         metric_values[metric_name] = []
-                    metric_values[metric_name].append(val)
+                    metric_values[metric_name].append((val, se))
 
     # Extract subtask metrics (e.g. MultiBLiMP per-phenomenon scores)
     if subtasks:
@@ -349,6 +390,8 @@ def extract_benchmark_scores(results_json_path, benchmark_name, subtasks=None):
                 continue
             task_results = results[subtask_key]
             pretty_name = subtask_info["pretty_name"]
+            ns_entry = n_samples_dict.get(subtask_key, {})
+            n_samples = ns_entry.get("effective") or ns_entry.get("original")
             for key, val in task_results.items():
                 if not key.endswith(",none"):
                     continue
@@ -358,23 +401,53 @@ def extract_benchmark_scores(results_json_path, benchmark_name, subtasks=None):
                 if base_metric in bench_exclusions:
                     continue
                 if isinstance(val, (int, float)):
+                    se = _get_stderr(
+                        task_results, base_metric, n_samples, metric_scale
+                    )
                     # Create a virtual metric name: "acc: Person: 1→2"
                     virtual_name = f"{base_metric}: {pretty_name}"
                     if virtual_name not in metric_values:
                         metric_values[virtual_name] = []
-                    metric_values[virtual_name].append(val)
+                    metric_values[virtual_name].append((val, se))
 
     if not metric_values:
         return None
 
     out = {}
-    for metric_name, values in metric_values.items():
-        out[metric_name] = {
+    for metric_name, pairs in metric_values.items():
+        values = [v for v, _ in pairs]
+        stderrs = [se for _, se in pairs]
+
+        entry = {
             "max": round(max(values), 6),
             "mean": round(statistics.mean(values), 6),
             "median": round(statistics.median(values), 6),
             "min": round(min(values), 6),
         }
+
+        # max_stderr: stderr of the variant that achieved the max score
+        max_idx = values.index(max(values))
+        if stderrs[max_idx] is not None:
+            entry["max_stderr"] = round(stderrs[max_idx], 6)
+
+        # min_stderr: stderr of the variant that achieved the min score
+        min_idx = values.index(min(values))
+        if stderrs[min_idx] is not None:
+            entry["min_stderr"] = round(stderrs[min_idx], 6)
+
+        # mean_stderr: sqrt(sum(se^2)) / n  (error propagation for mean)
+        if all(se is not None for se in stderrs):
+            n = len(stderrs)
+            mean_se = math.sqrt(sum(se**2 for se in stderrs)) / n
+            entry["mean_stderr"] = round(mean_se, 6)
+
+        # median_stderr: stderr of the variant closest to the median
+        med = statistics.median(values)
+        closest_idx = min(range(len(values)), key=lambda i: abs(values[i] - med))
+        if stderrs[closest_idx] is not None:
+            entry["median_stderr"] = round(stderrs[closest_idx], 6)
+
+        out[metric_name] = entry
     return out
 
 
@@ -396,7 +469,9 @@ def process_model_dir(model_path, metrics_setup):
             results_file = find_latest_results_json(shot_path)
             if results_file is None:
                 continue
-            agg = extract_benchmark_scores(results_file, benchmark, subtasks)
+            agg = extract_benchmark_scores(
+                results_file, benchmark, subtasks, config
+            )
             if agg is not None:
                 bench_scores[shot_key] = agg
                 if benchmark not in discovered_metrics:
@@ -526,7 +601,7 @@ def main():
     }
 
     with open(OUTPUT_FILE, "w") as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
+        json.dump(output, f, ensure_ascii=False)
 
     size_kb = os.path.getsize(OUTPUT_FILE) / 1024
     print(f"\nWritten {OUTPUT_FILE} ({size_kb:.1f} KB)")

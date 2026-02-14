@@ -23,48 +23,59 @@
         </nav>
 
         <div class="controls">
-            <div class="control-group">
-                <label for="task-select">Task:</label>
-                <select id="task-select">
-                    <option value="__all_macro__">All (macro-average)</option>
-                    <option value="__all__">All (micro-average)</option>
-                    <option value="__custom__" hidden>Custom (micro-average)</option>
-                </select>
-            </div>
+            <div class="controls-row">
+                <div class="control-group">
+                    <label for="task-select">Task:</label>
+                    <select id="task-select">
+                        <option value="__all_macro__">All (macro-average)</option>
+                        <option value="__all__">All (micro-average)</option>
+                        <option value="__custom__" hidden>Custom (micro-average)</option>
+                    </select>
+                </div>
 
-            <div class="control-group">
-                <label>Shots:</label>
-                <div class="shot-toggle">
-                    <button class="shot-btn" data-shot="0">0-shot</button>
-                    <button class="shot-btn" data-shot="1">1-shot</button>
-                    <button class="shot-btn active" data-shot="5">5-shot</button>
+                <div class="control-group" id="metric-control" style="display:none;">
+                    <label for="metric-select">Metric:</label>
+                    <select id="metric-select" class="control-select"></select>
+                </div>
+
+                <div class="control-group">
+                    <label>Shots:</label>
+                    <div class="shot-toggle">
+                        <button class="shot-btn" data-shot="0">0-shot</button>
+                        <button class="shot-btn" data-shot="1">1-shot</button>
+                        <button class="shot-btn active" data-shot="5">5-shot</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="prompt-agg-select">Prompts:</label>
-                <select id="prompt-agg-select" class="control-select">
-                    <option value="max" selected>max</option>
-                    <option value="mean">mean</option>
-                    <option value="median">median</option>
-                    <option value="min">min</option>
-                </select>
-            </div>
+            <div class="controls-row">
+                <div class="control-group">
+                    <label for="prompt-agg-select">Prompts:</label>
+                    <select id="prompt-agg-select" class="control-select">
+                        <option value="max" selected>max</option>
+                        <option value="mean">mean</option>
+                        <option value="median">median</option>
+                        <option value="min">min</option>
+                    </select>
+                </div>
 
-            <div class="control-group">
-                <label for="norm-select">Normalization:</label>
-                <select id="norm-select" class="control-select">
-                    <option value="none">none</option>
-                    <option value="baseline" selected>random baseline</option>
-                    <option value="minmax">min-max (observed)</option>
-                    <option value="zscore">z-score</option>
-                    <option value="percentile">percentile</option>
-                </select>
-            </div>
+                <div class="control-group">
+                    <label for="norm-select">Normalization:</label>
+                    <select id="norm-select" class="control-select">
+                        <option value="none">none</option>
+                        <option value="baseline" selected>random baseline</option>
+                        <option value="minmax">min-max (observed)</option>
+                        <option value="zscore">z-score</option>
+                        <option value="percentile">percentile</option>
+                    </select>
+                </div>
 
-            <div class="control-group" id="metric-control" style="display:none;">
-                <label for="metric-select">Metric:</label>
-                <select id="metric-select" class="control-select"></select>
+                <div class="control-group" id="stderr-control">
+                    <label for="stderr-toggle" class="stderr-label">
+                        <input type="checkbox" id="stderr-toggle">
+                        <span>Standard errors</span>
+                    </label>
+                </div>
             </div>
         </div>
 
