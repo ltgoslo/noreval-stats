@@ -447,6 +447,13 @@ def extract_benchmark_scores(
         if stderrs[closest_idx] is not None:
             entry["median_stderr"] = round(stderrs[closest_idx], 6)
 
+        # Prompt-variant spread (for prompt deviation error bars)
+        entry["n_prompts"] = len(values)
+        if len(values) >= 2:
+            entry["prompt_sd"] = round(statistics.stdev(values), 6)
+        else:
+            entry["prompt_sd"] = 0.0
+
         out[metric_name] = entry
     return out
 

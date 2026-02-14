@@ -195,7 +195,8 @@ main {
   cursor: pointer;
 }
 
-#stderr-control.disabled {
+#stderr-control.disabled,
+#prompt-dev-control.disabled {
   opacity: 0.4;
   pointer-events: none;
 }

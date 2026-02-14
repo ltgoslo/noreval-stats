@@ -11,6 +11,7 @@ let currentMetric = null; // null = use main_metric; set for individual task vie
 let checkedTasks = new Set();
 let checkedModels = new Set();
 let showStderr = true;
+let showPromptDeviation = true;
 
 const MODEL_COLORS = [
   "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#8b5cf6",
@@ -175,6 +176,25 @@ function getStderr(dataSource, entity, bench, shot, metric) {
   return (se !== undefined && se !== null) ? se : undefined;
 }
 
+/** Get prompt-variant SE: SD(prompt_scores) / sqrt(n_prompts). */
+function getPromptSE(dataSource, entity, bench, shot, metric) {
+  metric = metric || DATA.metrics_setup[bench]?.main_metric;
+  const obj = dataSource[entity]?.[bench]?.[shot]?.[metric];
+  if (!obj || typeof obj === "number") return undefined;
+  const sd = obj.prompt_sd;
+  const n = obj.n_prompts;
+  if (sd == null || n == null || n < 2) return undefined;
+  return sd / Math.sqrt(n);
+}
+
+/** Get combined SE from sampling stderr and/or prompt deviation, respecting toggles. */
+function getCombinedSE(dataSource, entity, bench, shot, metric) {
+  const sampSe = showStderr ? getStderr(dataSource, entity, bench, shot, metric) : undefined;
+  const promptSe = showPromptDeviation ? getPromptSE(dataSource, entity, bench, shot, metric) : undefined;
+  if (sampSe == null && promptSe == null) return undefined;
+  return Math.sqrt((sampSe || 0) ** 2 + (promptSe || 0) ** 2);
+}
+
 /** Scale a raw stderr value for display, applying the same transform as the score.
  *  Only works for "none" and "baseline" normalization. */
 function scaleStderr(se, benchmark, metric) {
@@ -274,13 +294,20 @@ function autoSetNormalization() {
 function updateStderrToggleState() {
   const control = document.getElementById("stderr-control");
   const toggle = document.getElementById("stderr-toggle");
+  const pdControl = document.getElementById("prompt-dev-control");
+  const pdToggle = document.getElementById("prompt-dev-toggle");
   if (!control || !toggle) return;
   if (isStderrCompatible()) {
     control.classList.remove("disabled");
+    if (pdControl) pdControl.classList.remove("disabled");
   } else {
     control.classList.add("disabled");
     toggle.checked = false;
     showStderr = false;
+    if (pdControl) {
+      pdControl.classList.add("disabled");
+      if (pdToggle) { pdToggle.checked = false; showPromptDeviation = false; }
+    }
   }
 }
 
@@ -477,6 +504,7 @@ function stateToUrl() {
   }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
   if (!showStderr) params.set("se", "0");
+  if (!showPromptDeviation) params.set("pd", "0");
 
   // Only store metric if it differs from main_metric for the current task
   if (currentMetric && !isAggregateSelection(currentTaskSelection)) {
@@ -531,6 +559,7 @@ function loadStateFromHash() {
   if (params.has("metric")) { currentMetric = params.get("metric"); loaded = true; }
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
   if (params.has("se")) { showStderr = params.get("se") !== "0"; loaded = true; }
+  if (params.has("pd")) { showPromptDeviation = params.get("pd") !== "0"; loaded = true; }
 
   if (params.has("models")) {
     const val = params.get("models");
@@ -590,6 +619,7 @@ async function init() {
     document.getElementById("prompt-agg-select").value = currentPromptAgg;
     document.getElementById("norm-select").value = currentNormalization;
     document.getElementById("stderr-toggle").checked = showStderr;
+    document.getElementById("prompt-dev-toggle").checked = showPromptDeviation;
     document.querySelectorAll(".tab-btn").forEach((btn) =>
       btn.classList.toggle("active", btn.dataset.tab === currentTab));
     document.querySelectorAll(".shot-btn").forEach((btn) =>
@@ -711,12 +741,26 @@ function bindEventListeners() {
     renderChart();
   });
 
+  document.getElementById("prompt-dev-toggle").addEventListener("change", (e) => {
+    showPromptDeviation = e.target.checked;
+    renderChart();
+  });
+
   attachTooltip(document.getElementById("stderr-control"), () => ({
     title: "Standard errors",
-    body: "Shows uncertainty (±1 SE) around each score. "
+    body: "Shows sampling uncertainty (\u00B11 SE) around each score. "
       + "For classification metrics (accuracy, F1, EM), SE = \u221A(v\u00B7(1\u2212v)/n). "
       + "For corpus-level metrics (BLEU, chrF, ROUGE), SE is estimated via bootstrap resampling (100 iterations). "
       + "Aggregate SE is propagated as \u221A(\u03A3 SE\u00B2) / N.",
+    footer: "",
+  }));
+
+  attachTooltip(document.getElementById("prompt-dev-control"), () => ({
+    title: "Prompt deviation",
+    body: "Shows uncertainty due to prompt formulation. "
+      + "Computed as SD(scores across prompt variants) / \u221A(n), where n is the number of prompt variants. "
+      + "When combined with standard errors, the two sources are added in quadrature: \u221A(SE\u00B2 + prompt_SE\u00B2). "
+      + "Has no effect on single-prompt benchmarks.",
     footer: "",
   }));
 
@@ -1349,7 +1393,7 @@ function renderAggregateBarChart() {
   const colors = modelNames.map(getModelColor);
 
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
-  const wantSE = showStderr && isStderrCompatible();
+  const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const macro = isMacroSelection();
   for (const m of modelNames) {
     const result = aggregateScores(checkedTasks, (bench) => {
@@ -1359,7 +1403,7 @@ function renderAggregateBarChart() {
         ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
         : null;
       const score = applyNorm(raw, bench, allRaw);
-      const se = wantSE ? scaleStderr(getStderr(DATA.models, m, bench, currentShot), bench) : undefined;
+      const se = wantSE ? scaleStderr(getCombinedSE(DATA.models, m, bench, currentShot), bench) : undefined;
       return { score, stderr: se };
     }, macro);
     scores.push(result ? result.score : 0);
@@ -1412,7 +1456,7 @@ function renderGroupedBarChart(groupName) {
   const useNorm = currentNormalization !== "none";
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
 
-  const wantSE = showStderr && isStderrCompatible();
+  const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const fmt = currentNormalization === "zscore" ? 2 : 1;
   const groupValuesArr = [];  // per-group values for annotations
   const groupSeArrs = [];     // per-group SE arrays for annotations
@@ -1426,7 +1470,7 @@ function renderGroupedBarChart(groupName) {
       return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
     const seValues = wantSE ? modelNames.map((m) => {
-      const se = getStderr(DATA.models, m, bench, currentShot, metric);
+      const se = getCombinedSE(DATA.models, m, bench, currentShot, metric);
       return scaleStderr(se, bench, metric);
     }) : null;
     const barColors = modelNames.map((m) => {
@@ -1516,9 +1560,9 @@ function renderSingleBenchmarkBarChart(benchmark) {
     return applyNorm(raw, benchmark, allRaw, metric);
   });
 
-  const wantSE = showStderr && isStderrCompatible();
+  const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const seValues = wantSE ? modelNames.map((m) => {
-    const se = getStderr(DATA.models, m, benchmark, currentShot, metric);
+    const se = getCombinedSE(DATA.models, m, benchmark, currentShot, metric);
     return scaleStderr(se, benchmark, metric);
   }) : null;
 
@@ -1600,7 +1644,7 @@ function renderAggregateProgressChart() {
   const allStepEntities = steps.map(String);
   const macro = isMacroSelection();
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
-  const wantSE = showStderr && isStderrCompatible();
+  const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const aggResults = steps.map((step) => {
     return aggregateScores(checkedTasks, (bench) => {
       const raw = getScore(DATA.progress, step, bench, currentShot);
@@ -1609,7 +1653,7 @@ function renderAggregateProgressChart() {
         ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
         : null;
       const score = applyNorm(raw, bench, allRaw);
-      const se = wantSE ? scaleStderr(getStderr(DATA.progress, step, bench, currentShot), bench) : undefined;
+      const se = wantSE ? scaleStderr(getCombinedSE(DATA.progress, step, bench, currentShot), bench) : undefined;
       return { score, stderr: se };
     }, macro);
   });
@@ -1649,7 +1693,7 @@ function renderGroupProgressChart(groupName) {
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   const fmt = currentNormalization === "zscore" ? 2 : 1;
 
-  const wantSE = showStderr && isStderrCompatible();
+  const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const traces = [];
   group.benchmarks.forEach((bench, i) => {
     const allRaw = needAllRaw
@@ -1661,7 +1705,7 @@ function renderGroupProgressChart(groupName) {
       return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
     const ses = wantSE ? steps.map((s) => {
-      const se = getStderr(DATA.progress, s, bench, currentShot, metric);
+      const se = getCombinedSE(DATA.progress, s, bench, currentShot, metric);
       return scaleStderr(se, bench, metric);
     }) : null;
     const lineColor = PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length];
@@ -1705,13 +1749,13 @@ function renderSingleProgressChart(benchmark) {
   if (!info) return;
   const metric = getEffectiveMetric(benchmark);
   const steps = getSteps();
-  const wantSE = showStderr && isStderrCompatible();
+  const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const ys = steps.map((s) => {
     const raw = getScore(DATA.progress, s, benchmark, currentShot, metric);
     return raw != null ? toDisplayScale(raw, benchmark, metric) : null;
   });
   const ses = wantSE ? steps.map((s) => {
-    const se = getStderr(DATA.progress, s, benchmark, currentShot, metric);
+    const se = getCombinedSE(DATA.progress, s, benchmark, currentShot, metric);
     return scaleStderr(se, benchmark, metric);
   }) : null;
   const yMax = computeRawYMax_display(DATA.progress, [benchmark], metric);
