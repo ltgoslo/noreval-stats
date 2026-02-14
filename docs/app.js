@@ -10,7 +10,7 @@ let currentNormalization = "baseline"; // auto-set based on view
 let currentMetric = null; // null = use main_metric; set for individual task views
 let checkedTasks = new Set();
 let checkedModels = new Set();
-let showStderr = false;
+let showStderr = true;
 
 const MODEL_COLORS = [
   "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#8b5cf6",
@@ -476,7 +476,7 @@ function stateToUrl() {
     params.set("task", _taskSelToAlias[currentTaskSelection] || currentTaskSelection);
   }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
-  if (showStderr) params.set("se", "1");
+  if (!showStderr) params.set("se", "0");
 
   // Only store metric if it differs from main_metric for the current task
   if (currentMetric && !isAggregateSelection(currentTaskSelection)) {
@@ -530,7 +530,7 @@ function loadStateFromHash() {
   if (params.has("prompt")) { currentPromptAgg = params.get("prompt"); loaded = true; }
   if (params.has("metric")) { currentMetric = params.get("metric"); loaded = true; }
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
-  if (params.has("se")) { showStderr = params.get("se") === "1"; loaded = true; }
+  if (params.has("se")) { showStderr = params.get("se") !== "0"; loaded = true; }
 
   if (params.has("models")) {
     const val = params.get("models");
@@ -710,6 +710,15 @@ function bindEventListeners() {
     showStderr = e.target.checked;
     renderChart();
   });
+
+  attachTooltip(document.getElementById("stderr-control"), () => ({
+    title: "Standard errors",
+    body: "Shows uncertainty (±1 SE) around each score. "
+      + "For classification metrics (accuracy, F1, EM), SE = \u221A(v\u00B7(1\u2212v)/n). "
+      + "For corpus-level metrics (BLEU, chrF, ROUGE), SE is estimated via bootstrap resampling (100 iterations). "
+      + "Aggregate SE is propagated as \u221A(\u03A3 SE\u00B2) / N.",
+    footer: "",
+  }));
 
   document.getElementById("metric-select").addEventListener("change", (e) => {
     currentMetric = e.target.value;
@@ -1358,19 +1367,28 @@ function renderAggregateBarChart() {
     aggStderrs.push(result ? result.stderr : 0);
   }
 
+  const fmt = currentNormalization === "zscore" ? 2 : 1;
   const trace = {
     x: labels, y: scores, type: "bar",
     marker: { color: colors, line: { width: 0 } },
-    text: scores.map((s) => s.toFixed(currentNormalization === "zscore" ? 2 : 1)),
+    text: wantSE ? scores.map(() => "") : scores.map((s) => s.toFixed(fmt)),
     textposition: "outside",
     customdata: taskCounts.map((c, i) => ({ count: c, stderr: aggStderrs[i] })),
     hoverinfo: "none",
   };
+  const traces = [trace];
   if (wantSE) {
     trace.error_y = {
       type: "data", array: aggStderrs, visible: true,
       color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
     };
+    traces.push({
+      x: labels, y: scores.map((s, i) => s + (aggStderrs[i] || 0)),
+      type: "scatter", mode: "text",
+      text: scores.map((s) => s.toFixed(fmt)),
+      textposition: "top center", textfont: { size: 12 },
+      showlegend: false, hoverinfo: "skip", cliponaxis: false,
+    });
   }
 
   const avgLabel = macro ? "macro-avg" : "micro-avg";
@@ -1379,8 +1397,9 @@ function renderAggregateBarChart() {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     xaxis: { title: "" },
+    showlegend: false,
   });
-  plotChart([trace], layout);
+  plotChart(traces, layout);
 }
 
 function renderGroupedBarChart(groupName) {
@@ -1412,24 +1431,38 @@ function renderGroupedBarChart(groupName) {
       return i === 0 ? base : darkenColor(base, 0.3);
     });
     const fmt = currentNormalization === "zscore" ? 2 : 1;
+    const seArr = seValues ? seValues.map((v) => v || 0) : null;
     const trace = {
       x: labels, y: values, name: group.labels[i], type: "bar",
-      legendgroup: group.labels[i],
+      legendgroup: group.labels[i], offsetgroup: String(i),
       marker: { color: barColors, line: { width: 0 } },
-      text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
+      text: wantSE ? values.map(() => "") : values.map((v) => (v !== null ? v.toFixed(fmt) : "")),
+      textposition: "outside",
       customdata: seValues || values.map(() => null),
       hoverinfo: "none",
       showlegend: true,
     };
-    if (wantSE && seValues) {
+    if (wantSE && seArr) {
       trace.error_y = {
-        type: "data", array: seValues.map((v) => v || 0), visible: true,
+        type: "data", array: seArr, visible: true,
         color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
       };
     }
-    return trace;
+    const result = [trace];
+    if (wantSE && seArr) {
+      result.push({
+        x: labels, y: values.map((v, j) => v != null ? v + seArr[j] : null),
+        type: "scatter", mode: "text", offsetgroup: String(i),
+        xaxis: "x", yaxis: "y",
+        text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")),
+        textposition: "top center", textfont: { size: 11 },
+        showlegend: false, hoverinfo: "skip", cliponaxis: false,
+      });
+    }
+    return result;
   });
 
+  const allTraces = dataTraces.flat();
   const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
   let yRange;
   if (useNorm) {
@@ -1452,7 +1485,7 @@ function renderGroupedBarChart(groupName) {
     legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
   });
-  plotChart(dataTraces, layout);
+  plotChart(allTraces, layout);
 }
 
 function renderSingleBenchmarkBarChart(benchmark) {
@@ -1482,24 +1515,35 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const yLabel = currentNormalization === "none" ? getMetricYLabel(benchmark, metric) : getNormYLabel();
   const fmt = currentNormalization === "zscore" ? 2 : 1;
 
+  const seArr = seValues ? seValues.map((v) => v || 0) : null;
   const trace = {
     x: labels, y: values, type: "bar",
     marker: { color: colors, line: { width: 0 } },
-    text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")), textposition: "outside",
+    text: wantSE ? values.map(() => "") : values.map((v) => (v !== null ? v.toFixed(fmt) : "")),
+    textposition: "outside",
     customdata: seValues || values.map(() => null),
     hoverinfo: "none",
   };
-  if (wantSE && seValues) {
+  const traces = [trace];
+  if (wantSE && seArr) {
     trace.error_y = {
-      type: "data", array: seValues.map((v) => v || 0), visible: true,
+      type: "data", array: seArr, visible: true,
       color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
     };
+    traces.push({
+      x: labels, y: values.map((v, j) => v != null ? v + seArr[j] : null),
+      type: "scatter", mode: "text",
+      text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")),
+      textposition: "top center", textfont: { size: 12 },
+      showlegend: false, hoverinfo: "skip", cliponaxis: false,
+    });
   }
   const layout = getPlotlyLayout({
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    showlegend: false,
   });
-  plotChart([trace], layout);
+  plotChart(traces, layout);
 }
 
 // ============================================================
@@ -1577,6 +1621,7 @@ function renderAggregateProgressChart() {
     title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    showlegend: false,
   });
   plotChart(traces, layout);
 }
@@ -1673,6 +1718,7 @@ function renderSingleProgressChart(benchmark) {
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(benchmark, metric), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    showlegend: false,
   });
   plotChart(traces, layout);
 }
