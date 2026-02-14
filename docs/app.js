@@ -1400,6 +1400,20 @@ function getPlotlyLayout(overrides) {
   return result;
 }
 
+/** Compute annotation font size that shrinks when labels get crowded.
+ *  Derived from actual chart width and number of label positions. */
+function computeAnnotationFontSize(totalPositions) {
+  const chartEl = document.getElementById("chart");
+  const margins = 80; // approximate left + right plot margins
+  const plotWidth = (chartEl ? chartEl.clientWidth : 1200) - margins;
+  const availablePerLabel = plotWidth / totalPositions;
+  // Typical annotation is ~5 chars ("45.3\u2009"), z-scores can be ~6 ("-1.23")
+  const maxChars = currentNormalization === "zscore" ? 6 : 5;
+  // At font size s, text width ≈ maxChars × 0.6 × s
+  const fittedSize = availablePerLabel / (maxChars * 0.6);
+  return Math.max(8, Math.min(13, Math.floor(fittedSize)));
+}
+
 function plotChart(traces, layout) {
   Plotly.newPlot("chart", traces, layout, PLOTLY_CONFIG);
   const chartEl = document.getElementById("chart");
@@ -1498,6 +1512,7 @@ function renderAggregateBarChart() {
       x: label, y: scores[i] + (wantSE ? (aggStderrs[i] || 0) : 0),
       text: scores[i].toFixed(fmt), showarrow: false, yshift: 10,
       xanchor: "center",
+      font: { size: computeAnnotationFontSize(labels.length) },
     })),
   };
   plotChart(traces, getPlotlyLayout(layoutOpts));
@@ -1582,6 +1597,7 @@ function renderGroupedBarChart(groupName) {
         text: values[catIdx].toFixed(fmt),
         showarrow: false, yshift: 10,
         xanchor: "center",
+        font: { size: computeAnnotationFontSize(labels.length * nGroups) },
       });
     });
   });
@@ -1646,6 +1662,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
       text: values[i] != null ? values[i].toFixed(fmt) : "",
       showarrow: false, yshift: 10,
       xanchor: "center",
+      font: { size: computeAnnotationFontSize(labels.length) },
     })),
   };
   plotChart(traces, getPlotlyLayout(layoutOpts));
