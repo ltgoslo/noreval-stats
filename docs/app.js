@@ -1382,24 +1382,24 @@ function renderAggregateBarChart() {
       type: "data", array: aggStderrs, visible: true,
       color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
     };
-    traces.push({
-      x: labels, y: scores.map((s, i) => s + (aggStderrs[i] || 0)),
-      type: "scatter", mode: "text",
-      text: scores.map((s) => s.toFixed(fmt)),
-      textposition: "top center", textfont: { size: 12 },
-      showlegend: false, hoverinfo: "skip", cliponaxis: false,
-    });
   }
 
   const avgLabel = macro ? "macro-avg" : "micro-avg";
   const yRange = computeAggregateYRange(DATA.models, checkedTasks);
-  const layout = getPlotlyLayout({
+  const layoutOpts = {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     xaxis: { title: "" },
     showlegend: false,
-  });
-  plotChart(traces, layout);
+  };
+  if (wantSE) {
+    layoutOpts.annotations = labels.map((label, i) => ({
+      x: label, y: scores[i] + (aggStderrs[i] || 0),
+      text: scores[i].toFixed(fmt), showarrow: false, yshift: 12,
+      xanchor: "center",
+    }));
+  }
+  plotChart(traces, getPlotlyLayout(layoutOpts));
 }
 
 function renderGroupedBarChart(groupName) {
@@ -1413,6 +1413,9 @@ function renderGroupedBarChart(groupName) {
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
 
   const wantSE = showStderr && isStderrCompatible();
+  const fmt = currentNormalization === "zscore" ? 2 : 1;
+  const groupValuesArr = [];  // per-group values for annotations
+  const groupSeArrs = [];     // per-group SE arrays for annotations
   const dataTraces = group.benchmarks.map((bench, i) => {
     const allRaw = needAllRaw
       ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot, metric)).filter((v) => v !== undefined)
@@ -1430,7 +1433,6 @@ function renderGroupedBarChart(groupName) {
       const base = getModelColor(m);
       return i === 0 ? base : darkenColor(base, 0.3);
     });
-    const fmt = currentNormalization === "zscore" ? 2 : 1;
     const seArr = seValues ? seValues.map((v) => v || 0) : null;
     const trace = {
       x: labels, y: values, name: group.labels[i], type: "bar",
@@ -1447,22 +1449,12 @@ function renderGroupedBarChart(groupName) {
         type: "data", array: seArr, visible: true,
         color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
       };
+      groupValuesArr.push(values);
+      groupSeArrs.push(seArr);
     }
-    const result = [trace];
-    if (wantSE && seArr) {
-      result.push({
-        x: labels, y: values.map((v, j) => v != null ? v + seArr[j] : null),
-        type: "scatter", mode: "text", offsetgroup: String(i),
-        xaxis: "x", yaxis: "y",
-        text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")),
-        textposition: "top center", textfont: { size: 11 },
-        showlegend: false, hoverinfo: "skip", cliponaxis: false,
-      });
-    }
-    return result;
+    return trace;
   });
 
-  const allTraces = dataTraces.flat();
   const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
   let yRange;
   if (useNorm) {
@@ -1478,14 +1470,33 @@ function renderGroupedBarChart(groupName) {
   } else {
     yRange = [0, computeRawYMax_display(DATA.models, group.benchmarks, metric)];
   }
-  const layout = getPlotlyLayout({
+  const layoutOpts = {
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     barmode: "group",
     legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
-  });
-  plotChart(allTraces, layout);
+  };
+  if (wantSE && groupValuesArr.length > 0) {
+    const nGroups = groupValuesArr.length;
+    const barWidth = 0.8 / nGroups; // (1 - default bargap 0.2) / nGroups
+    const annotations = [];
+    labels.forEach((_, catIdx) => {
+      groupValuesArr.forEach((values, gi) => {
+        if (values[catIdx] == null) return;
+        const se = groupSeArrs[gi] ? groupSeArrs[gi][catIdx] : 0;
+        annotations.push({
+          x: catIdx + (gi - (nGroups - 1) / 2) * barWidth,
+          y: values[catIdx] + se,
+          text: values[catIdx].toFixed(fmt),
+          showarrow: false, yshift: 12,
+          xanchor: "center",
+        });
+      });
+    });
+    layoutOpts.annotations = annotations;
+  }
+  plotChart(dataTraces, getPlotlyLayout(layoutOpts));
 }
 
 function renderSingleBenchmarkBarChart(benchmark) {
@@ -1530,20 +1541,21 @@ function renderSingleBenchmarkBarChart(benchmark) {
       type: "data", array: seArr, visible: true,
       color: "rgba(0,0,0,0.35)", thickness: 1.5, width: 4,
     };
-    traces.push({
-      x: labels, y: values.map((v, j) => v != null ? v + seArr[j] : null),
-      type: "scatter", mode: "text",
-      text: values.map((v) => (v !== null ? v.toFixed(fmt) : "")),
-      textposition: "top center", textfont: { size: 12 },
-      showlegend: false, hoverinfo: "skip", cliponaxis: false,
-    });
   }
-  const layout = getPlotlyLayout({
+  const layoutOpts = {
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     showlegend: false,
-  });
-  plotChart(traces, layout);
+  };
+  if (wantSE && seArr) {
+    layoutOpts.annotations = labels.map((label, i) => ({
+      x: label, y: (values[i] || 0) + (seArr[i] || 0),
+      text: values[i] != null ? values[i].toFixed(fmt) : "",
+      showarrow: false, yshift: 12,
+      xanchor: "center",
+    }));
+  }
+  plotChart(traces, getPlotlyLayout(layoutOpts));
 }
 
 // ============================================================
