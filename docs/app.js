@@ -79,6 +79,58 @@ const METRIC_DESCRIPTIONS = {
 
 const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
 
+const JSON_DOWNLOAD_ICON = {
+  width: 24,
+  height: 24,
+  path: "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z",
+};
+
+function exportChartDataAsJSON(gd) {
+  const traces = gd.data;
+  const layout = gd.layout;
+
+  const exportData = {
+    metadata: {
+      tab: currentTab,
+      shot: currentShot + "-shot",
+      task_selection: currentTaskSelection,
+      prompt_aggregation: currentPromptAgg,
+      normalization: currentNormalization,
+      title: layout.title?.text || "",
+      y_axis: layout.yaxis?.title?.text || layout.yaxis?.title || "",
+      exported_at: new Date().toISOString(),
+    },
+    series: [],
+  };
+
+  for (const trace of traces) {
+    // Skip band traces (SE shaded areas)
+    if (trace.fill === "toself") continue;
+
+    const series = {
+      name: trace.name || null,
+      x: Array.from(trace.x),
+      y: Array.from(trace.y),
+    };
+
+    if (trace.error_y && trace.error_y.array) {
+      series.error = Array.from(trace.error_y.array);
+    }
+
+    exportData.series.push(series);
+  }
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "noreval-chart-data.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 const PLOTLY_CONFIG = {
   responsive: true,
   displaylogo: false,
@@ -107,6 +159,15 @@ const PLOTLY_CONFIG = {
             height: 900,
             filename: "noreval-chart",
           });
+        },
+      },
+    ],
+    [
+      {
+        name: "Export data as JSON",
+        icon: JSON_DOWNLOAD_ICON,
+        click: function (gd) {
+          exportChartDataAsJSON(gd);
         },
       },
     ],
