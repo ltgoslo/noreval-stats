@@ -13,6 +13,20 @@ let checkedModels = new Set();
 let showStderr = true;
 let showPromptDeviation = true;
 
+// HPLT-E quality filter state
+let filterCriteria = {
+  monotonicity: { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Monotonicity",       description: "Spearman \u03C1 between step and score" },
+  snr:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 3.0,  direction: ">=", label: "SNR",                description: "Signal-to-noise ratio (mean score / mean stderr)" },
+  cv:           { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 15.0, direction: "<=", label: "CV",                 description: "Coefficient of variation (%) across steps" },
+  mad:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: "<=", label: "Prompt Sensitivity",  description: "Median prompt std dev (%-points)" },
+  ordering:     { enabled: false, minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Ordering Consistency",description: "N/A for single model" },
+  promptSwitch: { enabled: false, minStep: 5000, maxStep: 33000, threshold: 20.0, direction: "<=", label: "Prompt Switch Rate",  description: "% of steps where best prompt changes" },
+  nonRandom:    { enabled: false, minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: ">=", label: "Non-Randomness",      description: "Max score \u2212 random baseline (%-points)" },
+};
+let filterResults = {};
+let allFilterBenchmarks = new Set();
+let filterTableExpanded = false;
+
 const MODEL_COLORS = [
   "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#8b5cf6",
   "#06b6d4", "#ec4899", "#84cc16", "#14b8a6", "#f97316",
@@ -518,6 +532,8 @@ function buildUrlMaps() {
   _taskAliasToSel["all-micro"] = "__all__";
   _taskSelToAlias["__custom__"] = "custom";
   _taskAliasToSel["custom"] = "__custom__";
+  _taskSelToAlias["__filtered__"] = "filtered";
+  _taskAliasToSel["filtered"] = "__filtered__";
 
   // Task selection aliases for categories, languages, eval types, groups
   const cats = new Set();
@@ -832,8 +848,16 @@ function bindEventListeners() {
 
   document.getElementById("task-select").addEventListener("change", (e) => {
     currentTaskSelection = e.target.value;
-    const benchmarks = getBenchmarksForSelection(currentTaskSelection);
-    if (benchmarks.length > 0) checkedTasks = new Set(benchmarks);
+    if (currentTaskSelection === "__filtered__") {
+      allFilterBenchmarks = new Set(Object.keys(DATA.metrics_setup));
+      checkedTasks = new Set(allFilterBenchmarks);
+      showFilterUI();
+      runFilter();
+    } else {
+      hideFilterUI();
+      const benchmarks = getBenchmarksForSelection(currentTaskSelection);
+      if (benchmarks.length > 0) checkedTasks = new Set(benchmarks);
+    }
     syncCheckboxStates();
     autoSetNormalization();
     renderChart();
@@ -870,11 +894,11 @@ function bindEventListeners() {
 // ============================================================
 
 function isAggregateSelection(sel) {
-  return sel === "__all__" || sel === "__all_macro__" || sel === "__custom__" || sel.startsWith("__cat__") || sel.startsWith("__lang__") || sel.startsWith("__eval__");
+  return sel === "__all__" || sel === "__all_macro__" || sel === "__custom__" || sel === "__filtered__" || sel.startsWith("__cat__") || sel.startsWith("__lang__") || sel.startsWith("__eval__");
 }
 
 function getBenchmarksForSelection(sel) {
-  if (sel === "__all__" || sel === "__all_macro__") return Object.keys(DATA.metrics_setup);
+  if (sel === "__all__" || sel === "__all_macro__" || sel === "__filtered__") return Object.keys(DATA.metrics_setup);
   if (sel === "__custom__") return [];
   if (sel.startsWith("__cat__")) {
     const c = sel.slice(7);
@@ -1247,6 +1271,17 @@ function renderChart() {
     populateMetricSelector([sel]);
   }
 
+  // Show/hide filter panel
+  if (sel === "__filtered__") {
+    if (allFilterBenchmarks.size === 0) {
+      allFilterBenchmarks = new Set(Object.keys(DATA.metrics_setup));
+    }
+    showFilterUI();
+    runFilter();
+  } else {
+    hideFilterUI();
+  }
+
   updateDescription();
   // Hide model checkboxes on progress tab (only one model)
   const modelSection = document.getElementById("model-checkboxes");
@@ -1345,6 +1380,7 @@ function getAggregateDescription() {
     const groups = getMacroGroups(checkedTasks);
     scope = "all " + count + " tasks (" + groups.length + " categories, macro-averaged)";
   } else if (sel === "__all__") scope = "all " + count + " tasks (micro-averaged)";
+  else if (sel === "__filtered__") scope = count + " quality-filtered tasks (micro-averaged, HPLT-E criteria)";
   else if (sel === "__custom__") scope = count + " selected tasks (micro-averaged)";
   else if (sel.startsWith("__cat__")) scope = count + " tasks in the \"" + sel.slice(7) + "\" category";
   else if (sel.startsWith("__eval__")) scope = count + " " + sel.slice(8) + " tasks";
@@ -1940,6 +1976,7 @@ function computeProgressAggregateYRange() {
 function getAggregateLabel() {
   const sel = currentTaskSelection;
   if (sel === "__all_macro__" || sel === "__all__") return "all tasks";
+  if (sel === "__filtered__") return checkedTasks.size + " quality-filtered tasks";
   if (sel === "__custom__") return checkedTasks.size + " tasks";
   if (sel.startsWith("__cat__")) return sel.slice(7);
   if (sel.startsWith("__eval__")) return sel.slice(8) + " tasks";
@@ -1947,6 +1984,368 @@ function getAggregateLabel() {
   if (sel === "__lang__nno") return "Nynorsk tasks";
   if (sel === "__lang__sme") return "Northern S\u00e1mi tasks";
   return "aggregate";
+}
+
+// ============================================================
+// HPLT-E Quality Filter
+// ============================================================
+
+function computeSpearmanRank(x, y) {
+  if (x.length < 3) return null;
+  const n = x.length;
+  function rankArray(arr) {
+    const sorted = arr.map((v, i) => ({ v, i })).sort((a, b) => a.v - b.v);
+    const ranks = new Array(n);
+    let i = 0;
+    while (i < n) {
+      let j = i;
+      while (j < n - 1 && sorted[j + 1].v === sorted[j].v) j++;
+      const avgRank = (i + j) / 2 + 1;
+      for (let k = i; k <= j; k++) ranks[sorted[k].i] = avgRank;
+      i = j + 1;
+    }
+    return ranks;
+  }
+  const rx = rankArray(x), ry = rankArray(y);
+  const mx = rx.reduce((a, b) => a + b, 0) / n;
+  const my = ry.reduce((a, b) => a + b, 0) / n;
+  let num = 0, dx2 = 0, dy2 = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = rx[i] - mx, dy = ry[i] - my;
+    num += dx * dy; dx2 += dx * dx; dy2 += dy * dy;
+  }
+  const denom = Math.sqrt(dx2 * dy2);
+  return denom === 0 ? 0 : num / denom;
+}
+
+function evaluateThreshold(criterionName, value, threshold) {
+  if (value === null || value === undefined) return null;
+  const lowerIsBetter = { cv: true, mad: true, promptSwitch: true };
+  return lowerIsBetter[criterionName] ? value <= threshold : value >= threshold;
+}
+
+function computeFilterCriteriaForBench(benchmark, shot) {
+  if (!DATA || !DATA.progress) return {};
+  const steps = Object.keys(DATA.progress).map(Number).sort((a, b) => a - b);
+  const info = DATA.metrics_setup[benchmark];
+  if (!info) return {};
+  const mainMetric = info.main_metric;
+  const scale = info.metric_scale;
+  const results = {};
+
+  for (const [name, cfg] of Object.entries(filterCriteria)) {
+    const windowSteps = steps.filter(s => s >= cfg.minStep && s <= cfg.maxStep);
+
+    // Extract scores and associated data in window
+    const pairs = [];
+    for (const s of windowSteps) {
+      const obj = DATA.progress[String(s)]?.[benchmark]?.[shot]?.[mainMetric];
+      if (!obj) continue;
+      const score = obj[currentPromptAgg];
+      if (score === undefined || score === null) continue;
+      pairs.push({ step: s, score, obj });
+    }
+
+    if (pairs.length < 3 && name !== "nonRandom") {
+      results[name] = { value: null, pass: null };
+      continue;
+    }
+    if (pairs.length < 1) {
+      results[name] = { value: null, pass: null };
+      continue;
+    }
+
+    let value = null;
+
+    switch (name) {
+      case "monotonicity":
+        value = computeSpearmanRank(pairs.map(p => p.step), pairs.map(p => p.score));
+        break;
+
+      case "snr": {
+        const scores = pairs.map(p => p.score);
+        const stderrs = pairs.map(p => p.obj.max_stderr || 0);
+        const meanScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+        const meanSe = stderrs.reduce((a, b) => a + b, 0) / stderrs.length;
+        value = meanSe > 1e-10 ? Math.abs(meanScore) / meanSe : (meanScore > 0 ? Infinity : 0);
+        break;
+      }
+
+      case "cv": {
+        const scores = pairs.map(p => p.score);
+        const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+        const std = Math.sqrt(scores.reduce((s, v) => s + (v - mean) ** 2, 0) / scores.length);
+        value = Math.abs(mean) > 1e-10 ? (std / Math.abs(mean)) * 100 : (std > 0 ? Infinity : 0);
+        break;
+      }
+
+      case "mad": {
+        const promptSds = pairs.map(p => p.obj.prompt_sd).filter(v => v != null);
+        if (promptSds.length === 0) { value = null; break; }
+        promptSds.sort((a, b) => a - b);
+        const med = promptSds.length % 2 === 0
+          ? (promptSds[promptSds.length / 2 - 1] + promptSds[promptSds.length / 2]) / 2
+          : promptSds[Math.floor(promptSds.length / 2)];
+        value = scale === "unit" ? med * 100 : med;
+        break;
+      }
+
+      case "ordering":
+        value = null; // N/A for single model
+        break;
+
+      case "promptSwitch": {
+        const indices = pairs.map(p => p.obj.max_prompt_idx);
+        if (indices.some(v => v == null)) { value = null; break; }
+        let switches = 0;
+        for (let i = 1; i < indices.length; i++) {
+          if (indices[i] !== indices[i - 1]) switches++;
+        }
+        value = indices.length > 1 ? (switches / (indices.length - 1)) * 100 : 0;
+        break;
+      }
+
+      case "nonRandom": {
+        const scores = pairs.map(p => p.score);
+        const maxScore = Math.max(...scores);
+        const baseline = info.random_baseline || 0;
+        value = scale === "unit" ? (maxScore - baseline) * 100 : maxScore - baseline;
+        break;
+      }
+    }
+
+    const pass = evaluateThreshold(name, value, cfg.threshold);
+    results[name] = { value, pass };
+  }
+
+  return results;
+}
+
+function runFilter() {
+  if (currentTaskSelection !== "__filtered__") return;
+
+  // Compute criteria for all benchmarks in the full set
+  filterResults = {};
+  for (const bench of allFilterBenchmarks) {
+    filterResults[bench] = computeFilterCriteriaForBench(bench, currentShot);
+  }
+
+  // Determine which benchmarks pass ALL enabled criteria
+  checkedTasks = new Set();
+  for (const bench of allFilterBenchmarks) {
+    const res = filterResults[bench];
+    let passes = true;
+    for (const [name, cfg] of Object.entries(filterCriteria)) {
+      if (!cfg.enabled) continue;
+      const r = res[name];
+      if (r && r.pass === false) { passes = false; break; }
+    }
+    if (passes) checkedTasks.add(bench);
+  }
+
+  syncCheckboxStates();
+  renderFilterTable();
+}
+
+function renderFilterPanel() {
+  const grid = document.getElementById("filter-criteria-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  const criterionOrder = ["monotonicity", "snr", "cv", "mad", "promptSwitch", "nonRandom", "ordering"];
+
+  for (const name of criterionOrder) {
+    const cfg = filterCriteria[name];
+    const card = document.createElement("div");
+    card.className = "filter-criterion" + (cfg.enabled ? "" : " disabled");
+
+    const header = document.createElement("div");
+    header.className = "filter-criterion-header";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = cfg.enabled;
+    cb.id = "filter-cb-" + name;
+    cb.addEventListener("change", () => {
+      cfg.enabled = cb.checked;
+      card.classList.toggle("disabled", !cfg.enabled);
+      runFilter();
+      renderChart();
+    });
+
+    const label = document.createElement("label");
+    label.className = "criterion-label";
+    label.htmlFor = cb.id;
+    label.textContent = cfg.label;
+
+    const desc = document.createElement("span");
+    desc.className = "criterion-desc";
+    desc.textContent = cfg.description;
+
+    header.appendChild(cb);
+    header.appendChild(label);
+    header.appendChild(desc);
+    card.appendChild(header);
+
+    const controls = document.createElement("div");
+    controls.className = "filter-criterion-controls";
+
+    // Direction label
+    const dirLabel = document.createElement("span");
+    dirLabel.className = "direction-label";
+    dirLabel.textContent = cfg.direction;
+    controls.appendChild(dirLabel);
+
+    // Threshold
+    const threshLabel = document.createElement("label");
+    threshLabel.textContent = "Threshold: ";
+    const threshInput = document.createElement("input");
+    threshInput.type = "number";
+    threshInput.className = "threshold-input";
+    threshInput.value = cfg.threshold;
+    threshInput.step = name === "monotonicity" || name === "ordering" ? 0.1 : 1;
+    threshInput.addEventListener("change", () => {
+      cfg.threshold = parseFloat(threshInput.value) || 0;
+      runFilter();
+      renderChart();
+    });
+    threshLabel.appendChild(threshInput);
+    controls.appendChild(threshLabel);
+
+    // Window: min step
+    const minLabel = document.createElement("label");
+    minLabel.textContent = "Steps: ";
+    const minInput = document.createElement("input");
+    minInput.type = "number";
+    minInput.value = cfg.minStep;
+    minInput.min = 1000;
+    minInput.max = 33000;
+    minInput.step = 1000;
+    minInput.addEventListener("change", () => {
+      cfg.minStep = parseInt(minInput.value) || 1000;
+      runFilter();
+      renderChart();
+    });
+    minLabel.appendChild(minInput);
+    controls.appendChild(minLabel);
+
+    const dashSpan = document.createElement("span");
+    dashSpan.textContent = "\u2013";
+    dashSpan.style.color = "var(--fg-muted)";
+    controls.appendChild(dashSpan);
+
+    const maxInput = document.createElement("input");
+    maxInput.type = "number";
+    maxInput.value = cfg.maxStep;
+    maxInput.min = 1000;
+    maxInput.max = 33000;
+    maxInput.step = 1000;
+    maxInput.addEventListener("change", () => {
+      cfg.maxStep = parseInt(maxInput.value) || 33000;
+      runFilter();
+      renderChart();
+    });
+    controls.appendChild(maxInput);
+
+    card.appendChild(controls);
+    grid.appendChild(card);
+  }
+}
+
+function renderFilterTable() {
+  const table = document.getElementById("filter-table");
+  const summary = document.getElementById("filter-summary");
+  if (!table) return;
+
+  const criterionOrder = ["monotonicity", "snr", "cv", "mad", "promptSwitch", "nonRandom", "ordering"];
+  const criterionHeaders = ["Mono", "SNR", "CV", "MAD", "Switch", "Non-Rand", "Ordering"];
+
+  // Build header
+  let html = "<thead><tr><th>Benchmark</th>";
+  for (let i = 0; i < criterionOrder.length; i++) {
+    const name = criterionOrder[i];
+    const cfg = filterCriteria[name];
+    const activeClass = cfg.enabled ? "" : ' style="opacity:0.4"';
+    html += "<th" + activeClass + ">" + criterionHeaders[i] + "</th>";
+  }
+  html += "<th>Pass</th></tr></thead><tbody>";
+
+  // Sort benchmarks by pretty name
+  const sorted = [...allFilterBenchmarks].sort((a, b) => {
+    const pa = DATA.metrics_setup[a]?.pretty_name || a;
+    const pb = DATA.metrics_setup[b]?.pretty_name || b;
+    return pa.localeCompare(pb);
+  });
+
+  let passCount = 0;
+  for (const bench of sorted) {
+    const res = filterResults[bench] || {};
+    const passes = checkedTasks.has(bench);
+    if (passes) passCount++;
+    const rowClass = passes ? "pass-row" : "fail-row";
+    const prettyName = DATA.metrics_setup[bench]?.pretty_name || bench;
+
+    html += '<tr class="' + rowClass + '"><td>' + prettyName + "</td>";
+    for (const name of criterionOrder) {
+      const cfg = filterCriteria[name];
+      const r = res[name];
+      if (!r || r.value === null || r.value === undefined) {
+        html += '<td class="na">N/A</td>';
+      } else {
+        const formatted = r.value === Infinity ? "\u221E" : r.value.toFixed(2);
+        let cellClass = "na";
+        if (cfg.enabled) {
+          cellClass = r.pass ? "pass" : "fail";
+        }
+        html += '<td class="' + cellClass + '">' + formatted + "</td>";
+      }
+    }
+    const overallClass = passes ? "overall-pass" : "overall-fail";
+    html += '<td class="' + overallClass + '">' + (passes ? "\u2713" : "\u2717") + "</td>";
+    html += "</tr>";
+  }
+  html += "</tbody>";
+  table.innerHTML = html;
+
+  if (summary) {
+    summary.textContent = passCount + " / " + allFilterBenchmarks.size + " benchmarks pass";
+  }
+}
+
+let filterPanelRendered = false;
+
+function showFilterUI() {
+  const panel = document.getElementById("filter-panel");
+  const tableContainer = document.getElementById("filter-table-container");
+  if (panel) panel.style.display = "";
+  if (tableContainer) tableContainer.style.display = "";
+
+  // Only build the filter panel DOM once (preserve user focus/inputs)
+  if (!filterPanelRendered) {
+    renderFilterPanel();
+    filterPanelRendered = true;
+
+    // Bind toggle button
+    const toggleBtn = document.getElementById("filter-table-toggle");
+    const tableContent = document.getElementById("filter-table-content");
+    if (toggleBtn && tableContent) {
+      toggleBtn.onclick = () => {
+        filterTableExpanded = !filterTableExpanded;
+        tableContent.style.display = filterTableExpanded ? "" : "none";
+        toggleBtn.textContent = filterTableExpanded ? "Hide diagnostics" : "Show diagnostics";
+      };
+      tableContent.style.display = filterTableExpanded ? "" : "none";
+      toggleBtn.textContent = filterTableExpanded ? "Hide diagnostics" : "Show diagnostics";
+    }
+  }
+}
+
+function hideFilterUI() {
+  const panel = document.getElementById("filter-panel");
+  const tableContainer = document.getElementById("filter-table-container");
+  if (panel) panel.style.display = "none";
+  if (tableContainer) tableContainer.style.display = "none";
+  filterPanelRendered = false;
 }
 
 // ============================================================

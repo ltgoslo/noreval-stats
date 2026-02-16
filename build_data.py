@@ -427,6 +427,7 @@ def extract_benchmark_scores(
 
         # max_stderr: stderr of the variant that achieved the max score
         max_idx = values.index(max(values))
+        entry["max_prompt_idx"] = max_idx
         if stderrs[max_idx] is not None:
             entry["max_stderr"] = round(stderrs[max_idx], 6)
 
