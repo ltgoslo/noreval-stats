@@ -15,13 +15,27 @@ let showPromptDeviation = true;
 
 // HPLT-E quality filter state
 let filterCriteria = {
-  monotonicity: { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Monotonicity",       description: "Spearman \u03C1 between step and score" },
-  snr:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 3.0,  direction: ">=", label: "SNR",                description: "Signal-to-noise ratio (mean score / mean stderr)" },
-  cv:           { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 15.0, direction: "<=", label: "CV",                 description: "Coefficient of variation (%) across steps" },
-  mad:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: "<=", label: "Prompt Sensitivity",  description: "Median prompt std dev (%-points)" },
-  ordering:     { enabled: false, minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Ordering Consistency",description: "N/A for single model" },
-  promptSwitch: { enabled: false, minStep: 5000, maxStep: 33000, threshold: 20.0, direction: "<=", label: "Prompt Switch Rate",  description: "% of steps where best prompt changes" },
-  nonRandom:    { enabled: false, minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: ">=", label: "Non-Randomness",      description: "Max score \u2212 random baseline (%-points)" },
+  monotonicity: { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Monotonicity",
+    description: "Spearman \u03C1 (step vs. score)",
+    tooltip: "Spearman rank correlation between checkpoint step number and benchmark score within the window. Measures whether performance improves monotonically during training. Higher values indicate more consistent improvement. HPLT-E default: \u2265 0.5." },
+  snr:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 3.0,  direction: ">=", label: "SNR",
+    description: "Signal-to-noise ratio",
+    tooltip: "Ratio of mean score to mean prompt standard deviation across checkpoints in the window. Measures whether the benchmark signal is distinguishable from prompt-induced noise. Higher values indicate cleaner signal. HPLT-E default: \u2265 3." },
+  cv:           { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 15.0, direction: "<=", label: "CV",
+    description: "Coefficient of variation (%)",
+    tooltip: "Sample standard deviation divided by mean of scores across checkpoints in the window, expressed as percentage. Measures score stability during training. Lower values indicate more stable trajectories. HPLT-E default: \u2264 15%." },
+  mad:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: "<=", label: "Prompt Sensitivity",
+    description: "Median MAD across prompts",
+    tooltip: "Median Absolute Deviation of scores across prompt variants, taken as median over checkpoints in the window. Measures how sensitive the benchmark is to prompt phrasing. Lower values indicate more robust evaluation. HPLT-E default: \u2264 5." },
+  ordering:     { enabled: false, minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Ordering Consistency",
+    description: "N/A for single model",
+    tooltip: "Kendall's Tau correlation of corpus rankings between consecutive checkpoints. Not applicable for the single-model progress view (requires multiple corpora). Disabled by default." },
+  promptSwitch: { enabled: false, minStep: 5000, maxStep: 33000, threshold: 20.0, direction: "<=", label: "Prompt Switch Rate",
+    description: "Best-prompt change rate (%)",
+    tooltip: "Percentage of consecutive checkpoint pairs where the best-performing prompt variant changes. High values indicate the benchmark's best prompt is unstable across training. Lower is better." },
+  nonRandom:    { enabled: false, minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: ">=", label: "Non-Randomness",
+    description: "Max score \u2212 random baseline",
+    tooltip: "Difference between the maximum score in the window and the task's random baseline, in percentage points. Verifies the model actually learned the task beyond chance. Higher is better." },
 };
 let filterResults = {};
 let allFilterBenchmarks = new Set();
@@ -689,6 +703,7 @@ async function init() {
   bindEventListeners();
   buildCheckboxes();
   buildModelCheckboxes();
+  updateFilteredOptionVisibility();
 
   if (hasUrlState) {
     // Sync UI controls to restored state
@@ -779,6 +794,22 @@ function populateTaskDropdown() {
   select.appendChild(taskGroup);
 }
 
+function updateFilteredOptionVisibility() {
+  const opt = document.querySelector('option[value="__filtered__"]');
+  if (!opt) return;
+  const isProgress = currentTab === "progress";
+  opt.hidden = !isProgress;
+  // If switching away from progress while filtered is selected, reset to macro
+  if (!isProgress && currentTaskSelection === "__filtered__") {
+    currentTaskSelection = "__all_macro__";
+    document.getElementById("task-select").value = "__all_macro__";
+    hideFilterUI();
+    checkedTasks = new Set(Object.keys(DATA.metrics_setup));
+    syncCheckboxStates();
+    autoSetNormalization();
+  }
+}
+
 // ============================================================
 // Event listeners
 // ============================================================
@@ -789,6 +820,7 @@ function bindEventListeners() {
       document.querySelector(".tab-btn.active").classList.remove("active");
       btn.classList.add("active");
       currentTab = btn.dataset.tab;
+      updateFilteredOptionVisibility();
       renderChart();
     });
   });
@@ -2063,29 +2095,38 @@ function computeFilterCriteriaForBench(benchmark, shot) {
         break;
 
       case "snr": {
+        // HPLT-E: signal = mean(score_col), noise depends on aggregation:
+        //   median → mean(1.4826 * MAD), else → mean(std)
         const scores = pairs.map(p => p.score);
-        const stderrs = pairs.map(p => p.obj.max_stderr || 0);
+        const noiseVals = currentPromptAgg === "median"
+          ? pairs.map(p => 1.4826 * (p.obj.prompt_mad || 0))
+          : pairs.map(p => p.obj.prompt_sd || 0);
         const meanScore = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const meanSe = stderrs.reduce((a, b) => a + b, 0) / stderrs.length;
-        value = meanSe > 1e-10 ? Math.abs(meanScore) / meanSe : (meanScore > 0 ? Infinity : 0);
+        const meanNoise = noiseVals.reduce((a, b) => a + b, 0) / noiseVals.length;
+        value = meanNoise > 1e-10 ? meanScore / (meanNoise + 1e-8) : (meanScore > 0 ? Infinity : 0);
         break;
       }
 
       case "cv": {
+        // HPLT-E: sample std (ddof=1) / mean * 100
         const scores = pairs.map(p => p.score);
-        const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const std = Math.sqrt(scores.reduce((s, v) => s + (v - mean) ** 2, 0) / scores.length);
-        value = Math.abs(mean) > 1e-10 ? (std / Math.abs(mean)) * 100 : (std > 0 ? Infinity : 0);
+        const n = scores.length;
+        const mean = scores.reduce((a, b) => a + b, 0) / n;
+        const sampleStd = n > 1
+          ? Math.sqrt(scores.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1))
+          : 0;
+        value = Math.abs(mean) > 1e-10 ? (sampleStd / Math.abs(mean)) * 100 : (sampleStd > 0 ? Infinity : 0);
         break;
       }
 
       case "mad": {
-        const promptSds = pairs.map(p => p.obj.prompt_sd).filter(v => v != null);
-        if (promptSds.length === 0) { value = null; break; }
-        promptSds.sort((a, b) => a - b);
-        const med = promptSds.length % 2 === 0
-          ? (promptSds[promptSds.length / 2 - 1] + promptSds[promptSds.length / 2]) / 2
-          : promptSds[Math.floor(promptSds.length / 2)];
+        // HPLT-E: median of MAD(prompt scores) across steps
+        const promptMads = pairs.map(p => p.obj.prompt_mad).filter(v => v != null);
+        if (promptMads.length === 0) { value = null; break; }
+        promptMads.sort((a, b) => a - b);
+        const med = promptMads.length % 2 === 0
+          ? (promptMads[promptMads.length / 2 - 1] + promptMads[promptMads.length / 2]) / 2
+          : promptMads[Math.floor(promptMads.length / 2)];
         value = scale === "unit" ? med * 100 : med;
         break;
       }
@@ -2177,6 +2218,13 @@ function renderFilterPanel() {
     label.className = "criterion-label";
     label.htmlFor = cb.id;
     label.textContent = cfg.label;
+    if (cfg.tooltip) {
+      label.title = cfg.tooltip;
+      label.style.cursor = "help";
+      label.style.textDecoration = "underline";
+      label.style.textDecorationStyle = "dotted";
+      label.style.textUnderlineOffset = "3px";
+    }
 
     const desc = document.createElement("span");
     desc.className = "criterion-desc";
@@ -2190,29 +2238,7 @@ function renderFilterPanel() {
     const controls = document.createElement("div");
     controls.className = "filter-criterion-controls";
 
-    // Direction label
-    const dirLabel = document.createElement("span");
-    dirLabel.className = "direction-label";
-    dirLabel.textContent = cfg.direction;
-    controls.appendChild(dirLabel);
-
-    // Threshold
-    const threshLabel = document.createElement("label");
-    threshLabel.textContent = "Threshold: ";
-    const threshInput = document.createElement("input");
-    threshInput.type = "number";
-    threshInput.className = "threshold-input";
-    threshInput.value = cfg.threshold;
-    threshInput.step = name === "monotonicity" || name === "ordering" ? 0.1 : 1;
-    threshInput.addEventListener("change", () => {
-      cfg.threshold = parseFloat(threshInput.value) || 0;
-      runFilter();
-      renderChart();
-    });
-    threshLabel.appendChild(threshInput);
-    controls.appendChild(threshLabel);
-
-    // Window: min step
+    // Window: min/max step (first)
     const minLabel = document.createElement("label");
     minLabel.textContent = "Steps: ";
     const minInput = document.createElement("input");
@@ -2246,6 +2272,22 @@ function renderFilterPanel() {
       renderChart();
     });
     controls.appendChild(maxInput);
+
+    // Threshold (second)
+    const threshLabel = document.createElement("label");
+    threshLabel.textContent = cfg.direction + " ";
+    const threshInput = document.createElement("input");
+    threshInput.type = "number";
+    threshInput.className = "threshold-input";
+    threshInput.value = cfg.threshold;
+    threshInput.step = name === "monotonicity" || name === "ordering" ? 0.1 : 1;
+    threshInput.addEventListener("change", () => {
+      cfg.threshold = parseFloat(threshInput.value) || 0;
+      runFilter();
+      renderChart();
+    });
+    threshLabel.appendChild(threshInput);
+    controls.appendChild(threshLabel);
 
     card.appendChild(controls);
     grid.appendChild(card);

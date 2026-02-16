@@ -452,8 +452,13 @@ def extract_benchmark_scores(
         entry["n_prompts"] = len(values)
         if len(values) >= 2:
             entry["prompt_sd"] = round(statistics.stdev(values), 6)
+            med_val = statistics.median(values)
+            entry["prompt_mad"] = round(
+                statistics.median([abs(v - med_val) for v in values]), 6
+            )
         else:
             entry["prompt_sd"] = 0.0
+            entry["prompt_mad"] = 0.0
 
         out[metric_name] = entry
     return out
