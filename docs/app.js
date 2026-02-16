@@ -896,17 +896,31 @@ function bindEventListeners() {
   });
 
   document.getElementById("select-all-btn").addEventListener("click", () => {
-    checkedTasks = new Set(Object.keys(DATA.metrics_setup));
-    currentTaskSelection = "__all__";
-    document.getElementById("task-select").value = "__all__";
-    syncCheckboxStates();
-    autoSetNormalization();
-    renderChart();
+    if (currentTaskSelection === "__filtered__") {
+      allFilterBenchmarks = new Set(Object.keys(DATA.metrics_setup));
+      syncCheckboxStates();
+      runFilter();
+      renderChart();
+    } else {
+      checkedTasks = new Set(Object.keys(DATA.metrics_setup));
+      currentTaskSelection = "__all__";
+      document.getElementById("task-select").value = "__all__";
+      syncCheckboxStates();
+      autoSetNormalization();
+      renderChart();
+    }
   });
   document.getElementById("select-none-btn").addEventListener("click", () => {
-    checkedTasks.clear();
-    syncCheckboxStates();
-    renderChart();
+    if (currentTaskSelection === "__filtered__") {
+      allFilterBenchmarks.clear();
+      syncCheckboxStates();
+      runFilter();
+      renderChart();
+    } else {
+      checkedTasks.clear();
+      syncCheckboxStates();
+      renderChart();
+    }
   });
 
   document.getElementById("model-select-all-btn").addEventListener("click", () => {
@@ -1078,9 +1092,10 @@ function buildCheckboxes() {
     h4.style.cursor = "pointer";
     const catBenches = grouped[cat];
     h4.addEventListener("click", () => {
-      const allChecked = catBenches.every((b) => checkedTasks.has(b));
+      const source = currentTaskSelection === "__filtered__" ? allFilterBenchmarks : checkedTasks;
+      const allChecked = catBenches.every((b) => source.has(b));
       for (const b of catBenches) {
-        if (allChecked) checkedTasks.delete(b); else checkedTasks.add(b);
+        if (allChecked) source.delete(b); else source.add(b);
       }
       syncCheckboxStates();
       onTaskCheckboxChange();
@@ -1095,8 +1110,13 @@ function buildCheckboxes() {
       checkbox.checked = checkedTasks.has(bench);
       checkbox.dataset.bench = bench;
       checkbox.addEventListener("change", () => {
-        if (checkbox.checked) checkedTasks.add(bench);
-        else checkedTasks.delete(bench);
+        if (currentTaskSelection === "__filtered__") {
+          if (checkbox.checked) allFilterBenchmarks.add(bench);
+          else allFilterBenchmarks.delete(bench);
+        } else {
+          if (checkbox.checked) checkedTasks.add(bench);
+          else checkedTasks.delete(bench);
+        }
         onTaskCheckboxChange();
       });
 
@@ -1110,6 +1130,16 @@ function buildCheckboxes() {
 }
 
 function onTaskCheckboxChange() {
+  // In filtered mode, checkboxes control which tasks are candidates for filtering
+  if (currentTaskSelection === "__filtered__") {
+    allFilterBenchmarks = new Set();
+    document.querySelectorAll("#checkbox-grid input[type=checkbox]").forEach((cb) => {
+      if (cb.checked) allFilterBenchmarks.add(cb.dataset.bench);
+    });
+    runFilter();
+    renderChart();
+    return;
+  }
   // If exactly 1 task checked, show as single benchmark
   if (checkedTasks.size === 1) {
     const bench = [...checkedTasks][0];
@@ -1142,8 +1172,9 @@ function onTaskCheckboxChange() {
 }
 
 function syncCheckboxStates() {
+  const source = currentTaskSelection === "__filtered__" ? allFilterBenchmarks : checkedTasks;
   document.querySelectorAll("#checkbox-grid input[type=checkbox]").forEach((cb) => {
-    cb.checked = checkedTasks.has(cb.dataset.bench);
+    cb.checked = source.has(cb.dataset.bench);
   });
 }
 
@@ -2219,11 +2250,11 @@ function renderFilterPanel() {
     label.htmlFor = cb.id;
     label.textContent = cfg.label;
     if (cfg.tooltip) {
-      label.title = cfg.tooltip;
       label.style.cursor = "help";
       label.style.textDecoration = "underline";
       label.style.textDecorationStyle = "dotted";
       label.style.textUnderlineOffset = "3px";
+      attachTooltip(label, () => ({ title: cfg.label, body: cfg.tooltip, footer: "" }));
     }
 
     const desc = document.createElement("span");
@@ -2275,7 +2306,7 @@ function renderFilterPanel() {
 
     // Threshold (second)
     const threshLabel = document.createElement("label");
-    threshLabel.textContent = cfg.direction + " ";
+    threshLabel.textContent = "Threshold " + cfg.direction + " ";
     const threshInput = document.createElement("input");
     threshInput.type = "number";
     threshInput.className = "threshold-input";
@@ -2298,56 +2329,69 @@ function renderFilterTable() {
   const table = document.getElementById("filter-table");
   const summary = document.getElementById("filter-summary");
   if (!table) return;
+  table.innerHTML = "";
 
   const criterionOrder = ["monotonicity", "snr", "cv", "mad", "promptSwitch", "nonRandom", "ordering"];
   const criterionHeaders = ["Mono", "SNR", "CV", "MAD", "Switch", "Non-Rand", "Ordering"];
 
-  // Build header
-  let html = "<thead><tr><th>Benchmark</th>";
+  // Build header with tooltips
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  const benchTh = document.createElement("th");
+  benchTh.textContent = "Benchmark";
+  headerRow.appendChild(benchTh);
   for (let i = 0; i < criterionOrder.length; i++) {
     const name = criterionOrder[i];
     const cfg = filterCriteria[name];
-    const activeClass = cfg.enabled ? "" : ' style="opacity:0.4"';
-    html += "<th" + activeClass + ">" + criterionHeaders[i] + "</th>";
+    const th = document.createElement("th");
+    th.textContent = criterionHeaders[i];
+    if (!cfg.enabled) th.style.opacity = "0.4";
+    if (cfg.tooltip) {
+      th.style.cursor = "help";
+      th.style.textDecoration = "underline";
+      th.style.textDecorationStyle = "dotted";
+      th.style.textUnderlineOffset = "3px";
+      attachTooltip(th, () => ({ title: cfg.label, body: cfg.tooltip, footer: "" }));
+    }
+    headerRow.appendChild(th);
   }
-  html += "<th>Pass</th></tr></thead><tbody>";
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
 
-  // Sort benchmarks by pretty name
-  const sorted = [...allFilterBenchmarks].sort((a, b) => {
-    const pa = DATA.metrics_setup[a]?.pretty_name || a;
-    const pb = DATA.metrics_setup[b]?.pretty_name || b;
-    return pa.localeCompare(pb);
-  });
+  // Sort benchmarks by display name (with language variant tags)
+  const sorted = [...allFilterBenchmarks].sort((a, b) =>
+    getCheckboxDisplayName(a).localeCompare(getCheckboxDisplayName(b)));
 
+  // Build body
+  const tbody = document.createElement("tbody");
   let passCount = 0;
   for (const bench of sorted) {
     const res = filterResults[bench] || {};
     const passes = checkedTasks.has(bench);
     if (passes) passCount++;
-    const rowClass = passes ? "pass-row" : "fail-row";
-    const prettyName = DATA.metrics_setup[bench]?.pretty_name || bench;
+    const tr = document.createElement("tr");
+    tr.className = passes ? "pass-row" : "fail-row";
 
-    html += '<tr class="' + rowClass + '"><td>' + prettyName + "</td>";
+    const nameTd = document.createElement("td");
+    nameTd.textContent = getCheckboxDisplayName(bench);
+    tr.appendChild(nameTd);
+
     for (const name of criterionOrder) {
       const cfg = filterCriteria[name];
       const r = res[name];
+      const td = document.createElement("td");
       if (!r || r.value === null || r.value === undefined) {
-        html += '<td class="na">N/A</td>';
+        td.className = "na";
+        td.textContent = "N/A";
       } else {
-        const formatted = r.value === Infinity ? "\u221E" : r.value.toFixed(2);
-        let cellClass = "na";
-        if (cfg.enabled) {
-          cellClass = r.pass ? "pass" : "fail";
-        }
-        html += '<td class="' + cellClass + '">' + formatted + "</td>";
+        td.textContent = r.value === Infinity ? "\u221E" : r.value.toFixed(2);
+        td.className = cfg.enabled ? (r.pass ? "pass" : "fail") : "na";
       }
+      tr.appendChild(td);
     }
-    const overallClass = passes ? "overall-pass" : "overall-fail";
-    html += '<td class="' + overallClass + '">' + (passes ? "\u2713" : "\u2717") + "</td>";
-    html += "</tr>";
+    tbody.appendChild(tr);
   }
-  html += "</tbody>";
-  table.innerHTML = html;
+  table.appendChild(tbody);
 
   if (summary) {
     summary.textContent = passCount + " / " + allFilterBenchmarks.size + " benchmarks pass";
@@ -2361,6 +2405,8 @@ function showFilterUI() {
   const tableContainer = document.getElementById("filter-table-container");
   if (panel) panel.style.display = "";
   if (tableContainer) tableContainer.style.display = "";
+  const heading = document.querySelector("#task-checkboxes .checkbox-header h3");
+  if (heading) heading.textContent = "Tasks eligible for quality filtering";
 
   // Only build the filter panel DOM once (preserve user focus/inputs)
   if (!filterPanelRendered) {
@@ -2388,6 +2434,8 @@ function hideFilterUI() {
   if (panel) panel.style.display = "none";
   if (tableContainer) tableContainer.style.display = "none";
   filterPanelRendered = false;
+  const heading = document.querySelector("#task-checkboxes .checkbox-header h3");
+  if (heading) heading.textContent = "Tasks included in aggregation";
 }
 
 // ============================================================
