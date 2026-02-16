@@ -284,9 +284,9 @@ function getCombinedSE(dataSource, entity, bench, shot, metric) {
   return Math.sqrt((sampSe || 0) ** 2 + (promptSe || 0) ** 2);
 }
 
-/** Scale a raw stderr value for display, applying the same transform as the score.
- *  Only works for "none" and "baseline" normalization. */
-function scaleStderr(se, benchmark, metric) {
+/** Scale a raw stderr value for display, applying the same linear transform as the score.
+ *  For min-max and z-score, pass allRaw = array of all raw scores for this benchmark. */
+function scaleStderr(se, benchmark, metric, allRaw) {
   if (se === undefined || se === null) return undefined;
   if (currentNormalization === "none") return toDisplayScale(se, benchmark, metric);
   if (currentNormalization === "baseline") {
@@ -294,12 +294,23 @@ function scaleStderr(se, benchmark, metric) {
     const range = info.max_performance - info.random_baseline;
     return range === 0 ? 0 : (se / range) * 100;
   }
-  return undefined; // not supported for other normalizations
+  if (currentNormalization === "minmax") {
+    if (!allRaw || allRaw.length < 2) return toDisplayScale(se, benchmark, metric);
+    const mn = Math.min(...allRaw), mx = Math.max(...allRaw);
+    return mx === mn ? 0 : (se / (mx - mn)) * 100;
+  }
+  if (currentNormalization === "zscore") {
+    if (!allRaw || allRaw.length < 2) return 0;
+    const mean = allRaw.reduce((a, b) => a + b, 0) / allRaw.length;
+    const std = Math.sqrt(allRaw.reduce((s, v) => s + (v - mean) ** 2, 0) / allRaw.length);
+    return std === 0 ? 0 : se / std;
+  }
+  return undefined; // not supported for percentile (non-linear)
 }
 
 /** Check if stderr display is compatible with the current normalization mode. */
 function isStderrCompatible() {
-  return currentNormalization === "none" || currentNormalization === "baseline";
+  return currentNormalization !== "percentile";
 }
 
 /** Extract the base metric name from a subtask metric like "acc: Person: 1→2" → "acc" */
@@ -1577,7 +1588,7 @@ function renderAggregateBarChart() {
         ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
         : null;
       const score = applyNorm(raw, bench, allRaw);
-      const se = wantSE ? scaleStderr(getCombinedSE(DATA.models, m, bench, currentShot), bench) : undefined;
+      const se = wantSE ? scaleStderr(getCombinedSE(DATA.models, m, bench, currentShot), bench, undefined, allRaw) : undefined;
       return { score, stderr: se };
     }, macro);
     scores.push(result ? result.score : 0);
@@ -1642,7 +1653,7 @@ function renderGroupedBarChart(groupName) {
     });
     const seValues = wantSE ? modelNames.map((m) => {
       const se = getCombinedSE(DATA.models, m, bench, currentShot, metric);
-      return scaleStderr(se, bench, metric);
+      return scaleStderr(se, bench, metric, allRaw);
     }) : null;
     const barColors = modelNames.map((m) => {
       const base = getModelColor(m);
@@ -1731,7 +1742,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const seValues = wantSE ? modelNames.map((m) => {
     const se = getCombinedSE(DATA.models, m, benchmark, currentShot, metric);
-    return scaleStderr(se, benchmark, metric);
+    return scaleStderr(se, benchmark, metric, allRaw);
   }) : null;
 
   const yRange = computeSingleYRange(DATA.models, benchmark, metric);
@@ -1818,7 +1829,7 @@ function renderAggregateProgressChart() {
         ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
         : null;
       const score = applyNorm(raw, bench, allRaw);
-      const se = wantSE ? scaleStderr(getCombinedSE(DATA.progress, step, bench, currentShot), bench) : undefined;
+      const se = wantSE ? scaleStderr(getCombinedSE(DATA.progress, step, bench, currentShot), bench, undefined, allRaw) : undefined;
       return { score, stderr: se };
     }, macro);
   });
@@ -1871,7 +1882,7 @@ function renderGroupProgressChart(groupName) {
     });
     const ses = wantSE ? steps.map((s) => {
       const se = getCombinedSE(DATA.progress, s, bench, currentShot, metric);
-      return scaleStderr(se, bench, metric);
+      return scaleStderr(se, bench, metric, allRaw);
     }) : null;
     const lineColor = PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length];
     if (wantSE && ses) {
@@ -2087,26 +2098,55 @@ function evaluateThreshold(criterionName, value, threshold) {
   return lowerIsBetter[criterionName] ? value <= threshold : value >= threshold;
 }
 
+/** Compute a linear scale factor for normalizing noise values (prompt_sd, prompt_mad)
+ *  to the same scale as the normalized scores.
+ *  For "none": converts to display scale (unit→×100, percent→×1).
+ *  For "baseline": same linear factor as baselineNorm.
+ *  For minmax/zscore/percentile: returns undefined (noise scaling not well-defined). */
+function getNoiseScaleFactor(benchmark) {
+  const info = DATA.metrics_setup[benchmark];
+  if (currentNormalization === "none") {
+    return info.metric_scale === "unit" ? 100 : 1;
+  }
+  if (currentNormalization === "baseline") {
+    const range = info.max_performance - info.random_baseline;
+    return range === 0 ? 0 : 100 / range;
+  }
+  // For minmax/zscore/percentile the factor depends on observed data,
+  // so we approximate from display scale (better than raw)
+  return info.metric_scale === "unit" ? 100 : 1;
+}
+
 function computeFilterCriteriaForBench(benchmark, shot) {
   if (!DATA || !DATA.progress) return {};
   const steps = Object.keys(DATA.progress).map(Number).sort((a, b) => a - b);
   const info = DATA.metrics_setup[benchmark];
   if (!info) return {};
   const mainMetric = info.main_metric;
-  const scale = info.metric_scale;
   const results = {};
+
+  // Collect all raw scores across ALL steps for this benchmark (needed for minmax/zscore/percentile)
+  const allRawScores = steps.map(s => {
+    const obj = DATA.progress[String(s)]?.[benchmark]?.[shot]?.[mainMetric];
+    return obj ? obj[currentPromptAgg] : undefined;
+  }).filter(v => v !== undefined);
+
+  // Noise scale factor (for prompt_sd / prompt_mad normalization)
+  const noiseFactor = getNoiseScaleFactor(benchmark);
 
   for (const [name, cfg] of Object.entries(filterCriteria)) {
     const windowSteps = steps.filter(s => s >= cfg.minStep && s <= cfg.maxStep);
 
-    // Extract scores and associated data in window
+    // Extract raw scores and associated data in window
     const pairs = [];
     for (const s of windowSteps) {
       const obj = DATA.progress[String(s)]?.[benchmark]?.[shot]?.[mainMetric];
       if (!obj) continue;
-      const score = obj[currentPromptAgg];
-      if (score === undefined || score === null) continue;
-      pairs.push({ step: s, score, obj });
+      const rawScore = obj[currentPromptAgg];
+      if (rawScore === undefined || rawScore === null) continue;
+      // Normalize score using the same normalization as the chart
+      const score = applyNorm(rawScore, benchmark, allRawScores);
+      pairs.push({ step: s, score, rawScore, obj });
     }
 
     if (pairs.length < 3 && name !== "nonRandom") {
@@ -2122,16 +2162,16 @@ function computeFilterCriteriaForBench(benchmark, shot) {
 
     switch (name) {
       case "monotonicity":
+        // Rank-based: invariant to normalization, but use normalized scores for consistency
         value = computeSpearmanRank(pairs.map(p => p.step), pairs.map(p => p.score));
         break;
 
       case "snr": {
-        // HPLT-E: signal = mean(score_col), noise depends on aggregation:
-        //   median → mean(1.4826 * MAD), else → mean(std)
+        // signal = mean(normalized score), noise = mean(normalized prompt noise)
         const scores = pairs.map(p => p.score);
         const noiseVals = currentPromptAgg === "median"
-          ? pairs.map(p => 1.4826 * (p.obj.prompt_mad || 0))
-          : pairs.map(p => p.obj.prompt_sd || 0);
+          ? pairs.map(p => 1.4826 * (p.obj.prompt_mad || 0) * noiseFactor)
+          : pairs.map(p => (p.obj.prompt_sd || 0) * noiseFactor);
         const meanScore = scores.reduce((a, b) => a + b, 0) / scores.length;
         const meanNoise = noiseVals.reduce((a, b) => a + b, 0) / noiseVals.length;
         value = meanNoise > 1e-10 ? meanScore / (meanNoise + 1e-8) : (meanScore > 0 ? Infinity : 0);
@@ -2139,7 +2179,7 @@ function computeFilterCriteriaForBench(benchmark, shot) {
       }
 
       case "cv": {
-        // HPLT-E: sample std (ddof=1) / mean * 100
+        // CV on normalized scores
         const scores = pairs.map(p => p.score);
         const n = scores.length;
         const mean = scores.reduce((a, b) => a + b, 0) / n;
@@ -2151,14 +2191,15 @@ function computeFilterCriteriaForBench(benchmark, shot) {
       }
 
       case "mad": {
-        // HPLT-E: median of MAD(prompt scores) across steps
+        // Median of MAD(prompt scores), scaled by noise factor
         const promptMads = pairs.map(p => p.obj.prompt_mad).filter(v => v != null);
         if (promptMads.length === 0) { value = null; break; }
-        promptMads.sort((a, b) => a - b);
-        const med = promptMads.length % 2 === 0
-          ? (promptMads[promptMads.length / 2 - 1] + promptMads[promptMads.length / 2]) / 2
-          : promptMads[Math.floor(promptMads.length / 2)];
-        value = scale === "unit" ? med * 100 : med;
+        const scaledMads = promptMads.map(m => m * noiseFactor);
+        scaledMads.sort((a, b) => a - b);
+        const med = scaledMads.length % 2 === 0
+          ? (scaledMads[scaledMads.length / 2 - 1] + scaledMads[scaledMads.length / 2]) / 2
+          : scaledMads[Math.floor(scaledMads.length / 2)];
+        value = med;
         break;
       }
 
@@ -2178,10 +2219,11 @@ function computeFilterCriteriaForBench(benchmark, shot) {
       }
 
       case "nonRandom": {
+        // Use normalized scores; normalize the baseline in the same space
         const scores = pairs.map(p => p.score);
         const maxScore = Math.max(...scores);
-        const baseline = info.random_baseline || 0;
-        value = scale === "unit" ? (maxScore - baseline) * 100 : maxScore - baseline;
+        const normBaseline = applyNorm(info.random_baseline || 0, benchmark, allRawScores);
+        value = maxScore - normBaseline;
         break;
       }
     }
