@@ -713,6 +713,7 @@ function loadStateFromHash() {
 // ============================================================
 
 async function init() {
+  try {
   const response = await fetch("data.json");
   DATA = await response.json();
 
@@ -761,6 +762,11 @@ async function init() {
   }
 
   renderChart();
+  } catch (err) {
+    console.error("init failed:", err);
+    const el = document.getElementById("chart");
+    if (el) el.innerHTML = "<pre style='color:red;padding:1rem;'>" + err.stack + "</pre>";
+  }
 }
 
 // ============================================================

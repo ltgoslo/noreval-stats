@@ -286,59 +286,62 @@ main {
   text-align: center;
 }
 
-.dual-range-wrap {
+.size-sep {
+  color: var(--fg-muted);
+}
+
+.range-slider {
   position: relative;
   flex: 1;
   height: 24px;
+  min-width: 120px;
+  user-select: none;
+  touch-action: none;
 }
 
-.dual-range {
+.range-track {
   position: absolute;
-  width: 100%;
-  top: 0;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transform: translateY(-50%);
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.range-fill {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  background: var(--accent);
+  border-radius: 2px;
   pointer-events: none;
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  height: 24px;
 }
 
-.dual-range::-webkit-slider-thumb {
-  pointer-events: all;
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
+.range-thumb {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--accent);
   border: 2px solid var(--surface);
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  cursor: pointer;
-  position: relative;
+  transform: translate(-50%, -50%);
+  cursor: grab;
   z-index: 2;
+  transition: box-shadow 0.15s;
 }
 
-.dual-range::-moz-range-thumb {
-  pointer-events: all;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid var(--surface);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  cursor: pointer;
+.range-thumb:hover,
+.range-thumb.active {
+  box-shadow: 0 0 0 4px var(--accent-light), 0 1px 3px rgba(0,0,0,0.2);
 }
 
-.dual-range::-webkit-slider-runnable-track {
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-}
-
-.dual-range::-moz-range-track {
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
+.range-thumb.active {
+  cursor: grabbing;
 }
 
 .checkbox-header {
