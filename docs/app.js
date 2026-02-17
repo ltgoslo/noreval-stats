@@ -748,15 +748,8 @@ async function init() {
     syncModelCheckboxStates();
     updateStderrToggleState();
     // Restore size slider state
-    const slMin = document.getElementById("size-slider-min");
-    const slMax = document.getElementById("size-slider-max");
-    if (slMin && slMax) {
-      slMin.value = currentSizeMin;
-      slMax.value = currentSizeMax;
-      document.getElementById("size-min-label").textContent = currentSizeMin + "B";
-      document.getElementById("size-max-label").textContent = currentSizeMax + "B";
-      applySizeFilter();
-    }
+    updateRangeSliderUI();
+    applySizeFilter();
   } else {
     autoSetNormalization();
   }
@@ -994,24 +987,8 @@ function bindEventListeners() {
     });
   });
 
-  // Size slider
-  const sliderMin = document.getElementById("size-slider-min");
-  const sliderMax = document.getElementById("size-slider-max");
-  if (sliderMin && sliderMax) {
-    const updateSlider = () => {
-      let lo = parseInt(sliderMin.value, 10);
-      let hi = parseInt(sliderMax.value, 10);
-      if (lo > hi) { const t = lo; lo = hi; hi = t; sliderMin.value = lo; sliderMax.value = hi; }
-      currentSizeMin = lo;
-      currentSizeMax = hi;
-      document.getElementById("size-min-label").textContent = lo + "B";
-      document.getElementById("size-max-label").textContent = hi + "B";
-      applySizeFilter();
-      stateToUrl();
-    };
-    sliderMin.addEventListener("input", updateSlider);
-    sliderMax.addEventListener("input", updateSlider);
-  }
+  // Custom dual-handle range slider
+  initRangeSlider();
 }
 
 // ============================================================
@@ -1254,6 +1231,112 @@ function syncCheckboxStates() {
   const source = currentTaskSelection === "__filtered__" ? allFilterBenchmarks : checkedTasks;
   document.querySelectorAll("#checkbox-grid input[type=checkbox]").forEach((cb) => {
     cb.checked = source.has(cb.dataset.bench);
+  });
+}
+
+// ============================================================
+// Range slider
+// ============================================================
+
+const RANGE_MIN = 1;
+const RANGE_MAX = 70;
+
+function valueToPercent(val) {
+  return (val - RANGE_MIN) / (RANGE_MAX - RANGE_MIN) * 100;
+}
+
+function percentToValue(pct) {
+  return Math.round(RANGE_MIN + pct / 100 * (RANGE_MAX - RANGE_MIN));
+}
+
+function updateRangeSliderUI() {
+  const slider = document.getElementById("range-slider");
+  const thumbMin = document.getElementById("thumb-min");
+  const thumbMax = document.getElementById("thumb-max");
+  const fill = document.getElementById("range-fill");
+  if (!slider || !thumbMin || !thumbMax || !fill) return;
+
+  const pctMin = valueToPercent(currentSizeMin);
+  const pctMax = valueToPercent(currentSizeMax);
+  thumbMin.style.left = pctMin + "%";
+  thumbMax.style.left = pctMax + "%";
+  fill.style.left = pctMin + "%";
+  fill.style.right = (100 - pctMax) + "%";
+
+  document.getElementById("size-min-label").textContent = currentSizeMin + "B";
+  document.getElementById("size-max-label").textContent = currentSizeMax + "B";
+}
+
+function initRangeSlider() {
+  const slider = document.getElementById("range-slider");
+  const thumbMin = document.getElementById("thumb-min");
+  const thumbMax = document.getElementById("thumb-max");
+  if (!slider || !thumbMin || !thumbMax) return;
+
+  updateRangeSliderUI();
+
+  let activeThumb = null;
+
+  function getValueFromEvent(e) {
+    const rect = slider.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const pct = Math.max(0, Math.min(100, (clientX - rect.left) / rect.width * 100));
+    return percentToValue(pct);
+  }
+
+  function onMove(e) {
+    if (!activeThumb) return;
+    e.preventDefault();
+    const val = getValueFromEvent(e);
+    if (activeThumb === thumbMin) {
+      currentSizeMin = Math.min(val, currentSizeMax);
+    } else {
+      currentSizeMax = Math.max(val, currentSizeMin);
+    }
+    updateRangeSliderUI();
+    applySizeFilter();
+  }
+
+  function onEnd() {
+    if (activeThumb) activeThumb.classList.remove("active");
+    activeThumb = null;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onEnd);
+    document.removeEventListener("touchmove", onMove);
+    document.removeEventListener("touchend", onEnd);
+    stateToUrl();
+  }
+
+  function onStart(thumb, e) {
+    e.preventDefault();
+    activeThumb = thumb;
+    thumb.classList.add("active");
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onEnd);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onEnd);
+  }
+
+  thumbMin.addEventListener("mousedown", (e) => onStart(thumbMin, e));
+  thumbMin.addEventListener("touchstart", (e) => onStart(thumbMin, e), { passive: false });
+  thumbMax.addEventListener("mousedown", (e) => onStart(thumbMax, e));
+  thumbMax.addEventListener("touchstart", (e) => onStart(thumbMax, e), { passive: false });
+
+  // Click on track to move nearest thumb
+  slider.addEventListener("mousedown", (e) => {
+    if (e.target === thumbMin || e.target === thumbMax) return;
+    const val = getValueFromEvent(e);
+    const distMin = Math.abs(val - currentSizeMin);
+    const distMax = Math.abs(val - currentSizeMax);
+    const thumb = distMin <= distMax ? thumbMin : thumbMax;
+    if (thumb === thumbMin) {
+      currentSizeMin = Math.min(val, currentSizeMax);
+    } else {
+      currentSizeMax = Math.max(val, currentSizeMin);
+    }
+    updateRangeSliderUI();
+    applySizeFilter();
+    onStart(thumb, e);
   });
 }
 
