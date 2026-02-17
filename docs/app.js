@@ -621,10 +621,15 @@ function stateToUrl() {
   const autoNorm = isAggregateSelection(currentTaskSelection) ? "baseline" : "none";
   if (currentNormalization !== autoNorm) params.set("norm", currentNormalization);
 
-  // Models: omit for all (default), store aliases otherwise
+  // Models: omit for defaults, "all" for all, aliases otherwise
   const allModelSet = new Set(Object.keys(DATA.models));
-  if (!setsEqual(checkedModels, allModelSet)) {
-    params.set("models", [...checkedModels].map((d) => _modelDirToAlias[d] || d).sort().join(","));
+  const defaultModelSet = new Set((DATA.default_models || Object.keys(DATA.models)).filter((m) => m in DATA.models));
+  if (!setsEqual(checkedModels, defaultModelSet)) {
+    if (setsEqual(checkedModels, allModelSet)) {
+      params.set("models", "all");
+    } else {
+      params.set("models", [...checkedModels].map((d) => _modelDirToAlias[d] || d).sort().join(","));
+    }
   }
 
   // Size filter: only store if non-default
@@ -712,8 +717,9 @@ async function init() {
   const response = await fetch("data.json");
   DATA = await response.json();
 
-  // Set defaults
-  checkedModels = new Set(Object.keys(DATA.models));
+  // Set defaults — use default_models if available, otherwise all models
+  const defaultModels = DATA.default_models || Object.keys(DATA.models);
+  checkedModels = new Set(defaultModels.filter((m) => m in DATA.models));
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
 
   // Build URL alias maps, then restore state from URL hash
@@ -1235,11 +1241,15 @@ const RANGE_MIN = 1;
 const RANGE_MAX = 70;
 
 function valueToPercent(val) {
-  return (val - RANGE_MIN) / (RANGE_MAX - RANGE_MIN) * 100;
+  const logMin = Math.log(RANGE_MIN);
+  const logMax = Math.log(RANGE_MAX);
+  return (Math.log(val) - logMin) / (logMax - logMin) * 100;
 }
 
 function percentToValue(pct) {
-  return Math.round(RANGE_MIN + pct / 100 * (RANGE_MAX - RANGE_MIN));
+  const logMin = Math.log(RANGE_MIN);
+  const logMax = Math.log(RANGE_MAX);
+  return Math.max(RANGE_MIN, Math.min(RANGE_MAX, Math.round(Math.exp(logMin + pct / 100 * (logMax - logMin)))));
 }
 
 function updateRangeSliderUI() {
