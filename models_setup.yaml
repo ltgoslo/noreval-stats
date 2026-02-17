@@ -1,0 +1,365 @@
+# Norwegian language models
+norolmo-13b:
+  display_name: "NorOLMo 13B"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 13
+  description: "A fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo."
+  huggingface_url: https://huggingface.co/HPLT/NorOLMo-13B
+  default: true
+  color: "#6366f1"
+
+norolmo-13b-stage1:
+  display_name: "NorOLMo 13B (stage 1)"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 13
+  description: "The final stage-1 checkpoint of NorOLMo-13B (after 24,000 steps). NorOLMo is a fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo."
+  huggingface_url: https://huggingface.co/HPLT/NorOLMo-13B
+
+normistral-7b-warm:
+  display_name: "NorMistral 7B"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 7
+  description: "A 7B parameter Norwegian language model initialized from Mistral-7B-v0.1 and continually-trained on 260 billion subword tokens of Norwegian data. Trained by the Language Technology Group at the University of Oslo."
+  huggingface_url: https://huggingface.co/norallm/normistral-7b-warm
+  default: true
+  color: "#f43f5e"
+
+normistral-11b-warm:
+  display_name: "NorMistral 11B"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 11
+  description: "An 11.4B parameter Norwegian language model based on Mistral-Nemo-Base-2407, continually-trained on 250 billion tokens of Norwegian, Scandinavian, Sámi and code data. Trained by the Language Technology Group at the University of Oslo."
+  huggingface_url: https://huggingface.co/norallm/normistral-11b-warm
+  default: true
+  color: "#10b981"
+
+normistral-11b-long:
+  display_name: "NorMistral 11B Long"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 11
+  description: "An 11.4B parameter Norwegian language model with extended context length, based on normistral-11b-warm."
+  huggingface_url: https://huggingface.co/norallm/normistral-11b-long
+  default: true
+  color: "#f59e0b"
+
+norbert4-xlarge:
+  display_name: "NorBERT4 1B"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 1
+  description: "The fourth generation NorBERT model (987M parameters) for Norwegian encoding/decoding. Trained from scratch on 600B tokens of Norwegian Bokmål, Nynorsk and Northern Sámi. Trained by the Language Technology Group at the University of Oslo."
+  huggingface_url: https://huggingface.co/ltg/norbert4-xlarge
+
+NorGPT-3B:
+  display_name: "NorwAI NorGPT 3B"
+  category: norwegian
+  organization: NorwAI/NTNU
+  parameters: 3
+  description: "A 3B parameter generative pretrained transformer for Norwegian based on GPT-2 architecture. Part of the NorGLM suite trained on ~25B tokens."
+  huggingface_url: https://huggingface.co/NorGLM/NorGPT-3B
+
+NorLlama-3B:
+  display_name: "NorwAI NorLlama 8B"
+  category: norwegian
+  organization: NorwAI/NTNU
+  parameters: 3
+  description: "A 3B parameter generative pretrained transformer for Norwegian based on Llama architecture. Part of the NorGLM suite."
+  huggingface_url: https://huggingface.co/NorGLM/NorLlama-3B
+
+NorwAI-Mistral-7B:
+  display_name: "NorwAI Mistral 7B"
+  category: norwegian
+  organization: NorwAI/NTNU
+  parameters: 7
+  description: "A 7B parameter model continually-trained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU."
+  huggingface_url: https://huggingface.co/NorwAI/NorwAI-Mistral-7B
+
+NorwAI-Mixtral-8x7B:
+  display_name: "NorwAI Mixtral 8x7B"
+  category: norwegian
+  organization: NorwAI/NTNU
+  parameters: 46
+  description: "A 45B parameter MoE model continually-trained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU."
+  huggingface_url: https://huggingface.co/NorwAI/NorwAI-Mixtral-8x7B
+
+nb-gpt-j-6B:
+  display_name: "NB-GPT-J 6B"
+  category: norwegian
+  organization: NB
+  parameters: 6
+  description: "A 6B parameter Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models."
+  huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B
+
+# Multilingual models
+olmo-2-13b (stage 1):
+  display_name: "OLMo2 13B (stage 1)"
+  category: multilingual
+  organization: Allen AI
+  parameters: 13
+  description: "A specific stage 1 checkpoint of OLMo 2 13B, a 13B parameter open language model trained on 5 trillion tokens by the Allen Institute for AI."
+  huggingface_url: https://huggingface.co/allenai/OLMo-2-1124-13B
+  default: true
+  color: "#8b5cf6"
+
+OLMo-2-1124-13B:
+  display_name: "OLMo2 13B"
+  category: multilingual
+  organization: Allen AI
+  parameters: 13
+  description: "A 13B parameter open language model from the Allen Institute for AI trained on 5 trillion tokens. Licensed under Apache 2.0."
+  huggingface_url: https://huggingface.co/allenai/OLMo-2-1124-13B
+  default: true
+  color: "#06b6d4"
+
+Olmo-3-1025-7B:
+  display_name: "OLMo3 7B"
+  category: multilingual
+  organization: Allen AI
+  parameters: 7
+  description: "A 7B parameter open language model from the Allen Institute for AI trained on 5.93 trillion tokens with 65k context length."
+  huggingface_url: https://huggingface.co/allenai/Olmo-3-1025-7B
+
+Olmo-3-1125-32B:
+  display_name: "OLMo3 32B"
+  category: multilingual
+  organization: Allen AI
+  parameters: 32
+  description: "A 32B parameter open language model from the Allen Institute for AI trained on 5.50 trillion tokens with 65k context length."
+  huggingface_url: https://huggingface.co/allenai/Olmo-3-1125-32B
+
+Apertus-8B-2509:
+  display_name: "Apertus 8B"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 8
+  description: "An 8B parameter multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+
+EuroLLM-1.7B:
+  display_name: "EuroLLM 1.7B"
+  category: multilingual
+  organization: EuroLLM
+  parameters: 2
+  description: "A 1.7B parameter multilingual transformer supporting European languages."
+  huggingface_url: https://huggingface.co/utter-project/EuroLLM-1.7B
+
+EuroLLM-9B-2512:
+  display_name: "EuroLLM 9B"
+  category: multilingual
+  organization: EuroLLM
+  parameters: 9
+  description: "A 9B parameter multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension."
+  huggingface_url: https://huggingface.co/utter-project/EuroLLM-9B-2512
+
+EuroLLM-22B-2512:
+  display_name: "EuroLLM 22B"
+  category: multilingual
+  organization: EuroLLM
+  parameters: 22
+  description: "A 22B parameter multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window."
+  huggingface_url: https://huggingface.co/utter-project/EuroLLM-22B-2512
+
+gemma-3-1b-pt:
+  display_name: "Gemma3 1B"
+  category: multilingual
+  organization: Google
+  parameters: 1
+  description: "A 1B parameter model from Google's Gemma 3 family. Supports 140+ languages."
+  huggingface_url: https://huggingface.co/google/gemma-3-1b-pt
+
+gemma-3-4b-pt:
+  display_name: "Gemma3 4B"
+  category: multilingual
+  organization: Google
+  parameters: 4
+  description: "A 4B parameter model from Google's Gemma 3 family. Supports 140+ languages."
+  huggingface_url: https://huggingface.co/google/gemma-3-4b-pt
+
+gemma-3-12b-pt:
+  display_name: "Gemma3 12B"
+  category: multilingual
+  organization: Google
+  parameters: 12
+  description: "A 12B parameter multimodal model from Google trained on 12 trillion tokens. Supports 140+ languages with text and image input."
+  huggingface_url: https://huggingface.co/google/gemma-3-12b-pt
+
+gemma-3-27b-pt:
+  display_name: "Gemma3 27B"
+  category: multilingual
+  organization: Google
+  parameters: 27
+  description: "A 27B parameter multimodal model from Google trained on 14 trillion tokens. Supports text and image understanding with 128k context window."
+  huggingface_url: https://huggingface.co/google/gemma-3-27b-pt
+
+Llama-3.1-8B:
+  display_name: "Llama3.1 8B"
+  category: multilingual
+  organization: Meta
+  parameters: 8
+  description: "An 8B parameter multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length."
+  huggingface_url: https://huggingface.co/meta-llama/Llama-3.1-8B
+
+Mistral-7B-v0.1:
+  display_name: "Mistral 7B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 7
+  description: "A 7B parameter generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention."
+  huggingface_url: https://huggingface.co/mistralai/Mistral-7B-v0.1
+
+Mistral-Nemo-Base-2407:
+  display_name: "Mistral 12B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 12
+  description: "A 12B parameter pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support."
+  huggingface_url: https://huggingface.co/mistralai/Mistral-Nemo-Base-2407
+
+Ministral-3-3B-Base-2512-Llamafied-TextOnly:
+  display_name: "Ministral3 3B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 3
+  description: "A 3B parameter base model from Mistral AI's Ministral 3 family, converted to Llama format (text-only)."
+  huggingface_url: https://huggingface.co/mistralai/Ministral-3-3B-Base-2512
+
+Ministral-3-8B-Base-2512-Llamafied-TextOnly:
+  display_name: "Ministral3 8B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 8
+  description: "An 8B parameter base model from Mistral AI's Ministral 3 family, converted to Llama format (text-only)."
+  huggingface_url: https://huggingface.co/mistralai/Ministral-3-8B-Base-2512
+
+Ministral-3-14B-Base-2512-Llamafied-TextOnly:
+  display_name: "Ministral3 14B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 14
+  description: "A 14B parameter base model from Mistral AI's Ministral 3 family, converted to Llama format (text-only)."
+  huggingface_url: https://huggingface.co/mistralai/Ministral-3-14B-Base-2512
+
+Qwen3-1.7B-Base:
+  display_name: "Qwen3 1.7B"
+  category: multilingual
+  organization: Qwen
+  parameters: 2
+  description: "A 1.7B parameter base language model from Qwen. Multilingual with 100+ language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen3-1.7B-Base
+
+Qwen3-4B-Base:
+  display_name: "Qwen3 4B"
+  category: multilingual
+  organization: Qwen
+  parameters: 4
+  description: "A 4B parameter base language model from Qwen. Multilingual with 100+ language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen3-4B-Base
+
+Qwen3-8B-Base:
+  display_name: "Qwen3 8B (base)"
+  category: multilingual
+  organization: Qwen
+  parameters: 8
+  description: "An 8B parameter base language model from Qwen. Multilingual with 100+ language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen3-8B-Base
+
+Qwen3-8B:
+  display_name: "Qwen3 8B"
+  category: multilingual
+  organization: Qwen
+  parameters: 8
+  description: "An 8.2B parameter language model from Qwen supporting seamless switching between thinking and non-thinking modes. Multilingual with 100+ language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen3-8B
+
+Qwen3-14B:
+  display_name: "Qwen3 14B"
+  category: multilingual
+  organization: Qwen
+  parameters: 14
+  description: "A 14.8B parameter language model from Qwen supporting thinking and non-thinking modes. Multilingual with 100+ language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen3-14B
+
+Qwen3-32B:
+  display_name: "Qwen3 32B"
+  category: multilingual
+  organization: Qwen
+  parameters: 32
+  description: "A 32.8B parameter language model from Qwen with advanced reasoning capabilities. Supports 100+ languages."
+  huggingface_url: https://huggingface.co/Qwen/Qwen3-32B
+
+AI-Sweden-Models-Llama-3-8B:
+  display_name: "AI Sweden Llama3 8B"
+  category: multilingual
+  organization: AI Sweden
+  parameters: 8
+  description: "An 8B parameter model based on Llama 3 architecture, continually-trained on Swedish and Nordic data by AI Sweden."
+  huggingface_url: https://huggingface.co/AI-Sweden-Models/Llama-3-8B
+
+gpt-sw3-1.3b:
+  display_name: "GPT-SW3 1.3B"
+  category: multilingual
+  organization: AI Sweden
+  parameters: 1
+  description: "A 1.3B parameter autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
+  huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-1.3b
+
+gpt-sw3-6.7b-v2:
+  display_name: "GPT-SW3 6.7B"
+  category: multilingual
+  organization: AI Sweden
+  parameters: 7
+  description: "A 6.7B parameter autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
+  huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-6.7b-v2
+
+gpt-sw3-20b:
+  display_name: "GPT-SW3 20B"
+  category: multilingual
+  organization: AI Sweden
+  parameters: 20
+  description: "A 20B parameter autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
+  huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-20b
+
+gpt-sw3-40b:
+  display_name: "GPT-SW3 40B"
+  category: multilingual
+  organization: AI Sweden
+  parameters: 40
+  description: "A 40B parameter autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
+  huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-40b
+
+Viking-7B:
+  display_name: "Viking 7B"
+  category: multilingual
+  organization: SILO AI
+  parameters: 7
+  description: "A 7B parameter open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
+  huggingface_url: https://huggingface.co/LumiOpen/Viking-7B
+
+Viking-13B:
+  display_name: "Viking 13B"
+  category: multilingual
+  organization: SILO AI
+  parameters: 13
+  description: "A 13B parameter open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
+  huggingface_url: https://huggingface.co/LumiOpen/Viking-13B
+
+Viking-33B:
+  display_name: "Viking 33B"
+  category: multilingual
+  organization: SILO AI
+  parameters: 33
+  description: "A 33B parameter open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
+  huggingface_url: https://huggingface.co/LumiOpen/Viking-33B
+
+Poro-34B:
+  display_name: "Poro 34B"
+  category: multilingual
+  organization: SILO AI
+  parameters: 34
+  description: "A 34B parameter open language model for Finnish, English, and code, developed by SILO AI in collaboration with TurkuNLP and the University of Edinburgh."
+  huggingface_url: https://huggingface.co/LumiOpen/Poro-34B

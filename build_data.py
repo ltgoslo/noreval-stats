@@ -25,195 +25,45 @@ OUTPUT_FILE = BASE_DIR / "docs" / "data.json"
 SHOT_SETTINGS = ["0", "1", "5"]
 SHOT_DIRS = {"0": "0-shot", "1": "1-shot", "5": "5-shot"}
 
-# Pretty display names for known models (fallback: directory name)
-MODEL_DISPLAY_NAMES = {
-    # Norwegian models
-    "norolmo-13b": "NorOLMo 13B",
-    "norolmo-13b-stage1": "NorOLMo 13B (stage 1)",
-    "normistral-7b-warm": "NorMistral 7B",
-    "normistral-11b-warm": "NorMistral 11B",
-    "normistral-11b-long": "NorMistral 11B Long",
-    "norbert4-xlarge": "NorBERT4 1B",
-    "olmo-2-13b (stage 1)": "OLMo2 13B (stage 1)",
-    "Apertus-8B-2509": "Apertus 8B",
-    "NorGPT-3B": "NorwAI NorGPT 3B",
-    "NorLlama-3B": "NorwAI NorLlama 8B",
-    "NorwAI-Mistral-7B": "NorwAI Mistral 7B",
-    "NorwAI-Mixtral-8x7B": "NorwAI Mixtral 8x7B",
-    "nb-gpt-j-6B": "NB-GPT-J 6B",
-    # Multilingual models
-    "EuroLLM-22B-2512": "EuroLLM 22B",
-    "EuroLLM-9B-2512": "EuroLLM 9B",
-    "gemma-3-12b-pt": "Gemma3 12B",
-    "gemma-3-27b-pt": "Gemma3 27B",
-    "Llama-3.1-8B": "Llama3.1 8B",
-    "Mistral-7B-v0.1": "Mistral 7B",
-    "Mistral-Nemo-Base-2407": "Mistral 12B",
-    "OLMo-2-1124-13B": "OLMo2 13B",
-    "Olmo-3-1025-7B": "OLMo3 7B",
-    "Olmo-3-1125-32B": "OLMo3 32B",
-    "Qwen3-14B": "Qwen3 14B",
-    "Qwen3-32B": "Qwen3 32B",
-    "Qwen3-8B": "Qwen3 8B",
-}
 
-# Model category: "norwegian" or "multilingual"
-MODEL_CATEGORIES = {
-    "norolmo-13b": "norwegian",
-    "norolmo-13b-stage1": "norwegian",
-    "normistral-7b-warm": "norwegian",
-    "normistral-11b-warm": "norwegian",
-    "normistral-11b-long": "norwegian",
-    "norbert4-xlarge": "norwegian",
-    "olmo-2-13b (stage 1)": "multilingual",
-    "Apertus-8B-2509": "multilingual",
-    "NorGPT-3B": "norwegian",
-    "NorLlama-3B": "norwegian",
-    "NorwAI-Mistral-7B": "norwegian",
-    "NorwAI-Mixtral-8x7B": "norwegian",
-    "nb-gpt-j-6B": "norwegian",
-    "EuroLLM-22B-2512": "multilingual",
-    "EuroLLM-9B-2512": "multilingual",
-    "gemma-3-12b-pt": "multilingual",
-    "gemma-3-27b-pt": "multilingual",
-    "Llama-3.1-8B": "multilingual",
-    "Mistral-7B-v0.1": "multilingual",
-    "Mistral-Nemo-Base-2407": "multilingual",
-    "OLMo-2-1124-13B": "multilingual",
-    "Olmo-3-1025-7B": "multilingual",
-    "Olmo-3-1125-32B": "multilingual",
-    "Qwen3-14B": "multilingual",
-    "Qwen3-32B": "multilingual",
-    "Qwen3-8B": "multilingual",
-}
+def load_models_setup():
+    """Load model metadata from models_setup.yaml.
 
-# Models displayed by default (others unchecked until user enables them)
-DEFAULT_MODELS = [
-    "norolmo-13b",
-    "normistral-7b-warm",
-    "normistral-11b-warm",
-    "normistral-11b-long",
-    "olmo-2-13b (stage 1)",
-    "OLMo-2-1124-13B",
-]
+    Returns dicts derived from the YAML:
+    (display_names, categories, organizations, parameters,
+     default_models, color_map, model_info)
+    """
+    yaml_path = BASE_DIR / "models_setup.yaml"
+    with open(yaml_path) as f:
+        raw = yaml.safe_load(f)
 
-# Hand-picked colors for default models (from the MODEL_COLORS palette in app.js)
-MODEL_COLOR_MAP = {
-    "norolmo-13b": "#6366f1",          # indigo
-    "normistral-7b-warm": "#f43f5e",   # rose
-    "normistral-11b-warm": "#10b981",  # emerald
-    "normistral-11b-long": "#f59e0b",  # amber
-    "olmo-2-13b (stage 1)": "#8b5cf6", # violet
-    "OLMo-2-1124-13B": "#06b6d4",      # cyan
-}
+    display_names = {}
+    categories = {}
+    organizations = {}
+    parameters = {}
+    default_models = []
+    color_map = {}
+    model_info = {}
 
-# Model information: short description + HuggingFace URL
-MODEL_INFO = {
-    "norolmo-13b": {
-        "description": "A fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo.",
-        "huggingface_url": "https://huggingface.co/HPLT/NorOLMo-13B",
-    },
-    "norolmo-13b-stage1": {
-        "description": "The final stage-1 checkpoint of NorOLMo-13B (after 24,000 steps). NorOLMo is a fully-open 13B parameter Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo.",
-        "huggingface_url": "https://huggingface.co/HPLT/NorOLMo-13B",
-    },
-    "normistral-7b-warm": {
-        "description": "A 7B parameter Norwegian language model initialized from Mistral-7B-v0.1 and continually-trained on 260 billion subword tokens of Norwegian data. Trained by the Language Technology Group at the University of Oslo.",
-        "huggingface_url": "https://huggingface.co/norallm/normistral-7b-warm",
-    },
-    "normistral-11b-warm": {
-        "description": "An 11.4B parameter Norwegian language model based on Mistral-Nemo-Base-2407, continually-trained on 250 billion tokens of Norwegian, Scandinavian, Sámi and code data. Trained by the Language Technology Group at the University of Oslo.",
-        "huggingface_url": "https://huggingface.co/norallm/normistral-11b-warm",
-    },
-    "normistral-11b-long": {
-        "description": "An 11.4B parameter Norwegian language model with extended context length, based on normistral-11b-warm.",
-        "huggingface_url": "https://huggingface.co/norallm/normistral-11b-long",
-    },
-    "norbert4-xlarge": {
-        "description": "The fourth generation NorBERT model (987M parameters) for Norwegian encoding/decoding. Trained from scratch on 600B tokens of Norwegian Bokmål, Nynorsk and Northern Sámi. Trained by the Language Technology Group at the University of Oslo.",
-        "huggingface_url": "https://huggingface.co/ltg/norbert4-xlarge",
-    },
-    "olmo-2-13b (stage 1)": {
-        "description": "A specific stage 1 checkpoint of OLMo 2 13B, a 13B parameter open language model trained on 5 trillion tokens by the Allen Institute for AI.",
-        "huggingface_url": "https://huggingface.co/allenai/OLMo-2-1124-13B",
-    },
-    "Apertus-8B-2509": {
-        "description": "An 8B parameter multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens.",
-        "huggingface_url": "https://huggingface.co/swiss-ai/Apertus-8B-2509",
-    },
-    "NorGPT-3B": {
-        "description": "A 3B parameter generative pretrained transformer for Norwegian based on GPT-2 architecture. Part of the NorGLM suite trained on ~25B tokens.",
-        "huggingface_url": "https://huggingface.co/NorGLM/NorGPT-3B",
-    },
-    "NorLlama-3B": {
-        "description": "A 3B parameter generative pretrained transformer for Norwegian based on Llama architecture. Part of the NorGLM suite.",
-        "huggingface_url": "https://huggingface.co/NorGLM/NorLlama-3B",
-    },
-    "NorwAI-Mistral-7B": {
-        "description": "A 7B parameter model continually-trained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
-        "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mistral-7B",
-    },
-    "NorwAI-Mixtral-8x7B": {
-        "description": "A 45B parameter MoE model continually-trained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU.",
-        "huggingface_url": "https://huggingface.co/NorwAI/NorwAI-Mixtral-8x7B",
-    },
-    "nb-gpt-j-6B": {
-        "description": "A 6B parameter Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models.",
-        "huggingface_url": "https://huggingface.co/NbAiLab/nb-gpt-j-6B",
-    },
-    "EuroLLM-22B-2512": {
-        "description": "A 22B parameter multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window.",
-        "huggingface_url": "https://huggingface.co/utter-project/EuroLLM-22B-2512",
-    },
-    "EuroLLM-9B-2512": {
-        "description": "A 9B parameter multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension.",
-        "huggingface_url": "https://huggingface.co/utter-project/EuroLLM-9B-2512",
-    },
-    "gemma-3-12b-pt": {
-        "description": "A 12B parameter multimodal model from Google trained on 12 trillion tokens. Supports 140+ languages with text and image input.",
-        "huggingface_url": "https://huggingface.co/google/gemma-3-12b-pt",
-    },
-    "gemma-3-27b-pt": {
-        "description": "A 27B parameter multimodal model from Google trained on 14 trillion tokens. Supports text and image understanding with 128k context window.",
-        "huggingface_url": "https://huggingface.co/google/gemma-3-27b-pt",
-    },
-    "Llama-3.1-8B": {
-        "description": "An 8B parameter multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length.",
-        "huggingface_url": "https://huggingface.co/meta-llama/Llama-3.1-8B",
-    },
-    "Mistral-7B-v0.1": {
-        "description": "A 7B parameter generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention.",
-        "huggingface_url": "https://huggingface.co/mistralai/Mistral-7B-v0.1",
-    },
-    "Mistral-Nemo-Base-2407": {
-        "description": "A 12B parameter pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support.",
-        "huggingface_url": "https://huggingface.co/mistralai/Mistral-Nemo-Base-2407",
-    },
-    "OLMo-2-1124-13B": {
-        "description": "A 13B parameter open language model from the Allen Institute for AI trained on 5 trillion tokens. Licensed under Apache 2.0.",
-        "huggingface_url": "https://huggingface.co/allenai/OLMo-2-1124-13B",
-    },
-    "Olmo-3-1025-7B": {
-        "description": "A 7B parameter open language model from the Allen Institute for AI trained on 5.93 trillion tokens with 65k context length.",
-        "huggingface_url": "https://huggingface.co/allenai/Olmo-3-1025-7B",
-    },
-    "Olmo-3-1125-32B": {
-        "description": "A 32B parameter open language model from the Allen Institute for AI trained on 5.50 trillion tokens with 65k context length.",
-        "huggingface_url": "https://huggingface.co/allenai/Olmo-3-1125-32B",
-    },
-    "Qwen3-14B": {
-        "description": "A 14.8B parameter language model from Qwen supporting thinking and non-thinking modes. Multilingual with 100+ language support.",
-        "huggingface_url": "https://huggingface.co/Qwen/Qwen3-14B",
-    },
-    "Qwen3-32B": {
-        "description": "A 32.8B parameter language model from Qwen with advanced reasoning capabilities. Supports 100+ languages.",
-        "huggingface_url": "https://huggingface.co/Qwen/Qwen3-32B",
-    },
-    "Qwen3-8B": {
-        "description": "An 8.2B parameter language model from Qwen supporting seamless switching between thinking and non-thinking modes. Multilingual with 100+ language support.",
-        "huggingface_url": "https://huggingface.co/Qwen/Qwen3-8B",
-    },
-}
+    for model_dir, cfg in raw.items():
+        display_names[model_dir] = cfg.get("display_name", model_dir)
+        categories[model_dir] = cfg.get("category", "multilingual")
+        organizations[model_dir] = cfg.get("organization", "")
+        parameters[model_dir] = cfg.get("parameters", 0)
+        if cfg.get("default"):
+            default_models.append(model_dir)
+        if cfg.get("color"):
+            color_map[model_dir] = cfg["color"]
+        desc = cfg.get("description", "")
+        url = cfg.get("huggingface_url", "")
+        if desc or url:
+            model_info[model_dir] = {
+                "description": desc,
+                "huggingface_url": url,
+            }
+
+    return (display_names, categories, organizations, parameters,
+            default_models, color_map, model_info)
 
 # Task groups for visual pairing (two bars/lines per model)
 TASK_GROUPS = {
@@ -545,6 +395,9 @@ def build_metrics_info(metrics_setup, discovered_metrics):
 
 def main():
     metrics_setup = load_metrics_setup()
+    (MODEL_DISPLAY_NAMES, MODEL_CATEGORIES, MODEL_ORGANIZATIONS,
+     MODEL_PARAMETERS, DEFAULT_MODELS, MODEL_COLOR_MAP,
+     MODEL_INFO) = load_models_setup()
 
     os.makedirs(OUTPUT_FILE.parent, exist_ok=True)
 
@@ -606,6 +459,8 @@ def main():
         "shared_language_benchmarks": shared_language_benchmarks,
         "model_display_names": MODEL_DISPLAY_NAMES,
         "model_categories": MODEL_CATEGORIES,
+        "model_organizations": MODEL_ORGANIZATIONS,
+        "model_parameters": MODEL_PARAMETERS,
         "model_colors": MODEL_COLOR_MAP,
         "model_info": MODEL_INFO,
         "default_models": DEFAULT_MODELS,

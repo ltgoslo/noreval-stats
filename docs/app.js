@@ -12,30 +12,32 @@ let checkedTasks = new Set();
 let checkedModels = new Set();
 let showStderr = true;
 let showPromptDeviation = true;
+let currentSizeMin = 1;
+let currentSizeMax = 70;
 
 // HPLT-E quality filter state
 let filterCriteria = {
   monotonicity: { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Monotonicity",
     description: "Spearman \u03C1 (step vs. score)",
-    tooltip: "Spearman rank correlation between checkpoint step number and benchmark score within the window. Measures whether performance improves monotonically during training. Higher values indicate more consistent improvement. HPLT-E default: \u2265 0.5." },
+    tooltip: "Spearman rank correlation between checkpoint step number and benchmark score within the window. Measures whether performance improves monotonically during training. Higher values indicate more consistent improvement. In HPLT-E (multi-model), the median across models is used; here we compute it for a single model trajectory. Default threshold: \u2265 0.5." },
   snr:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 3.0,  direction: ">=", label: "SNR",
     description: "Signal-to-noise ratio",
-    tooltip: "Ratio of mean score to mean prompt standard deviation across checkpoints in the window. Measures whether the benchmark signal is distinguishable from prompt-induced noise. Higher values indicate cleaner signal. HPLT-E default: \u2265 3." },
+    tooltip: "Ratio of mean score to mean prompt standard deviation across checkpoints in the window. Measures whether the benchmark signal is distinguishable from prompt-induced noise. In HPLT-E (multi-model), the median SNR across models is used; here we compute it for a single model trajectory. Default threshold: \u2265 3." },
   cv:           { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 15.0, direction: "<=", label: "CV",
     description: "Coefficient of variation (%)",
-    tooltip: "Sample standard deviation divided by mean of scores across checkpoints in the window, expressed as percentage. Measures score stability during training. Lower values indicate more stable trajectories. HPLT-E default: \u2264 15%." },
+    tooltip: "Standard deviation divided by mean of scores across checkpoints in the window, expressed as a percentage. Measures score stability during training. In HPLT-E (multi-model), the median CV across models is used; here we compute it for a single model trajectory. Default threshold: \u2264 15%." },
   mad:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: "<=", label: "Prompt Sensitivity",
     description: "Median MAD across prompts",
-    tooltip: "Median Absolute Deviation of scores across prompt variants, taken as median over checkpoints in the window. Measures how sensitive the benchmark is to prompt phrasing. Lower values indicate more robust evaluation. HPLT-E default: \u2264 5." },
+    tooltip: "Median Absolute Deviation of scores across prompt variants, computed per checkpoint and then taken as the median over all checkpoints in the window. Measures how sensitive the benchmark is to prompt phrasing. In HPLT-E (multi-model), the median across models is used; here we compute it for a single model trajectory. Default threshold: \u2264 5." },
   ordering:     { enabled: false, minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Ordering Consistency",
     description: "N/A for single model",
-    tooltip: "Kendall's Tau correlation of corpus rankings between consecutive checkpoints. Not applicable for the single-model progress view (requires multiple corpora). Disabled by default." },
+    tooltip: "Kendall\u2019s Tau correlation of model rankings between consecutive checkpoints. In HPLT-E, this measures whether models maintain their relative ranking across checkpoints. Not applicable here as we track a single model. Disabled by default." },
   promptSwitch: { enabled: false, minStep: 5000, maxStep: 33000, threshold: 20.0, direction: "<=", label: "Prompt Switch Rate",
     description: "Best-prompt change rate (%)",
-    tooltip: "Percentage of consecutive checkpoint pairs where the best-performing prompt variant changes. High values indicate the benchmark's best prompt is unstable across training. Lower is better." },
+    tooltip: "Fraction of checkpoints where the best-performing prompt variant changes, expressed as a percentage. Measures how stable the optimal prompt is across training. High values indicate that the benchmark\u2019s best prompt varies with the model checkpoint. In HPLT-E (multi-model), the median rate across models is used; here we compute it for a single model trajectory." },
   nonRandom:    { enabled: false, minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: ">=", label: "Non-Randomness",
     description: "Max score \u2212 random baseline",
-    tooltip: "Difference between the maximum score in the window and the task's random baseline, in percentage points. Verifies the model actually learned the task beyond chance. Higher is better." },
+    tooltip: "Difference between the maximum score in the window and the task\u2019s random baseline. Verifies that the model actually learned the task beyond chance. Higher is better. Default threshold: \u2265 5." },
 };
 let filterResults = {};
 let allFilterBenchmarks = new Set();
@@ -630,6 +632,11 @@ function stateToUrl() {
     }
   }
 
+  // Size filter: only store if non-default
+  if (currentSizeMin !== 1 || currentSizeMax !== 70) {
+    params.set("size", currentSizeMin + "-" + currentSizeMax);
+  }
+
   // Tasks: only store if different from what the current task selection auto-selects
   const autoTasks = new Set(getBenchmarksForSelection(currentTaskSelection));
   if (!setsEqual(checkedTasks, autoTasks)) {
@@ -662,6 +669,15 @@ function loadStateFromHash() {
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
   if (params.has("se")) { showStderr = params.get("se") !== "0"; loaded = true; }
   if (params.has("pd")) { showPromptDeviation = params.get("pd") !== "0"; loaded = true; }
+
+  if (params.has("size")) {
+    const parts = params.get("size").split("-");
+    if (parts.length === 2) {
+      currentSizeMin = parseInt(parts[0], 10) || 1;
+      currentSizeMax = parseInt(parts[1], 10) || 70;
+    }
+    loaded = true;
+  }
 
   if (params.has("models")) {
     const val = params.get("models");
@@ -730,6 +746,16 @@ async function init() {
     syncCheckboxStates();
     syncModelCheckboxStates();
     updateStderrToggleState();
+    // Restore size slider state
+    const slMin = document.getElementById("size-slider-min");
+    const slMax = document.getElementById("size-slider-max");
+    if (slMin && slMax) {
+      slMin.value = currentSizeMin;
+      slMax.value = currentSizeMax;
+      document.getElementById("size-min-label").textContent = currentSizeMin + "B";
+      document.getElementById("size-max-label").textContent = currentSizeMax + "B";
+      applySizeFilter();
+    }
   } else {
     autoSetNormalization();
   }
@@ -867,7 +893,7 @@ function bindEventListeners() {
   });
 
   attachTooltip(document.getElementById("stderr-control"), () => ({
-    title: "Standard errors",
+    title: "Sampling error",
     body: "Shows sampling uncertainty (\u00B11 SE) around each score. "
       + "For classification metrics (accuracy, F1, EM), SE = \u221A(v\u00B7(1\u2212v)/n). "
       + "For corpus-level metrics (BLEU, chrF, ROUGE), SE is estimated via bootstrap resampling (100 iterations). "
@@ -879,7 +905,7 @@ function bindEventListeners() {
     title: "Prompt deviation",
     body: "Shows uncertainty due to prompt formulation. "
       + "Computed as SD(scores across prompt variants) / \u221A(n), where n is the number of prompt variants. "
-      + "When combined with standard errors, the two sources are added in quadrature: \u221A(SE\u00B2 + prompt_SE\u00B2). "
+      + "When combined with sampling error, the two sources are added in quadrature: \u221A(SE\u00B2 + prompt_SE\u00B2). "
       + "Has no effect on single-prompt benchmarks.",
     footer: "",
   }));
@@ -934,16 +960,52 @@ function bindEventListeners() {
     }
   });
 
-  document.getElementById("model-select-all-btn").addEventListener("click", () => {
-    checkedModels = new Set(Object.keys(DATA.models));
-    syncModelCheckboxStates();
-    renderChart();
+  // Per-panel select all / select none buttons
+  document.querySelectorAll(".model-select-all").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = btn.dataset.category;
+      const categories = DATA.model_categories || {};
+      for (const m of Object.keys(DATA.models)) {
+        if ((categories[m] || "multilingual") === cat && isModelInSizeRange(m)) {
+          checkedModels.add(m);
+        }
+      }
+      syncModelCheckboxStates();
+      renderChart();
+    });
   });
-  document.getElementById("model-select-none-btn").addEventListener("click", () => {
-    checkedModels.clear();
-    syncModelCheckboxStates();
-    renderChart();
+  document.querySelectorAll(".model-select-none").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = btn.dataset.category;
+      const categories = DATA.model_categories || {};
+      for (const m of Object.keys(DATA.models)) {
+        if ((categories[m] || "multilingual") === cat) {
+          checkedModels.delete(m);
+        }
+      }
+      syncModelCheckboxStates();
+      renderChart();
+    });
   });
+
+  // Size slider
+  const sliderMin = document.getElementById("size-slider-min");
+  const sliderMax = document.getElementById("size-slider-max");
+  if (sliderMin && sliderMax) {
+    const updateSlider = () => {
+      let lo = parseInt(sliderMin.value, 10);
+      let hi = parseInt(sliderMax.value, 10);
+      if (lo > hi) { const t = lo; lo = hi; hi = t; sliderMin.value = lo; sliderMax.value = hi; }
+      currentSizeMin = lo;
+      currentSizeMax = hi;
+      document.getElementById("size-min-label").textContent = lo + "B";
+      document.getElementById("size-max-label").textContent = hi + "B";
+      applySizeFilter();
+      stateToUrl();
+    };
+    sliderMin.addEventListener("input", updateSlider);
+    sliderMax.addEventListener("input", updateSlider);
+  }
 }
 
 // ============================================================
@@ -1193,68 +1255,100 @@ function syncCheckboxStates() {
 // Model checkboxes
 // ============================================================
 
-function buildModelCheckboxes() {
-  const grid = document.getElementById("model-checkbox-grid");
-  if (!grid) return;
-  grid.innerHTML = "";
+function isModelInSizeRange(modelDir) {
+  const params = DATA.model_parameters || {};
+  const size = params[modelDir];
+  if (size === undefined || size === 0) return true; // unknown size: always show
+  return size >= currentSizeMin && size <= currentSizeMax;
+}
 
+function applySizeFilter() {
+  document.querySelectorAll(".model-checkbox-grid label[data-model]").forEach((label) => {
+    const modelDir = label.dataset.model;
+    label.style.display = isModelInSizeRange(modelDir) ? "" : "none";
+  });
+}
+
+function buildModelCheckboxes() {
   const categories = DATA.model_categories || {};
-  const groups = { norwegian: [], multilingual: [] };
+  const organizations = DATA.model_organizations || {};
+
+  // Group models by category, then by organization
+  const catModels = { norwegian: {}, multilingual: {} };
   for (const modelDir of Object.keys(DATA.models)) {
     const cat = categories[modelDir] || "multilingual";
-    groups[cat].push(modelDir);
-  }
-  for (const key of Object.keys(groups)) {
-    groups[key].sort((a, b) => getModelLabel(a).localeCompare(getModelLabel(b)));
+    const org = organizations[modelDir] || "Other";
+    if (!catModels[cat]) catModels[cat] = {};
+    if (!catModels[cat][org]) catModels[cat][org] = [];
+    catModels[cat][org].push(modelDir);
   }
 
-  const groupLabels = { norwegian: "Norwegian", multilingual: "Multilingual" };
-  for (const groupKey of ["norwegian", "multilingual"]) {
-    if (groups[groupKey].length === 0) continue;
-    const catDiv = document.createElement("div");
-    catDiv.className = "model-category-group";
-    const h4 = document.createElement("h4");
-    h4.textContent = groupLabels[groupKey];
-    h4.style.cursor = "pointer";
-    const groupModels = groups[groupKey];
-    h4.addEventListener("click", () => {
-      const allChecked = groupModels.every((m) => checkedModels.has(m));
-      for (const m of groupModels) {
-        if (allChecked) checkedModels.delete(m); else checkedModels.add(m);
-      }
-      syncModelCheckboxStates();
-      renderChart();
-    });
-    catDiv.appendChild(h4);
+  const gridIds = { norwegian: "norwegian-model-grid", multilingual: "multilingual-model-grid" };
 
-    for (const modelDir of groupModels) {
-      const label = document.createElement("label");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = checkedModels.has(modelDir);
-      checkbox.dataset.model = modelDir;
-      checkbox.addEventListener("change", () => {
-        if (checkbox.checked) checkedModels.add(modelDir);
-        else checkedModels.delete(modelDir);
+  for (const catKey of ["norwegian", "multilingual"]) {
+    const grid = document.getElementById(gridIds[catKey]);
+    if (!grid) continue;
+    grid.innerHTML = "";
+
+    const orgMap = catModels[catKey] || {};
+    const orgNames = Object.keys(orgMap).sort();
+
+    for (const org of orgNames) {
+      const models = orgMap[org];
+      models.sort((a, b) => getModelLabel(a).localeCompare(getModelLabel(b)));
+
+      const orgDiv = document.createElement("div");
+      orgDiv.className = "model-org-group";
+
+      const h4 = document.createElement("h4");
+      h4.textContent = org;
+      h4.style.cursor = "pointer";
+      h4.addEventListener("click", () => {
+        const visible = models.filter(isModelInSizeRange);
+        const allChecked = visible.length > 0 && visible.every((m) => checkedModels.has(m));
+        for (const m of visible) {
+          if (allChecked) checkedModels.delete(m); else checkedModels.add(m);
+        }
+        syncModelCheckboxStates();
         renderChart();
       });
+      orgDiv.appendChild(h4);
 
-      const colorDot = document.createElement("span");
-      colorDot.className = "model-color-dot";
-      colorDot.style.backgroundColor = getModelColor(modelDir);
+      for (const modelDir of models) {
+        const label = document.createElement("label");
+        label.dataset.model = modelDir;
+        if (!isModelInSizeRange(modelDir)) label.style.display = "none";
 
-      label.appendChild(checkbox);
-      label.appendChild(colorDot);
-      label.appendChild(document.createTextNode(" " + getModelLabel(modelDir)));
-      attachModelTooltip(label, modelDir);
-      catDiv.appendChild(label);
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = checkedModels.has(modelDir);
+        checkbox.dataset.model = modelDir;
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) checkedModels.add(modelDir);
+          else checkedModels.delete(modelDir);
+          renderChart();
+        });
+
+        const colorDot = document.createElement("span");
+        colorDot.className = "model-color-dot";
+        colorDot.style.backgroundColor = getModelColor(modelDir);
+
+        const params = DATA.model_parameters || {};
+        const sizeStr = params[modelDir] ? ` (${params[modelDir]}B)` : "";
+
+        label.appendChild(checkbox);
+        label.appendChild(colorDot);
+        label.appendChild(document.createTextNode(" " + getModelLabel(modelDir) + sizeStr));
+        attachModelTooltip(label, modelDir);
+        orgDiv.appendChild(label);
+      }
+      grid.appendChild(orgDiv);
     }
-    grid.appendChild(catDiv);
   }
 }
 
 function syncModelCheckboxStates() {
-  document.querySelectorAll("#model-checkbox-grid input[type=checkbox]").forEach((cb) => {
+  document.querySelectorAll(".model-checkbox-grid input[type=checkbox]").forEach((cb) => {
     cb.checked = checkedModels.has(cb.dataset.model);
   });
 }
@@ -1357,8 +1451,8 @@ function renderChart() {
   }
 
   updateDescription();
-  // Hide model checkboxes on progress tab (only one model)
-  const modelSection = document.getElementById("model-checkboxes");
+  // Hide model panels on progress tab (only one model)
+  const modelSection = document.getElementById("model-panels");
   if (modelSection) modelSection.style.display = currentTab === "progress" ? "none" : "";
   if (currentTab === "comparison") renderComparisonChart();
   else renderProgressChart();

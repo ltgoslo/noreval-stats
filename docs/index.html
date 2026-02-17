@@ -71,7 +71,7 @@
             <div class="control-group" id="stderr-control">
                 <label for="stderr-toggle" class="stderr-label">
                     <input type="checkbox" id="stderr-toggle" checked>
-                    <span>Standard errors</span>
+                    <span>Sampling error</span>
                 </label>
             </div>
 
@@ -118,15 +118,40 @@
             <div id="checkbox-grid" class="checkbox-grid"></div>
         </div>
 
-        <div id="model-checkboxes" class="model-checkboxes">
-            <div class="checkbox-header">
-                <h3>Models</h3>
-                <div class="checkbox-actions">
-                    <button id="model-select-all-btn" class="small-btn">Select all</button>
-                    <button id="model-select-none-btn" class="small-btn">Select none</button>
+        <div id="model-panels" class="model-panels">
+            <div class="size-slider-container">
+                <label>Model size:</label>
+                <span id="size-min-label" class="size-label">1B</span>
+                <div class="dual-range-wrap">
+                    <input type="range" id="size-slider-min" min="1" max="70" value="1" class="dual-range">
+                    <input type="range" id="size-slider-max" min="1" max="70" value="70" class="dual-range">
+                </div>
+                <span id="size-max-label" class="size-label">70B</span>
+            </div>
+
+            <div class="model-panels-row">
+                <div id="norwegian-models-panel" class="model-panel">
+                    <div class="checkbox-header">
+                        <h3>Norwegian Language Models</h3>
+                        <div class="checkbox-actions">
+                            <button class="small-btn model-select-all" data-category="norwegian">Select all</button>
+                            <button class="small-btn model-select-none" data-category="norwegian">Select none</button>
+                        </div>
+                    </div>
+                    <div id="norwegian-model-grid" class="model-checkbox-grid"></div>
+                </div>
+
+                <div id="multilingual-models-panel" class="model-panel">
+                    <div class="checkbox-header">
+                        <h3>Multilingual Language Models</h3>
+                        <div class="checkbox-actions">
+                            <button class="small-btn model-select-all" data-category="multilingual">Select all</button>
+                            <button class="small-btn model-select-none" data-category="multilingual">Select none</button>
+                        </div>
+                    </div>
+                    <div id="multilingual-model-grid" class="model-checkbox-grid"></div>
                 </div>
             </div>
-            <div id="model-checkbox-grid" class="model-checkbox-grid"></div>
         </div>
     </main>
 
