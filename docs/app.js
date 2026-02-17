@@ -1384,7 +1384,12 @@ function buildModelCheckboxes() {
 
     for (const org of orgNames) {
       const models = orgMap[org];
-      models.sort((a, b) => getModelLabel(a).localeCompare(getModelLabel(b)));
+      models.sort((a, b) => {
+        const params = DATA.model_parameters || {};
+        const sizeCmp = (params[a] || 0) - (params[b] || 0);
+        if (sizeCmp !== 0) return sizeCmp;
+        return getModelLabel(a).localeCompare(getModelLabel(b));
+      });
 
       const orgDiv = document.createElement("div");
       orgDiv.className = "model-org-group";
@@ -1671,8 +1676,16 @@ function renderComparisonChart() {
 }
 
 function getModelList() {
+  const orgs = DATA.model_organizations || {};
+  const params = DATA.model_parameters || {};
   return Object.keys(DATA.models).filter((m) => checkedModels.has(m))
-    .sort((a, b) => getModelLabel(a).localeCompare(getModelLabel(b)));
+    .sort((a, b) => {
+      const orgCmp = (orgs[a] || "").localeCompare(orgs[b] || "");
+      if (orgCmp !== 0) return orgCmp;
+      const sizeCmp = (params[a] || 0) - (params[b] || 0);
+      if (sizeCmp !== 0) return sizeCmp;
+      return getModelLabel(a).localeCompare(getModelLabel(b));
+    });
 }
 
 function getModelLabel(modelDir) {
