@@ -100,7 +100,7 @@ nb-gpt-j-6B:
   parameters: 6
   description: "A 6B parameter Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models."
   huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B
-  color: "#c1022c"
+  color: "#40263f"
 
 # Multilingual models
 olmo-2-13b (stage 1):
@@ -157,7 +157,7 @@ EuroLLM-1.7B:
   parameters: 2
   description: "A 1.7B parameter multilingual transformer supporting European languages."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-1.7B
-  color: "#fffb8d"
+  color: "#5f9ea0"
 
 EuroLLM-9B-2512:
   display_name: "EuroLLM 9B"
@@ -166,7 +166,7 @@ EuroLLM-9B-2512:
   parameters: 9
   description: "A 9B parameter multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-9B-2512
-  color: "#fffb8d"
+  color: "#5f9ea0"
 
 EuroLLM-22B-2512:
   display_name: "EuroLLM 22B"
@@ -175,7 +175,7 @@ EuroLLM-22B-2512:
   parameters: 22
   description: "A 22B parameter multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-22B-2512
-  color: "#fffb8d"
+  color: "#5f9ea0"
 
 gemma-3-1b-pt:
   display_name: "Gemma3 1B"
@@ -229,7 +229,7 @@ Mistral-7B-v0.1:
   parameters: 7
   description: "A 7B parameter generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention."
   huggingface_url: https://huggingface.co/mistralai/Mistral-7B-v0.1
-  color: "#ff6e0b"
+  color: "#ff8c00"
 
 Mistral-Nemo-Base-2407:
   display_name: "Mistral Nemo 12B"
@@ -238,7 +238,7 @@ Mistral-Nemo-Base-2407:
   parameters: 12
   description: "A 12B parameter pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support."
   huggingface_url: https://huggingface.co/mistralai/Mistral-Nemo-Base-2407
-  color: "#ff6e0b"
+  color: "#ff8c00"
 
 Ministral-3-3B-Base-2512-Llamafied-TextOnly:
   display_name: "Ministral3 3B"
@@ -247,7 +247,7 @@ Ministral-3-3B-Base-2512-Llamafied-TextOnly:
   parameters: 3
   description: "A 3B parameter base model from Mistral AI's Ministral 3 family, converted to Llama format (text-only)."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-3B-Base-2512
-  color: "#ff6e0b"
+  color: "#ff8c00"
 
 Ministral-3-8B-Base-2512-Llamafied-TextOnly:
   display_name: "Ministral3 8B"
@@ -256,7 +256,7 @@ Ministral-3-8B-Base-2512-Llamafied-TextOnly:
   parameters: 8
   description: "An 8B parameter base model from Mistral AI's Ministral 3 family, converted to Llama format (text-only)."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-8B-Base-2512
-  color: "#ff6e0b"
+  color: "#ff8c00"
 
 Ministral-3-14B-Base-2512-Llamafied-TextOnly:
   display_name: "Ministral3 14B"
@@ -265,7 +265,7 @@ Ministral-3-14B-Base-2512-Llamafied-TextOnly:
   parameters: 14
   description: "A 14B parameter base model from Mistral AI's Ministral 3 family, converted to Llama format (text-only)."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-14B-Base-2512
-  color: "#ff6e0b"
+  color: "#ff8c00"
 
 Qwen3-1.7B-Base:
   display_name: "Qwen3 1.7B"

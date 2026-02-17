@@ -12,8 +12,8 @@ let checkedTasks = new Set();
 let checkedModels = new Set();
 let showStderr = true;
 let showPromptDeviation = true;
-let currentSizeMin = 1;
-let currentSizeMax = 70;
+let currentSizeMin = 7;
+let currentSizeMax = 14;
 
 // HPLT-E quality filter state
 let filterCriteria = {
@@ -621,19 +621,14 @@ function stateToUrl() {
   const autoNorm = isAggregateSelection(currentTaskSelection) ? "baseline" : "none";
   if (currentNormalization !== autoNorm) params.set("norm", currentNormalization);
 
-  // Models: "all" for all, omit for defaults, aliases otherwise
+  // Models: omit for all (default), store aliases otherwise
   const allModelSet = new Set(Object.keys(DATA.models));
-  const defaultModelSet = new Set((DATA.default_models || []).filter((m) => m in DATA.models));
-  if (!setsEqual(checkedModels, defaultModelSet)) {
-    if (setsEqual(checkedModels, allModelSet)) {
-      params.set("models", "all");
-    } else {
-      params.set("models", [...checkedModels].map((d) => _modelDirToAlias[d] || d).sort().join(","));
-    }
+  if (!setsEqual(checkedModels, allModelSet)) {
+    params.set("models", [...checkedModels].map((d) => _modelDirToAlias[d] || d).sort().join(","));
   }
 
   // Size filter: only store if non-default
-  if (currentSizeMin !== 1 || currentSizeMax !== 70) {
+  if (currentSizeMin !== 7 || currentSizeMax !== 14) {
     params.set("size", currentSizeMin + "-" + currentSizeMax);
   }
 
@@ -718,8 +713,7 @@ async function init() {
   DATA = await response.json();
 
   // Set defaults
-  const defaultModels = DATA.default_models || Object.keys(DATA.models);
-  checkedModels = new Set(defaultModels.filter((m) => m in DATA.models));
+  checkedModels = new Set(Object.keys(DATA.models));
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
 
   // Build URL alias maps, then restore state from URL hash
@@ -749,7 +743,6 @@ async function init() {
     updateStderrToggleState();
     // Restore size slider state
     updateRangeSliderUI();
-    applySizeFilter();
   } else {
     autoSetNormalization();
   }
@@ -965,7 +958,7 @@ function bindEventListeners() {
       const cat = btn.dataset.category;
       const categories = DATA.model_categories || {};
       for (const m of Object.keys(DATA.models)) {
-        if ((categories[m] || "multilingual") === cat && isModelInSizeRange(m)) {
+        if ((categories[m] || "multilingual") === cat) {
           checkedModels.add(m);
         }
       }
@@ -1352,10 +1345,7 @@ function isModelInSizeRange(modelDir) {
 }
 
 function applySizeFilter() {
-  document.querySelectorAll(".model-checkbox-grid label[data-model]").forEach((label) => {
-    const modelDir = label.dataset.model;
-    label.style.display = isModelInSizeRange(modelDir) ? "" : "none";
-  });
+  renderChart();
 }
 
 function buildModelCheckboxes() {
@@ -1398,9 +1388,8 @@ function buildModelCheckboxes() {
       h4.textContent = org;
       h4.style.cursor = "pointer";
       h4.addEventListener("click", () => {
-        const visible = models.filter(isModelInSizeRange);
-        const allChecked = visible.length > 0 && visible.every((m) => checkedModels.has(m));
-        for (const m of visible) {
+        const allChecked = models.length > 0 && models.every((m) => checkedModels.has(m));
+        for (const m of models) {
           if (allChecked) checkedModels.delete(m); else checkedModels.add(m);
         }
         syncModelCheckboxStates();
@@ -1411,7 +1400,6 @@ function buildModelCheckboxes() {
       for (const modelDir of models) {
         const label = document.createElement("label");
         label.dataset.model = modelDir;
-        if (!isModelInSizeRange(modelDir)) label.style.display = "none";
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -1545,9 +1533,11 @@ function renderChart() {
   }
 
   updateDescription();
-  // Hide model panels on progress tab (only one model)
+  // Hide model panels and size slider on progress tab (only one model)
   const modelSection = document.getElementById("model-panels");
   if (modelSection) modelSection.style.display = currentTab === "progress" ? "none" : "";
+  const sizeSlider = document.getElementById("size-slider-container");
+  if (sizeSlider) sizeSlider.style.display = currentTab === "progress" ? "none" : "";
   if (currentTab === "comparison") renderComparisonChart();
   else renderProgressChart();
   stateToUrl();
@@ -1678,7 +1668,7 @@ function renderComparisonChart() {
 function getModelList() {
   const orgs = DATA.model_organizations || {};
   const params = DATA.model_parameters || {};
-  return Object.keys(DATA.models).filter((m) => checkedModels.has(m))
+  return Object.keys(DATA.models).filter((m) => checkedModels.has(m) && isModelInSizeRange(m))
     .sort((a, b) => {
       const orgCmp = (orgs[a] || "").localeCompare(orgs[b] || "");
       if (orgCmp !== 0) return orgCmp;
@@ -2178,7 +2168,7 @@ function computeAggregateYRange(dataSource, benchmarks) {
   for (const shot of ALL_SHOTS) {
     const modelNames = dataSource === DATA.models ? getModelList() : null;
     for (const entity of entities) {
-      if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
+      if (dataSource === DATA.models && (!checkedModels.has(entity) || !isModelInSizeRange(entity))) continue;
       const result = aggregateScores(benchmarks, (bench) => {
         const raw = getScore(dataSource, entity, bench, shot);
         if (raw === undefined) return undefined;
@@ -2197,7 +2187,7 @@ function computeAggregateYRange(dataSource, benchmarks) {
 function computeRawYMax_display(dataSource, benchmarks, metric) {
   const vals = [];
   for (const entity of Object.keys(dataSource)) {
-    if (dataSource === DATA.models && !checkedModels.has(entity)) continue;
+    if (dataSource === DATA.models && (!checkedModels.has(entity) || !isModelInSizeRange(entity))) continue;
     for (const shot of ALL_SHOTS)
       for (const bench of benchmarks) {
         const v = getScore(dataSource, entity, bench, shot, metric);
@@ -2211,7 +2201,7 @@ function computeRawYMax_display(dataSource, benchmarks, metric) {
 
 function computeSingleYRange(dataSource, benchmark, metric) {
   const vals = [];
-  const entities = Object.keys(dataSource).filter((e) => dataSource !== DATA.models || checkedModels.has(e));
+  const entities = Object.keys(dataSource).filter((e) => dataSource !== DATA.models || (checkedModels.has(e) && isModelInSizeRange(e)));
   for (const shot of ALL_SHOTS) {
     const raws = entities.map((e) => getScore(dataSource, e, benchmark, shot, metric)).filter((v) => v !== undefined);
     for (const raw of raws) {

@@ -104,6 +104,20 @@
         </div>
 
         <div id="chart-container">
+            <div class="chart-header">
+                <div class="size-slider-container" id="size-slider-container">
+                    <label>Model size:</label>
+                    <div class="range-slider" id="range-slider">
+                        <div class="range-track" id="range-track"></div>
+                        <div class="range-fill" id="range-fill"></div>
+                        <div class="range-thumb range-thumb-min" id="thumb-min" tabindex="0"></div>
+                        <div class="range-thumb range-thumb-max" id="thumb-max" tabindex="0"></div>
+                    </div>
+                    <span id="size-min-label" class="size-label">7B</span>
+                    <span class="size-sep">&ndash;</span>
+                    <span id="size-max-label" class="size-label">14B</span>
+                </div>
+            </div>
             <div id="chart"></div>
         </div>
 
@@ -119,19 +133,6 @@
         </div>
 
         <div id="model-panels" class="model-panels">
-            <div class="size-slider-container">
-                <label>Model size:</label>
-                <div class="range-slider" id="range-slider">
-                    <div class="range-track" id="range-track"></div>
-                    <div class="range-fill" id="range-fill"></div>
-                    <div class="range-thumb range-thumb-min" id="thumb-min" tabindex="0"></div>
-                    <div class="range-thumb range-thumb-max" id="thumb-max" tabindex="0"></div>
-                </div>
-                <span id="size-min-label" class="size-label">1B</span>
-                <span class="size-sep">&ndash;</span>
-                <span id="size-max-label" class="size-label">70B</span>
-            </div>
-
             <div class="model-panels-row">
                 <div id="norwegian-models-panel" class="model-panel">
                     <div class="checkbox-header">
