@@ -1142,20 +1142,37 @@ function buildCheckboxes() {
   for (const cat of Object.keys(grouped).sort()) {
     const catDiv = document.createElement("div");
     catDiv.className = "checkbox-category";
-    const h4 = document.createElement("h4");
-    h4.textContent = cat;
-    h4.style.cursor = "pointer";
     const catBenches = grouped[cat];
-    h4.addEventListener("click", () => {
+
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "checkbox-category-header";
+
+    const groupCheckbox = document.createElement("input");
+    groupCheckbox.type = "checkbox";
+    groupCheckbox.dataset.cat = cat;
+    const source0 = currentTaskSelection === "__filtered__" ? allFilterBenchmarks : checkedTasks;
+    const initAll = catBenches.length > 0 && catBenches.every((b) => source0.has(b));
+    const initSome = catBenches.some((b) => source0.has(b));
+    groupCheckbox.checked = initAll;
+    groupCheckbox.indeterminate = !initAll && initSome;
+    groupCheckbox.addEventListener("change", () => {
       const source = currentTaskSelection === "__filtered__" ? allFilterBenchmarks : checkedTasks;
-      const allChecked = catBenches.every((b) => source.has(b));
       for (const b of catBenches) {
-        if (allChecked) source.delete(b); else source.add(b);
+        if (groupCheckbox.checked) source.add(b); else source.delete(b);
       }
       syncCheckboxStates();
       onTaskCheckboxChange();
     });
-    catDiv.appendChild(h4);
+    headerDiv.addEventListener("click", (e) => {
+      if (e.target !== groupCheckbox) groupCheckbox.click();
+    });
+
+    const h4 = document.createElement("h4");
+    h4.textContent = cat;
+
+    headerDiv.appendChild(groupCheckbox);
+    headerDiv.appendChild(h4);
+    catDiv.appendChild(headerDiv);
 
     for (const bench of catBenches) {
       const label = document.createElement("label");
@@ -1172,6 +1189,7 @@ function buildCheckboxes() {
           if (checkbox.checked) checkedTasks.add(bench);
           else checkedTasks.delete(bench);
         }
+        syncCheckboxStates();
         onTaskCheckboxChange();
       });
 
@@ -1188,7 +1206,7 @@ function onTaskCheckboxChange() {
   // In filtered mode, checkboxes control which tasks are candidates for filtering
   if (currentTaskSelection === "__filtered__") {
     allFilterBenchmarks = new Set();
-    document.querySelectorAll("#checkbox-grid input[type=checkbox]").forEach((cb) => {
+    document.querySelectorAll("#checkbox-grid input[data-bench]").forEach((cb) => {
       if (cb.checked) allFilterBenchmarks.add(cb.dataset.bench);
     });
     runFilter();
@@ -1228,8 +1246,18 @@ function onTaskCheckboxChange() {
 
 function syncCheckboxStates() {
   const source = currentTaskSelection === "__filtered__" ? allFilterBenchmarks : checkedTasks;
-  document.querySelectorAll("#checkbox-grid input[type=checkbox]").forEach((cb) => {
+  document.querySelectorAll("#checkbox-grid input[data-bench]").forEach((cb) => {
     cb.checked = source.has(cb.dataset.bench);
+  });
+  document.querySelectorAll("#checkbox-grid input[data-cat]").forEach((gcb) => {
+    const cat = gcb.dataset.cat;
+    const catBenches = Object.entries(DATA.metrics_setup)
+      .filter(([, info]) => info.category === cat)
+      .map(([bench]) => bench);
+    const allChecked = catBenches.length > 0 && catBenches.every((b) => source.has(b));
+    const someChecked = catBenches.some((b) => source.has(b));
+    gcb.checked = allChecked;
+    gcb.indeterminate = !allChecked && someChecked;
   });
 }
 

@@ -395,15 +395,29 @@ main {
   gap: 0.6rem;
 }
 
+.checkbox-category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+}
+
+.checkbox-category-header input[type="checkbox"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .checkbox-category h4 {
-  margin: 0.15rem 0;
+  margin: 0;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding-bottom: 0.15rem;
-  border-bottom: 1px solid var(--border-light);
 }
 
 .checkbox-category label {
@@ -427,13 +441,10 @@ main {
 
 /* Model checkbox grid */
 .model-checkbox-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.model-org-group + .model-org-group {
-  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+  align-items: start;
 }
 
 .model-org-header {
