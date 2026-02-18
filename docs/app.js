@@ -1394,18 +1394,35 @@ function buildModelCheckboxes() {
       const orgDiv = document.createElement("div");
       orgDiv.className = "model-org-group";
 
-      const h4 = document.createElement("h4");
-      h4.textContent = org;
-      h4.style.cursor = "pointer";
-      h4.addEventListener("click", () => {
-        const allChecked = models.length > 0 && models.every((m) => checkedModels.has(m));
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "model-org-header";
+
+      const groupCheckbox = document.createElement("input");
+      groupCheckbox.type = "checkbox";
+      groupCheckbox.className = "model-group-checkbox";
+      groupCheckbox.dataset.org = org;
+      groupCheckbox.dataset.cat = catKey;
+      const initAllChecked = models.length > 0 && models.every((m) => checkedModels.has(m));
+      const initSomeChecked = models.some((m) => checkedModels.has(m));
+      groupCheckbox.checked = initAllChecked;
+      groupCheckbox.indeterminate = !initAllChecked && initSomeChecked;
+      groupCheckbox.addEventListener("change", () => {
         for (const m of models) {
-          if (allChecked) checkedModels.delete(m); else checkedModels.add(m);
+          if (groupCheckbox.checked) checkedModels.add(m); else checkedModels.delete(m);
         }
         syncModelCheckboxStates();
         renderChart();
       });
-      orgDiv.appendChild(h4);
+      headerDiv.addEventListener("click", (e) => {
+        if (e.target !== groupCheckbox) groupCheckbox.click();
+      });
+
+      const h4 = document.createElement("h4");
+      h4.textContent = org;
+
+      headerDiv.appendChild(groupCheckbox);
+      headerDiv.appendChild(h4);
+      orgDiv.appendChild(headerDiv);
 
       for (const modelDir of models) {
         const label = document.createElement("label");
@@ -1418,6 +1435,7 @@ function buildModelCheckboxes() {
         checkbox.addEventListener("change", () => {
           if (checkbox.checked) checkedModels.add(modelDir);
           else checkedModels.delete(modelDir);
+          syncModelCheckboxStates();
           renderChart();
         });
 
@@ -1440,8 +1458,21 @@ function buildModelCheckboxes() {
 }
 
 function syncModelCheckboxStates() {
-  document.querySelectorAll(".model-checkbox-grid input[type=checkbox]").forEach((cb) => {
+  document.querySelectorAll(".model-checkbox-grid input[data-model]").forEach((cb) => {
     cb.checked = checkedModels.has(cb.dataset.model);
+  });
+  const categories = DATA.model_categories || {};
+  const organizations = DATA.model_organizations || {};
+  document.querySelectorAll(".model-group-checkbox").forEach((gcb) => {
+    const org = gcb.dataset.org;
+    const cat = gcb.dataset.cat;
+    const models = Object.keys(DATA.models).filter(
+      (m) => (categories[m] || "multilingual") === cat && (organizations[m] || "Other") === org
+    );
+    const allChecked = models.length > 0 && models.every((m) => checkedModels.has(m));
+    const someChecked = models.some((m) => checkedModels.has(m));
+    gcb.checked = allChecked;
+    gcb.indeterminate = !allChecked && someChecked;
   });
 }
 
