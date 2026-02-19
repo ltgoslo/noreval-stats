@@ -674,7 +674,7 @@ function loadStateFromHash() {
     const parts = params.get("size").split("-");
     if (parts.length === 2) {
       currentSizeMin = parseInt(parts[0], 10) || 1;
-      currentSizeMax = parseInt(parts[1], 10) || 70;
+      currentSizeMax = parseInt(parts[1], 10) || 72;
     }
     loaded = true;
   }
@@ -1266,7 +1266,7 @@ function syncCheckboxStates() {
 // ============================================================
 
 const RANGE_MIN = 1;
-const RANGE_MAX = 70;
+const RANGE_MAX = 72;
 
 function valueToPercent(val) {
   const logMin = Math.log(RANGE_MIN);
