@@ -90,7 +90,7 @@ NorwAI-Mistral-7B:
   color: "#00509e"
 
 NorwAI-Mixtral-8x7B:
-  display_name: "NorwAI Mixtral 8x7B"
+  display_name: "NorwAI Mixtral 8x7B (46B)"
   category: norwegian
   organization: NorwAI/NTNU
   parameters: 46
@@ -157,6 +157,16 @@ Apertus-8B-2509:
   parameters: 8
   description: "An 8B parameter multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens."
   huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+  default: true
+  color: "#7ac6dc"
+
+Apertus-70B-2509:
+  display_name: "Apertus 70B"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 70
+  description: "A 70B parameter multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-70B-2509
   default: true
   color: "#7ac6dc"
 
@@ -240,6 +250,16 @@ Llama-3.1-8B:
   default: true
   color: "#0a8af8"
 
+Llama-3.1-70B:
+  display_name: "Llama3.1 70B"
+  category: multilingual
+  organization: Meta
+  parameters: 70
+  description: "A 70B parameter multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length."
+  huggingface_url: https://huggingface.co/meta-llama/Llama-3.1-70B
+  default: true
+  color: "#0a8af8"
+
 Mistral-7B-v0.1:
   display_name: "Mistral 7B"
   category: multilingual
@@ -290,6 +310,26 @@ Ministral-3-14B-Base-2512-Llamafied-TextOnly:
   default: true
   color: "#ff8c00"
 
+Qwen2.5-32B:
+  display_name: "Qwen2.5 32B"
+  category: multilingual
+  organization: Qwen
+  parameters: 32
+  description: "A 32B parameter base language model from Qwen. Multilingual with 29 language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen2.5-32B
+  default: true
+  color: "#9391fe"
+
+Qwen2.5-72B:
+  display_name: "Qwen2.5 72B"
+  category: multilingual
+  organization: Qwen
+  parameters: 72
+  description: "A 72B parameter base language model from Qwen. Multilingual with 29 language support."
+  huggingface_url: https://huggingface.co/Qwen/Qwen2.5-72B
+  default: true
+  color: "#9391fe"
+
 Qwen3-1.7B-Base:
   display_name: "Qwen3 1.7B"
   category: multilingual
@@ -324,7 +364,7 @@ Qwen3-14B-Base:
   display_name: "Qwen3 14B"
   category: multilingual
   organization: Qwen
-  parameters: 14
+  parameters: 15
   description: "A 14.8B parameter base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-14B
   default: true

@@ -1471,12 +1471,9 @@ function buildModelCheckboxes() {
         colorDot.className = "model-color-dot";
         colorDot.style.backgroundColor = getModelColor(modelDir);
 
-        const params = DATA.model_parameters || {};
-        const sizeStr = params[modelDir] ? ` (${params[modelDir]}B)` : "";
-
         label.appendChild(checkbox);
         label.appendChild(colorDot);
-        label.appendChild(document.createTextNode(" " + getModelLabel(modelDir) + sizeStr));
+        label.appendChild(document.createTextNode(" " + getModelLabel(modelDir)));
         attachModelTooltip(label, modelDir);
         orgDiv.appendChild(label);
       }
@@ -1701,7 +1698,7 @@ function getAggregateDescription() {
     const groups = getMacroGroups(checkedTasks);
     scope = "all " + count + " tasks (" + groups.length + " categories, macro-averaged)";
   } else if (sel === "__all__") scope = "all " + count + " tasks (micro-averaged)";
-  else if (sel === "__filtered__") scope = count + " quality-filtered tasks (micro-averaged, HPLT-E criteria)";
+  else if (sel === "__filtered__") scope = count + " signal-filtered tasks (micro-averaged, HPLT-E criteria)";
   else if (sel === "__custom__") scope = count + " selected tasks (micro-averaged)";
   else if (sel.startsWith("__cat__")) scope = count + " tasks in the \"" + sel.slice(7) + "\" category";
   else if (sel.startsWith("__eval__")) scope = count + " " + sel.slice(8) + " tasks";
@@ -2305,7 +2302,7 @@ function computeProgressAggregateYRange() {
 function getAggregateLabel() {
   const sel = currentTaskSelection;
   if (sel === "__all_macro__" || sel === "__all__") return "all tasks";
-  if (sel === "__filtered__") return checkedTasks.size + " quality-filtered tasks";
+  if (sel === "__filtered__") return checkedTasks.size + " signal-filtered tasks";
   if (sel === "__custom__") return checkedTasks.size + " tasks";
   if (sel.startsWith("__cat__")) return sel.slice(7);
   if (sel.startsWith("__eval__")) return sel.slice(8) + " tasks";
