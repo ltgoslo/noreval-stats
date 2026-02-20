@@ -1566,14 +1566,22 @@ function renderChart() {
   if (aboutEl) aboutEl.style.display = isAbout ? "" : "none";
 
   // Hide all dashboard elements when on About tab
-  const dashboardIds = ["task-description", "filter-panel", "filter-table-container",
-    "chart-container", "task-checkboxes", "model-panels"];
-  for (const id of dashboardIds) {
+  // Only hide/show elements that are always visible; elements with conditional visibility
+  // (task-description, filter-panel, filter-table-container) are managed by their own logic.
+  const alwaysVisibleIds = ["chart-container", "task-checkboxes", "model-panels"];
+  for (const id of alwaysVisibleIds) {
     const el = document.getElementById(id);
     if (el) el.style.display = isAbout ? "none" : "";
   }
   const controlsEl = document.querySelector(".controls");
   if (controlsEl) controlsEl.style.display = isAbout ? "none" : "";
+  // Also hide conditionally-visible elements when on About
+  if (isAbout) {
+    for (const id of ["task-description", "filter-panel", "filter-table-container"]) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    }
+  }
 
   if (isAbout) { stateToUrl(); return; }
 
