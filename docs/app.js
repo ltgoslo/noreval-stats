@@ -14,6 +14,7 @@ let showStderr = true;
 let showPromptDeviation = true;
 let currentSizeMin = 7;
 let currentSizeMax = 14;
+let fullyOpenOnly = false;
 
 // HPLT-E quality filter state
 let filterCriteria = {
@@ -636,6 +637,7 @@ function stateToUrl() {
   if (currentSizeMin !== 7 || currentSizeMax !== 14) {
     params.set("size", currentSizeMin + "-" + currentSizeMax);
   }
+  if (fullyOpenOnly) params.set("open", "1");
 
   // Tasks: only store if different from what the current task selection auto-selects
   const autoTasks = new Set(getBenchmarksForSelection(currentTaskSelection));
@@ -678,6 +680,7 @@ function loadStateFromHash() {
     }
     loaded = true;
   }
+  if (params.has("open")) { fullyOpenOnly = params.get("open") === "1"; loaded = true; }
 
   if (params.has("models")) {
     const val = params.get("models");
@@ -749,6 +752,7 @@ async function init() {
     updateStderrToggleState();
     // Restore size slider state
     updateRangeSliderUI();
+    document.getElementById("fully-open-toggle").checked = fullyOpenOnly;
   } else {
     autoSetNormalization();
   }
@@ -887,6 +891,11 @@ function bindEventListeners() {
 
   document.getElementById("prompt-dev-toggle").addEventListener("change", (e) => {
     showPromptDeviation = e.target.checked;
+    renderChart();
+  });
+
+  document.getElementById("fully-open-toggle").addEventListener("change", (e) => {
+    fullyOpenOnly = e.target.checked;
     renderChart();
   });
 
@@ -1378,8 +1387,14 @@ function initRangeSlider() {
 function isModelInSizeRange(modelDir) {
   const params = DATA.model_parameters || {};
   const size = params[modelDir];
-  if (size === undefined || size === 0) return true; // unknown size: always show
-  return size >= currentSizeMin && size <= currentSizeMax;
+  if (size !== undefined && size !== 0) {
+    if (size < currentSizeMin || size > currentSizeMax) return false;
+  }
+  if (fullyOpenOnly) {
+    const fo = (DATA.model_fully_open || {})[modelDir];
+    if (!fo) return false;
+  }
+  return true;
 }
 
 function applySizeFilter() {
@@ -1555,6 +1570,11 @@ function attachTooltip(element, contentFn) {
   element.addEventListener("mouseleave", () => hideTooltip());
 }
 
+function getModelOpenLabel(modelDir) {
+  const fo = (DATA.model_fully_open || {})[modelDir];
+  return fo ? "fully-open" : "open weights";
+}
+
 function attachModelTooltip(element, modelDir) {
   attachTooltip(element, () => {
     const info = (DATA.model_info || {})[modelDir];
@@ -1565,7 +1585,8 @@ function attachModelTooltip(element, modelDir) {
       paramsPart = params < 1 ? `${Math.round(params * 1000)}M parameters` : `${params}B parameters`;
     }
     const licensePart = info.license ? `License: ${info.license}` : "";
-    const meta = [paramsPart, licensePart].filter(Boolean).join("  ·  ");
+    const openPart = getModelOpenLabel(modelDir);
+    const meta = [paramsPart, licensePart, openPart].filter(Boolean).join("  \u00b7  ");
     const footer = info.huggingface_url ? info.huggingface_url.replace("https://huggingface.co/", "hf.co/") : "";
     return { title: getModelLabel(modelDir), meta, body: info.description || "", footer };
   });
@@ -1614,6 +1635,8 @@ function renderChart() {
   if (modelSection) modelSection.style.display = currentTab === "progress" ? "none" : "";
   const sizeSlider = document.getElementById("size-slider-container");
   if (sizeSlider) sizeSlider.style.display = currentTab === "progress" ? "none" : "";
+  const fullyOpenContainer = document.getElementById("fully-open-container");
+  if (fullyOpenContainer) fullyOpenContainer.style.display = currentTab === "progress" ? "none" : "";
   if (currentTab === "comparison") renderComparisonChart();
   else renderProgressChart();
   stateToUrl();
@@ -1840,8 +1863,9 @@ function onChartHover(data) {
         const params = (DATA.model_parameters || {})[modelDir];
         const paramsPart = params ? (params < 1 ? `${Math.round(params * 1000)}M parameters` : `${params}B parameters`) : "";
         const licensePart = info.license ? `License: ${info.license}` : "";
+        const openPart = getModelOpenLabel(modelDir);
         title = getModelLabel(modelDir);
-        meta = [paramsPart, licensePart].filter(Boolean).join("  \u00b7  ");
+        meta = [paramsPart, licensePart, openPart].filter(Boolean).join("  \u00b7  ");
         body = info.description;
         footer = scoreBody;
       }

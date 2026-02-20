@@ -44,12 +44,14 @@ def load_models_setup():
     default_models = []
     color_map = {}
     model_info = {}
+    fully_open = {}
 
     for model_dir, cfg in raw.items():
         display_names[model_dir] = cfg.get("display_name", model_dir)
         categories[model_dir] = cfg.get("category", "multilingual")
         organizations[model_dir] = cfg.get("organization", "")
         parameters[model_dir] = cfg.get("parameters", 0)
+        fully_open[model_dir] = bool(cfg.get("fully_open", False))
         if cfg.get("default"):
             default_models.append(model_dir)
         if cfg.get("color"):
@@ -65,7 +67,7 @@ def load_models_setup():
             }
 
     return (display_names, categories, organizations, parameters,
-            default_models, color_map, model_info)
+            default_models, color_map, model_info, fully_open)
 
 # Task groups for visual pairing (two bars/lines per model)
 TASK_GROUPS = {
@@ -399,7 +401,7 @@ def main():
     metrics_setup = load_metrics_setup()
     (MODEL_DISPLAY_NAMES, MODEL_CATEGORIES, MODEL_ORGANIZATIONS,
      MODEL_PARAMETERS, DEFAULT_MODELS, MODEL_COLOR_MAP,
-     MODEL_INFO) = load_models_setup()
+     MODEL_INFO, MODEL_FULLY_OPEN) = load_models_setup()
 
     os.makedirs(OUTPUT_FILE.parent, exist_ok=True)
 
@@ -464,6 +466,7 @@ def main():
         "model_organizations": MODEL_ORGANIZATIONS,
         "model_parameters": MODEL_PARAMETERS,
         "model_colors": MODEL_COLOR_MAP,
+        "model_fully_open": MODEL_FULLY_OPEN,
         "model_info": MODEL_INFO,
         "default_models": DEFAULT_MODELS,
         "models": models,

@@ -5,6 +5,7 @@ norolmo-13b:
   organization: LTG/UiO
   parameters: 13.7
   license: "Apache 2.0"
+  fully_open: true
   description: "Fully-open Norwegian language model continually-trained on OLMo2 (13B stage 2), trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/HPLT/NorOLMo-13B
   default: true
@@ -16,6 +17,7 @@ norolmo-13b-stage1:
   organization: LTG/UiO
   parameters: 13.7
   license: "Apache 2.0"
+  fully_open: true
   description: "The final stage-1 checkpoint of NorOLMo-13B (after 24,000 steps). NorOLMo is a fully-open Norwegian language model continually-trained on OLMo2, trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/HPLT/NorOLMo-13B
   default: false
@@ -27,6 +29,7 @@ normistral-7b-warm:
   organization: LTG/UiO
   parameters: 7.2
   license: "Apache 2.0"
+  fully_open: false
   description: "Norwegian language model initialized from Mistral-7B-v0.1 and continually-trained on 260 billion subword tokens of Norwegian data. Trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/norallm/normistral-7b-warm
   default: true
@@ -38,6 +41,7 @@ normistral-11b-warm:
   organization: LTG/UiO
   parameters: 11.4
   license: "Apache 2.0"
+  fully_open: false
   description: "Norwegian language model based on Mistral-Nemo-Base-2407, continually-trained on 250 billion tokens of Norwegian, Scandinavian, Sámi and code data. Trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/norallm/normistral-11b-warm
   default: true
@@ -49,6 +53,7 @@ normistral-11b-long:
   organization: LTG/UiO
   parameters: 11.4
   license: "Apache 2.0"
+  fully_open: false
   description: "Norwegian language model with extended context length (32k→128k tokens), based on normistral-11b-warm."
   huggingface_url: https://huggingface.co/norallm/normistral-11b-long
   default: true
@@ -60,6 +65,7 @@ norbert4-xlarge:
   organization: LTG/UiO
   parameters: 1.0
   license: "Apache 2.0"
+  fully_open: true
   description: "The fourth generation NorBERT model for Norwegian encoding/decoding. Trained from scratch on 600B tokens of Norwegian Bokmål, Nynorsk and Northern Sámi. Trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/ltg/norbert4-xlarge
   default: true
@@ -71,6 +77,7 @@ NorGPT-3B:
   organization: NorwAI/NTNU
   parameters: 3.1
   license: "CC BY-NC-SA 4.0"
+  fully_open: false
   description: "Generative pretrained transformer for Norwegian based on GPT-2 architecture. Part of the NorGLM suite trained on ~25B tokens."
   huggingface_url: https://huggingface.co/NorGLM/NorGPT-3B
   default: true
@@ -82,6 +89,7 @@ NorLlama-3B:
   organization: NorwAI/NTNU
   parameters: 2.8
   license: "CC BY-NC-SA 4.0"
+  fully_open: false
   description: "Generative pretrained transformer for Norwegian based on LLaMA architecture. Part of the NorGLM suite."
   huggingface_url: https://huggingface.co/NorGLM/NorLlama-3B
   default: true
@@ -93,6 +101,7 @@ NorwAI-Mistral-7B:
   organization: NorwAI/NTNU
   parameters: 7.5
   license: "NorLLM License"
+  fully_open: false
   description: "Model continually-trained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU. Restricted to use within Nordic countries."
   huggingface_url: https://huggingface.co/NorwAI/NorwAI-Mistral-7B
   default: true
@@ -104,6 +113,7 @@ NorwAI-Mixtral-8x7B:
   organization: NorwAI/NTNU
   parameters: 47.0
   license: "NorLLM License"
+  fully_open: false
   description: "MoE model continually-trained on Mixtral-8x7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU. Restricted to use within Nordic countries."
   huggingface_url: https://huggingface.co/NorwAI/NorwAI-Mixtral-8x7B
   default: true
@@ -115,6 +125,7 @@ nb-gpt-j-6B:
   organization: Nasjonalbiblioteket
   parameters: 6.1
   license: "Apache 2.0"
+  fully_open: true
   description: "Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models."
   huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B
   default: true
@@ -127,6 +138,7 @@ olmo-2-13b (stage 1):
   organization: Allen AI
   parameters: 13.7
   license: "Apache 2.0"
+  fully_open: true
   description: "Specific stage 1 checkpoint of OLMo 2, an open language model trained on 5 trillion tokens by the Allen Institute for AI."
   huggingface_url: https://huggingface.co/allenai/OLMo-2-1124-13B
   default: false
@@ -138,6 +150,7 @@ OLMo-2-1124-13B:
   organization: Allen AI
   parameters: 13.7
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model from the Allen Institute for AI trained on 5 trillion tokens."
   huggingface_url: https://huggingface.co/allenai/OLMo-2-1124-13B
   default: true
@@ -149,6 +162,7 @@ Olmo-3-1025-7B:
   organization: Allen AI
   parameters: 7.3
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model from the Allen Institute for AI trained on 5.93 trillion tokens with 65k context length."
   huggingface_url: https://huggingface.co/allenai/Olmo-3-1025-7B
   default: true
@@ -160,6 +174,7 @@ Olmo-3-1125-32B:
   organization: Allen AI
   parameters: 32.3
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model from the Allen Institute for AI trained on 5.50 trillion tokens with 65k context length."
   huggingface_url: https://huggingface.co/allenai/Olmo-3-1125-32B
   default: true
@@ -171,6 +186,7 @@ Apertus-8B-2509:
   organization: Swiss AI
   parameters: 8.1
   license: "Apache 2.0"
+  fully_open: true
   description: "Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens."
   huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
   default: true
@@ -182,6 +198,7 @@ Apertus-70B-2509:
   organization: Swiss AI
   parameters: 70.6
   license: "Apache 2.0"
+  fully_open: true
   description: "Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens."
   huggingface_url: https://huggingface.co/swiss-ai/Apertus-70B-2509
   default: true
@@ -193,6 +210,7 @@ EuroLLM-1.7B:
   organization: EuroLLM
   parameters: 1.7
   license: "Apache 2.0"
+  fully_open: true
   description: "Multilingual transformer supporting European languages."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-1.7B
   default: true
@@ -204,6 +222,7 @@ EuroLLM-9B-2512:
   organization: EuroLLM
   parameters: 9.2
   license: "Apache 2.0"
+  fully_open: true
   description: "Multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-9B-2512
   default: true
@@ -215,6 +234,7 @@ EuroLLM-22B-2512:
   organization: EuroLLM
   parameters: 22.6
   license: "Apache 2.0"
+  fully_open: true
   description: "Multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-22B-2512
   default: true
@@ -226,6 +246,7 @@ gemma-3-1b-pt:
   organization: Google
   parameters: 1.0
   license: "Gemma Terms of Use"
+  fully_open: false
   description: "From Google's Gemma 3 family. Supports 140+ languages."
   huggingface_url: https://huggingface.co/google/gemma-3-1b-pt
   default: true
@@ -237,6 +258,7 @@ gemma-3-4b-pt:
   organization: Google
   parameters: 4.3
   license: "Gemma Terms of Use"
+  fully_open: false
   description: "From Google's Gemma 3 family. Supports 140+ languages."
   huggingface_url: https://huggingface.co/google/gemma-3-4b-pt
   default: true
@@ -248,6 +270,7 @@ gemma-3-12b-pt:
   organization: Google
   parameters: 12.2
   license: "Gemma Terms of Use"
+  fully_open: false
   description: "Multimodal model from Google trained on 12 trillion tokens. Supports 140+ languages with text and image input."
   huggingface_url: https://huggingface.co/google/gemma-3-12b-pt
   default: true
@@ -259,6 +282,7 @@ gemma-3-27b-pt:
   organization: Google
   parameters: 27.4
   license: "Gemma Terms of Use"
+  fully_open: false
   description: "Multimodal model from Google trained on 14 trillion tokens. Supports text and image understanding with 128k context window."
   huggingface_url: https://huggingface.co/google/gemma-3-27b-pt
   default: true
@@ -270,6 +294,7 @@ Llama-3.1-8B:
   organization: Meta
   parameters: 8.0
   license: "Llama 3.1 Community License"
+  fully_open: false
   description: "Multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length."
   huggingface_url: https://huggingface.co/meta-llama/Llama-3.1-8B
   default: true
@@ -281,6 +306,7 @@ Llama-3.1-70B:
   organization: Meta
   parameters: 70.6
   license: "Llama 3.1 Community License"
+  fully_open: false
   description: "Multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length."
   huggingface_url: https://huggingface.co/meta-llama/Llama-3.1-70B
   default: true
@@ -292,6 +318,7 @@ Mistral-7B-v0.1:
   organization: Mistral AI
   parameters: 7.2
   license: "Apache 2.0"
+  fully_open: false
   description: "Generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention."
   huggingface_url: https://huggingface.co/mistralai/Mistral-7B-v0.1
   default: true
@@ -303,6 +330,7 @@ Mistral-Nemo-Base-2407:
   organization: Mistral AI
   parameters: 12.2
   license: "Apache 2.0"
+  fully_open: false
   description: "Pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support."
   huggingface_url: https://huggingface.co/mistralai/Mistral-Nemo-Base-2407
   default: true
@@ -314,6 +342,7 @@ Ministral-3-3B-Base-2512-Llamafied-TextOnly:
   organization: Mistral AI
   parameters: 3.4
   license: "Apache 2.0"
+  fully_open: false
   description: "Text-only language model component of Mistral AI's Ministral 3 (3B) multimodal model, converted to Llama format."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-3B-Base-2512
   default: true
@@ -325,6 +354,7 @@ Ministral-3-8B-Base-2512-Llamafied-TextOnly:
   organization: Mistral AI
   parameters: 8.4
   license: "Apache 2.0"
+  fully_open: false
   description: "Text-only language model component of Mistral AI's Ministral 3 (9B) multimodal model, converted to Llama format."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-8B-Base-2512
   default: true
@@ -336,6 +366,7 @@ Ministral-3-14B-Base-2512-Llamafied-TextOnly:
   organization: Mistral AI
   parameters: 13.5
   license: "Apache 2.0"
+  fully_open: false
   description: "Text-only language model component of Mistral AI's Ministral 3 (14B) multimodal model, converted to Llama format."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-14B-Base-2512
   default: true
@@ -347,6 +378,7 @@ Qwen2.5-32B:
   organization: Alibaba
   parameters: 32.5
   license: "Apache 2.0"
+  fully_open: false
   description: "Base language model from Qwen. Multilingual with 29 language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen2.5-32B
   default: true
@@ -358,6 +390,7 @@ Qwen2.5-72B:
   organization: Alibaba
   parameters: 72.7
   license: "Qwen License Agreement"
+  fully_open: false
   description: "Base language model from Qwen. Multilingual with 29 language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen2.5-72B
   default: true
@@ -369,6 +402,7 @@ Qwen3-1.7B-Base:
   organization: Alibaba
   parameters: 1.7
   license: "Apache 2.0"
+  fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-1.7B-Base
   default: true
@@ -380,6 +414,7 @@ Qwen3-4B-Base:
   organization: Alibaba
   parameters: 4.0
   license: "Apache 2.0"
+  fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-4B-Base
   default: true
@@ -391,6 +426,7 @@ Qwen3-8B-Base:
   organization: Alibaba
   parameters: 8.2
   license: "Apache 2.0"
+  fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-8B-Base
   default: true
@@ -402,6 +438,7 @@ Qwen3-14B-Base:
   organization: Alibaba
   parameters: 14.8
   license: "Apache 2.0"
+  fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-14B
   default: true
@@ -413,6 +450,7 @@ AI-Sweden-Models-Llama-3-8B:
   organization: AI Sweden
   parameters: 8.0
   license: "Llama 3 Community License"
+  fully_open: false
   description: "Model based on Llama 3 architecture, continually-trained on Swedish and Nordic data by AI Sweden."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/Llama-3-8B
   default: true
@@ -424,6 +462,7 @@ gpt-sw3-1.3b:
   organization: AI Sweden
   parameters: 1.4
   license: "Apache 2.0"
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-1.3b
   default: true
@@ -435,6 +474,7 @@ gpt-sw3-6.7b-v2:
   organization: AI Sweden
   parameters: 6.7
   license: "Modified RAIL License"
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-6.7b-v2
   default: true
@@ -446,6 +486,7 @@ gpt-sw3-20b:
   organization: AI Sweden
   parameters: 20.8
   license: "Modified RAIL License"
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-20b
   default: true
@@ -457,6 +498,7 @@ gpt-sw3-40b:
   organization: AI Sweden
   parameters: 40.0
   license: "Modified RAIL License"
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-40b
   default: true
@@ -468,6 +510,7 @@ Viking-7B:
   organization: SILO AI
   parameters: 7.6
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
   huggingface_url: https://huggingface.co/LumiOpen/Viking-7B
   default: true
@@ -479,6 +522,7 @@ Viking-13B:
   organization: SILO AI
   parameters: 14.0
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model for Nordic languages developed by SILO AI (named 13B after its architecture). Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
   huggingface_url: https://huggingface.co/LumiOpen/Viking-13B
   default: true
@@ -490,6 +534,7 @@ Viking-33B:
   organization: SILO AI
   parameters: 33.1
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
   huggingface_url: https://huggingface.co/LumiOpen/Viking-33B
   default: true
@@ -501,6 +546,7 @@ Poro-34B:
   organization: SILO AI
   parameters: 34.2
   license: "Apache 2.0"
+  fully_open: true
   description: "Open language model for Finnish, English, and code, developed by SILO AI in collaboration with TurkuNLP and the University of Edinburgh."
   huggingface_url: https://huggingface.co/LumiOpen/Poro-34B
   default: true
@@ -512,6 +558,7 @@ dfm-decoder-open-v0-7b-pt:
   organization: DFM
   parameters: 7.0
   license: "Apache 2.0"
+  fully_open: true
   description: "Base language model continually pre-trained from Comma v0.1 on 30B tokens of Danish and English data. Developed by Danish Foundation Models with fully open training data, code, and weights."
   huggingface_url: https://huggingface.co/danish-foundation-models/dfm-decoder-open-v0-7b-pt
   default: true
