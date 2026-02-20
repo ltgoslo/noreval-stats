@@ -528,7 +528,14 @@ main {
 
 .tooltip-title {
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
+}
+
+.tooltip-meta {
+  color: var(--fg-muted);
+  font-size: 0.73rem;
+  opacity: 0.85;
+  margin-bottom: 0.35rem;
 }
 
 .tooltip-body {

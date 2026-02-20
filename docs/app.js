@@ -1507,13 +1507,16 @@ function syncModelCheckboxStates() {
 
 let tooltipTimeout = null;
 
-function showTooltip(event, title, body, footer) {
+function showTooltip(event, title, body, footer, meta) {
   const tooltip = document.getElementById("custom-tooltip");
   const titleEl = document.getElementById("tooltip-title");
+  const metaEl = document.getElementById("tooltip-meta");
   const bodyEl = document.getElementById("tooltip-body");
   const footerEl = document.getElementById("tooltip-footer");
   titleEl.textContent = title || "";
   titleEl.style.display = title ? "" : "none";
+  metaEl.textContent = meta || "";
+  metaEl.style.display = meta ? "" : "none";
   bodyEl.textContent = body || "";
   bodyEl.style.display = body ? "" : "none";
   footerEl.textContent = footer || "";
@@ -1543,7 +1546,7 @@ function positionTooltip(tooltip, event) {
 
 function attachTooltip(element, contentFn) {
   element.addEventListener("mouseenter", (e) => {
-    tooltipTimeout = setTimeout(() => { const c = contentFn(); if (c) showTooltip(e, c.title, c.body, c.footer); }, 300);
+    tooltipTimeout = setTimeout(() => { const c = contentFn(); if (c) showTooltip(e, c.title, c.body, c.footer, c.meta); }, 300);
   });
   element.addEventListener("mousemove", (e) => {
     const tooltip = document.getElementById("custom-tooltip");
@@ -1556,8 +1559,15 @@ function attachModelTooltip(element, modelDir) {
   attachTooltip(element, () => {
     const info = (DATA.model_info || {})[modelDir];
     if (!info) return null;
+    const params = (DATA.model_parameters || {})[modelDir];
+    let paramsPart = "";
+    if (params) {
+      paramsPart = params < 1 ? `${Math.round(params * 1000)}M parameters` : `${params}B parameters`;
+    }
+    const licensePart = info.license ? `License: ${info.license}` : "";
+    const meta = [paramsPart, licensePart].filter(Boolean).join("  ·  ");
     const footer = info.huggingface_url ? info.huggingface_url.replace("https://huggingface.co/", "hf.co/") : "";
-    return { title: getModelLabel(modelDir), body: info.description || "", footer };
+    return { title: getModelLabel(modelDir), meta, body: info.description || "", footer };
   });
 }
 

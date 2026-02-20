@@ -56,10 +56,12 @@ def load_models_setup():
             color_map[model_dir] = cfg["color"]
         desc = cfg.get("description", "")
         url = cfg.get("huggingface_url", "")
-        if desc or url:
+        license_ = cfg.get("license", "")
+        if desc or url or license_:
             model_info[model_dir] = {
                 "description": desc,
                 "huggingface_url": url,
+                "license": license_,
             }
 
     return (display_names, categories, organizations, parameters,
