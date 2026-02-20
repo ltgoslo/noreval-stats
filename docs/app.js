@@ -674,7 +674,7 @@ function loadStateFromHash() {
     const parts = params.get("size").split("-");
     if (parts.length === 2) {
       currentSizeMin = parseInt(parts[0], 10) || 1;
-      currentSizeMax = parseInt(parts[1], 10) || 72;
+      currentSizeMax = parseInt(parts[1], 10) || 73;
     }
     loaded = true;
   }
@@ -1266,7 +1266,7 @@ function syncCheckboxStates() {
 // ============================================================
 
 const RANGE_MIN = 1;
-const RANGE_MAX = 72;
+const RANGE_MAX = 73;
 
 function valueToPercent(val) {
   const logMin = Math.log(RANGE_MIN);
@@ -1801,34 +1801,53 @@ function onChartHover(data) {
   const scoreStr = Number(pt.y).toFixed(fmt);
   const isProgress = currentTab === "progress";
   const sel = currentTaskSelection;
+  const cd = pt.customdata;
 
   // Extract stderr from customdata if available
   let seStr = "";
-  if (showStderr && pt.customdata != null) {
+  if (showStderr && cd != null) {
     if (isAggregateSelection(sel)) {
-      // customdata is {count, stderr}
-      const cd = pt.customdata;
       if (cd && typeof cd === "object" && cd.stderr != null) {
         seStr = " \u00b1 " + Number(cd.stderr).toFixed(fmt);
       }
-    } else if (typeof pt.customdata === "number" && pt.customdata > 0) {
-      seStr = " \u00b1 " + Number(pt.customdata).toFixed(fmt);
+    } else if (typeof cd === "number" && cd > 0) {
+      seStr = " \u00b1 " + Number(cd).toFixed(fmt);
+    } else if (cd && typeof cd === "object" && cd.stderr != null && cd.stderr > 0) {
+      seStr = " \u00b1 " + Number(cd.stderr).toFixed(fmt);
     }
   }
 
-  let title = isProgress ? "Step " + pt.x : String(pt.x);
-  let body;
+  // Build score string
+  let scoreBody;
   if (isAggregateSelection(sel)) {
     const unit = isMacroSelection() ? "categories" : "tasks";
-    const cd = pt.customdata;
     const countStr = cd && typeof cd === "object" ? cd.count : cd;
-    body = "Average: " + scoreStr + seStr + (countStr != null ? " (" + countStr + " " + unit + ")" : "");
+    scoreBody = "Average: " + scoreStr + seStr + (countStr != null ? " (" + countStr + " " + unit + ")" : "");
   } else if (sel.startsWith("__group__") && pt.data.name) {
-    body = pt.data.name + ": " + scoreStr + seStr;
+    scoreBody = pt.data.name + ": " + scoreStr + seStr;
   } else {
-    body = "Score: " + scoreStr + seStr;
+    scoreBody = "Score: " + scoreStr + seStr;
   }
-  showTooltip(data.event, title, body);
+
+  // Enrich with model info on the comparison tab
+  let title = isProgress ? "Step " + pt.x : String(pt.x);
+  let meta = "", body = scoreBody, footer = "";
+  if (!isProgress) {
+    const modelDir = cd && typeof cd === "object" ? cd.modelDir : null;
+    if (modelDir) {
+      const info = (DATA.model_info || {})[modelDir];
+      if (info && info.description) {
+        const params = (DATA.model_parameters || {})[modelDir];
+        const paramsPart = params ? (params < 1 ? `${Math.round(params * 1000)}M parameters` : `${params}B parameters`) : "";
+        const licensePart = info.license ? `License: ${info.license}` : "";
+        title = getModelLabel(modelDir);
+        meta = [paramsPart, licensePart].filter(Boolean).join("  \u00b7  ");
+        body = info.description;
+        footer = scoreBody;
+      }
+    }
+  }
+  showTooltip(data.event, title, body, footer, meta);
 }
 
 function renderAggregateBarChart() {
@@ -1862,7 +1881,7 @@ function renderAggregateBarChart() {
   const trace = {
     x: labels, y: scores, type: "bar",
     marker: { color: colors, line: { width: 0 } },
-    customdata: taskCounts.map((c, i) => ({ count: c, stderr: aggStderrs[i] })),
+    customdata: taskCounts.map((c, i) => ({ count: c, stderr: aggStderrs[i], modelDir: modelNames[i] })),
     hoverinfo: "none",
   };
   const traces = [trace];
@@ -1926,7 +1945,7 @@ function renderGroupedBarChart(groupName) {
       x: labels, y: values, name: group.labels[i], type: "bar",
       legendgroup: group.labels[i], offsetgroup: String(i),
       marker: { color: barColors, line: { width: 0 } },
-      customdata: seValues || values.map(() => null),
+      customdata: modelNames.map((m, i) => ({ stderr: seValues ? seValues[i] : null, modelDir: m })),
       hoverinfo: "none",
       showlegend: true,
     };
@@ -2015,7 +2034,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const trace = {
     x: labels, y: values, type: "bar",
     marker: { color: colors, line: { width: 0 } },
-    customdata: seValues || values.map(() => null),
+    customdata: modelNames.map((m, i) => ({ stderr: seValues ? seValues[i] : null, modelDir: m })),
     hoverinfo: "none",
   };
   const traces = [trace];

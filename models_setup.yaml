@@ -25,7 +25,7 @@ normistral-7b-warm:
   display_name: "NorMistral 7B"
   category: norwegian
   organization: LTG/UiO
-  parameters: 7.24
+  parameters: 7.2
   license: "Apache 2.0"
   description: "Norwegian language model initialized from Mistral-7B-v0.1 and continually-trained on 260 billion subword tokens of Norwegian data. Trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/norallm/normistral-7b-warm
@@ -58,7 +58,7 @@ norbert4-xlarge:
   display_name: "NorBERT4 1B"
   category: norwegian
   organization: LTG/UiO
-  parameters: 0.987
+  parameters: 1.0
   license: "Apache 2.0"
   description: "The fourth generation NorBERT model for Norwegian encoding/decoding. Trained from scratch on 600B tokens of Norwegian Bokmål, Nynorsk and Northern Sámi. Trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/ltg/norbert4-xlarge
@@ -69,7 +69,7 @@ NorGPT-3B:
   display_name: "NorwAI NorGPT 3B"
   category: norwegian
   organization: NorwAI/NTNU
-  parameters: 3.09
+  parameters: 3.1
   license: "CC BY-NC-SA 4.0"
   description: "Generative pretrained transformer for Norwegian based on GPT-2 architecture. Part of the NorGLM suite trained on ~25B tokens."
   huggingface_url: https://huggingface.co/NorGLM/NorGPT-3B
@@ -91,7 +91,7 @@ NorwAI-Mistral-7B:
   display_name: "NorwAI Mistral 7B"
   category: norwegian
   organization: NorwAI/NTNU
-  parameters: 7.53
+  parameters: 7.5
   license: "NorLLM License"
   description: "Model continually-trained on Mistral-7B-v0.1 using 51B tokens of Norwegian and Nordic data. Part of the NorwAI LLM family from NTNU. Restricted to use within Nordic countries."
   huggingface_url: https://huggingface.co/NorwAI/NorwAI-Mistral-7B
@@ -113,7 +113,7 @@ nb-gpt-j-6B:
   display_name: "NB-GPT-J 6B"
   category: norwegian
   organization: Nasjonalbiblioteket
-  parameters: 6.05
+  parameters: 6.1
   license: "Apache 2.0"
   description: "Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models."
   huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B
@@ -158,7 +158,7 @@ Olmo-3-1125-32B:
   display_name: "OLMo3 32B"
   category: multilingual
   organization: Allen AI
-  parameters: 32.25
+  parameters: 32.3
   license: "Apache 2.0"
   description: "Open language model from the Allen Institute for AI trained on 5.50 trillion tokens with 65k context length."
   huggingface_url: https://huggingface.co/allenai/Olmo-3-1125-32B
@@ -169,7 +169,7 @@ Apertus-8B-2509:
   display_name: "Apertus 8B"
   category: multilingual
   organization: Swiss AI
-  parameters: 8.05
+  parameters: 8.1
   license: "Apache 2.0"
   description: "Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 15T tokens."
   huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
@@ -191,7 +191,7 @@ EuroLLM-1.7B:
   display_name: "EuroLLM 1.7B"
   category: multilingual
   organization: EuroLLM
-  parameters: 1.66
+  parameters: 1.7
   license: "Apache 2.0"
   description: "Multilingual transformer supporting European languages."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-1.7B
@@ -202,7 +202,7 @@ EuroLLM-9B-2512:
   display_name: "EuroLLM 9B"
   category: multilingual
   organization: EuroLLM
-  parameters: 9.15
+  parameters: 9.2
   license: "Apache 2.0"
   description: "Multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-9B-2512
@@ -268,7 +268,7 @@ Llama-3.1-8B:
   display_name: "Llama3.1 8B"
   category: multilingual
   organization: Meta
-  parameters: 8.03
+  parameters: 8.0
   license: "Llama 3.1 Community License"
   description: "Multilingual language model from Meta supporting 8 languages. Trained on 15T+ tokens with 128k context length."
   huggingface_url: https://huggingface.co/meta-llama/Llama-3.1-8B
@@ -290,7 +290,7 @@ Mistral-7B-v0.1:
   display_name: "Mistral 7B"
   category: multilingual
   organization: Mistral AI
-  parameters: 7.24
+  parameters: 7.2
   license: "Apache 2.0"
   description: "Generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention."
   huggingface_url: https://huggingface.co/mistralai/Mistral-7B-v0.1
@@ -411,7 +411,7 @@ AI-Sweden-Models-Llama-3-8B:
   display_name: "AI Sweden Llama3 8B"
   category: multilingual
   organization: AI Sweden
-  parameters: 8.03
+  parameters: 8.0
   license: "Llama 3 Community License"
   description: "Model based on Llama 3 architecture, continually-trained on Swedish and Nordic data by AI Sweden."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/Llama-3-8B
@@ -422,7 +422,7 @@ gpt-sw3-1.3b:
   display_name: "GPT-SW3 1.3B"
   category: multilingual
   organization: AI Sweden
-  parameters: 1.37
+  parameters: 1.4
   license: "Apache 2.0"
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-1.3b
@@ -444,7 +444,7 @@ gpt-sw3-20b:
   display_name: "GPT-SW3 20B"
   category: multilingual
   organization: AI Sweden
-  parameters: 20.78
+  parameters: 20.8
   license: "Modified RAIL License"
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-20b
@@ -466,7 +466,7 @@ Viking-7B:
   display_name: "Viking 7B"
   category: multilingual
   organization: SILO AI
-  parameters: 7.55
+  parameters: 7.6
   license: "Apache 2.0"
   description: "Open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
   huggingface_url: https://huggingface.co/LumiOpen/Viking-7B
@@ -477,7 +477,7 @@ Viking-13B:
   display_name: "Viking 13B"
   category: multilingual
   organization: SILO AI
-  parameters: 14.03
+  parameters: 14.0
   license: "Apache 2.0"
   description: "Open language model for Nordic languages developed by SILO AI (named 13B after its architecture). Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
   huggingface_url: https://huggingface.co/LumiOpen/Viking-13B
@@ -488,7 +488,7 @@ Viking-33B:
   display_name: "Viking 33B"
   category: multilingual
   organization: SILO AI
-  parameters: 33.12
+  parameters: 33.1
   license: "Apache 2.0"
   description: "Open language model for Nordic languages developed by SILO AI. Supports Finnish, Swedish, Norwegian, Danish, Icelandic, and English."
   huggingface_url: https://huggingface.co/LumiOpen/Viking-33B
