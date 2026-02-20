@@ -10,8 +10,8 @@ let currentNormalization = "baseline"; // auto-set based on view
 let currentMetric = null; // null = use main_metric; set for individual task views
 let checkedTasks = new Set();
 let checkedModels = new Set();
-let showStderr = true;
-let showPromptDeviation = true;
+const showStderr = true;
+const showPromptDeviation = true;
 let currentSizeMin = 7;
 let currentSizeMax = 14;
 let fullyOpenOnly = false;
@@ -395,23 +395,7 @@ function autoSetNormalization() {
 }
 
 function updateStderrToggleState() {
-  const control = document.getElementById("stderr-control");
-  const toggle = document.getElementById("stderr-toggle");
-  const pdControl = document.getElementById("prompt-dev-control");
-  const pdToggle = document.getElementById("prompt-dev-toggle");
-  if (!control || !toggle) return;
-  if (isStderrCompatible()) {
-    control.classList.remove("disabled");
-    if (pdControl) pdControl.classList.remove("disabled");
-  } else {
-    control.classList.add("disabled");
-    toggle.checked = false;
-    showStderr = false;
-    if (pdControl) {
-      pdControl.classList.add("disabled");
-      if (pdToggle) { pdToggle.checked = false; showPromptDeviation = false; }
-    }
-  }
+  // Error bars are always shown; this is kept as a no-op for call-site compatibility.
 }
 
 // ============================================================
@@ -608,8 +592,6 @@ function stateToUrl() {
     params.set("task", _taskSelToAlias[currentTaskSelection] || currentTaskSelection);
   }
   if (currentPromptAgg !== "max") params.set("prompt", currentPromptAgg);
-  if (!showStderr) params.set("se", "0");
-  if (!showPromptDeviation) params.set("pd", "0");
 
   // Only store metric if it differs from main_metric for the current task
   if (currentMetric && !isAggregateSelection(currentTaskSelection)) {
@@ -669,8 +651,7 @@ function loadStateFromHash() {
   if (params.has("prompt")) { currentPromptAgg = params.get("prompt"); loaded = true; }
   if (params.has("metric")) { currentMetric = params.get("metric"); loaded = true; }
   if (params.has("norm")) { currentNormalization = params.get("norm"); loaded = true; }
-  if (params.has("se")) { showStderr = params.get("se") !== "0"; loaded = true; }
-  if (params.has("pd")) { showPromptDeviation = params.get("pd") !== "0"; loaded = true; }
+
 
   if (params.has("size")) {
     const parts = params.get("size").split("-");
@@ -741,8 +722,6 @@ async function init() {
     document.getElementById("task-select").value = currentTaskSelection;
     document.getElementById("prompt-agg-select").value = currentPromptAgg;
     document.getElementById("norm-select").value = currentNormalization;
-    document.getElementById("stderr-toggle").checked = showStderr;
-    document.getElementById("prompt-dev-toggle").checked = showPromptDeviation;
     document.querySelectorAll(".tab-btn").forEach((btn) =>
       btn.classList.toggle("active", btn.dataset.tab === currentTab));
     document.querySelectorAll(".shot-btn").forEach((btn) =>
@@ -884,38 +863,10 @@ function bindEventListeners() {
     renderChart();
   });
 
-  document.getElementById("stderr-toggle").addEventListener("change", (e) => {
-    showStderr = e.target.checked;
-    renderChart();
-  });
-
-  document.getElementById("prompt-dev-toggle").addEventListener("change", (e) => {
-    showPromptDeviation = e.target.checked;
-    renderChart();
-  });
-
   document.getElementById("fully-open-toggle").addEventListener("change", (e) => {
     fullyOpenOnly = e.target.checked;
     renderChart();
   });
-
-  attachTooltip(document.getElementById("stderr-control"), () => ({
-    title: "Sampling error",
-    body: "Shows sampling uncertainty (\u00B11 SE) around each score. "
-      + "For classification metrics (accuracy, F1, EM), SE = \u221A(v\u00B7(1\u2212v)/n). "
-      + "For corpus-level metrics (BLEU, chrF, ROUGE), SE is estimated via bootstrap resampling (100 iterations). "
-      + "Aggregate SE is propagated as \u221A(\u03A3 SE\u00B2) / N.",
-    footer: "",
-  }));
-
-  attachTooltip(document.getElementById("prompt-dev-control"), () => ({
-    title: "Prompt deviation",
-    body: "Shows uncertainty due to prompt formulation. "
-      + "Computed as SD(scores across prompt variants) / \u221A(n), where n is the number of prompt variants. "
-      + "When combined with sampling error, the two sources are added in quadrature: \u221A(SE\u00B2 + prompt_SE\u00B2). "
-      + "Has no effect on single-prompt benchmarks.",
-    footer: "",
-  }));
 
   document.getElementById("metric-select").addEventListener("change", (e) => {
     currentMetric = e.target.value;
@@ -1607,6 +1558,25 @@ function attachTaskTooltip(element, bench) {
 // ============================================================
 
 function renderChart() {
+  const isAbout = currentTab === "about";
+  const isProgress = currentTab === "progress";
+
+  // Show/hide About content vs dashboard
+  const aboutEl = document.getElementById("about-content");
+  if (aboutEl) aboutEl.style.display = isAbout ? "" : "none";
+
+  // Hide all dashboard elements when on About tab
+  const dashboardIds = ["task-description", "filter-panel", "filter-table-container",
+    "chart-container", "task-checkboxes", "model-panels"];
+  for (const id of dashboardIds) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAbout ? "none" : "";
+  }
+  const controlsEl = document.querySelector(".controls");
+  if (controlsEl) controlsEl.style.display = isAbout ? "none" : "";
+
+  if (isAbout) { stateToUrl(); return; }
+
   // Show/hide metric selector based on task selection
   const sel = currentTaskSelection;
   if (isAggregateSelection(sel)) {
@@ -1632,11 +1602,11 @@ function renderChart() {
   updateDescription();
   // Hide model panels and size slider on progress tab (only one model)
   const modelSection = document.getElementById("model-panels");
-  if (modelSection) modelSection.style.display = currentTab === "progress" ? "none" : "";
+  if (modelSection) modelSection.style.display = isProgress ? "none" : "";
   const sizeSlider = document.getElementById("size-slider-container");
-  if (sizeSlider) sizeSlider.style.display = currentTab === "progress" ? "none" : "";
+  if (sizeSlider) sizeSlider.style.display = isProgress ? "none" : "";
   const fullyOpenContainer = document.getElementById("fully-open-container");
-  if (fullyOpenContainer) fullyOpenContainer.style.display = currentTab === "progress" ? "none" : "";
+  if (fullyOpenContainer) fullyOpenContainer.style.display = isProgress ? "none" : "";
   if (currentTab === "comparison") renderComparisonChart();
   else renderProgressChart();
   stateToUrl();

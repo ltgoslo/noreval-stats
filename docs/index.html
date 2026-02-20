@@ -20,6 +20,7 @@
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="comparison">Base Model Comparison</button>
             <button class="tab-btn" data-tab="progress">NorOLMo Progress</button>
+            <button class="tab-btn" data-tab="about">About</button>
         </nav>
 
         <div class="controls">
@@ -68,19 +69,6 @@
                 <select id="metric-select" class="control-select"></select>
             </div>
 
-            <div class="control-group" id="stderr-control">
-                <label for="stderr-toggle" class="stderr-label">
-                    <input type="checkbox" id="stderr-toggle" checked>
-                    <span>Sampling error</span>
-                </label>
-            </div>
-
-            <div class="control-group" id="prompt-dev-control">
-                <label for="prompt-dev-toggle" class="stderr-label">
-                    <input type="checkbox" id="prompt-dev-toggle" checked>
-                    <span>Prompt deviation</span>
-                </label>
-            </div>
         </div>
 
         <div id="task-description" class="task-description" style="display:none;"></div>
@@ -163,6 +151,78 @@
                 </div>
             </div>
         </div>
+        <div id="about-content" class="about-content" style="display:none;">
+            <div class="about-section">
+                <h2>About NorEval</h2>
+                <p>
+                    NorEval is a comprehensive evaluation benchmark for Norwegian language models, described in
+                    <a href="https://aclanthology.org/2025.findings-acl.181/">Samuel et al. (2025)</a>.
+                    It consists of 35 tasks spanning linguistic knowledge, language understanding, world knowledge &amp; reasoning,
+                    generation &amp; summarization, and translation. All evaluations are conducted using
+                    <a href="https://github.com/EleutherAI/lm-evaluation-harness">lm-eval-harness</a> v0.4.10.
+                </p>
+            </div>
+
+            <div class="about-section">
+                <h3>Design principles</h3>
+                <ul>
+                    <li><strong>Native, non-translated datasets.</strong> The benchmarks are built from natively Norwegian sources rather than machine-translated English datasets. This avoids translationese artifacts and better reflects genuine Norwegian language use.</li>
+                    <li><strong>Both written standards.</strong> Norwegian has two official written standards: Bokm&aring;l (nob) and Nynorsk (nno). NorEval includes parallel benchmark variants for both, enabling direct comparison of model performance across the two standards.</li>
+                    <li><strong>Northern S&aacute;mi.</strong> Two translation tasks (nob&harr;sme) and one linguistic acceptability task (MultiBLiMP) cover Northern S&aacute;mi, an endangered Uralic language spoken in Norway, Sweden, and Finland.</li>
+                    <li><strong>Multiple prompt templates.</strong> Most tasks are evaluated with 4&ndash;6 different prompt formulations to measure sensitivity to prompt phrasing. The dashboard reports a configurable summary statistic across prompts (max, mean, median, or min).</li>
+                    <li><strong>Few-shot evaluation.</strong> Each task is evaluated at 0-shot, 1-shot, and 5-shot to assess in-context learning capabilities.</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>Error bars</h3>
+                <p>Error bars on this dashboard show combined uncertainty from two independent sources, added in quadrature:</p>
+                <ul>
+                    <li><strong>Sampling error (&plusmn;1 SE).</strong> For classification metrics (accuracy, F1, exact match), SE = &radic;(v&middot;(1&minus;v)/n), where v is the score and n is the number of samples. For corpus-level metrics (BLEU, chrF, ROUGE), SE is estimated via bootstrap resampling (100 iterations).</li>
+                    <li><strong>Prompt deviation.</strong> Computed as SD(scores across prompt variants) / &radic;(k), where k is the number of prompt variants. This captures uncertainty due to prompt formulation. Has no effect on single-prompt benchmarks.</li>
+                </ul>
+                <p>The two components are combined as &radic;(SE&sup2; + prompt_SE&sup2;). In aggregate views, SE is propagated as &radic;(&Sigma; SE&sup2;) / N across the N benchmarks being averaged.</p>
+            </div>
+
+            <div class="about-section">
+                <h3>Normalization</h3>
+                <p>Aggregate views normalize scores before averaging to put different metrics on a common scale. The default <em>random baseline</em> normalization maps each score to:</p>
+                <p class="about-formula">normalized = (raw &minus; random_baseline) / (max_performance &minus; random_baseline) &times; 100</p>
+                <p>where 0 = random chance and 100 = perfect performance. Other normalization options (min-max, z-score, percentile) are available from the <em>Normalization</em> dropdown.</p>
+            </div>
+
+            <div class="about-section">
+                <h3>Signal-filtered aggregation</h3>
+                <p>The <em>All (signal-filtered)</em> option on the Progress tab applies quality criteria inspired by
+                    <a href="https://github.com/hplt-project/hplt-e">HPLT-E</a> to exclude benchmarks that show noisy
+                    or unreliable training signal. Criteria include monotonicity (Spearman &rho;), signal-to-noise ratio,
+                    coefficient of variation, and prompt sensitivity. Each criterion can be individually enabled or tuned.</p>
+            </div>
+
+            <div class="about-section">
+                <h3>Dashboard features</h3>
+                <ul>
+                    <li><strong>Base Model Comparison.</strong> Compares final-checkpoint scores across models. Filter by model size or restrict to fully open models. Select/deselect individual models and tasks.</li>
+                    <li><strong>NorOLMo Progress.</strong> Tracks NorOLMo 13B performance across 33 training checkpoints (steps 1k&ndash;33k) to visualize learning dynamics.</li>
+                    <li><strong>Task grouping.</strong> Related benchmarks (e.g., Bokm&aring;l/Nynorsk pairs, translation direction pairs) are shown as grouped bar charts for easy comparison.</li>
+                    <li><strong>Metric selector.</strong> Individual task views offer a dropdown to switch between all available metrics for that benchmark.</li>
+                    <li><strong>Chart export.</strong> Charts can be downloaded as PNG (3&times; resolution) or SVG via the toolbar buttons.</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>Citation</h3>
+                <pre class="about-citation">@inproceedings{samuel-etal-2025-noreval,
+    title = "{N}or{E}val: A Comprehensive Evaluation Benchmark for {N}orwegian",
+    author = "Samuel, David and Kutuzov, Andrey and De Mattei, Lorenzo
+              and Velldal, Erik and {\O}vrelid, Lilja",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    year = "2025",
+    url = "https://aclanthology.org/2025.findings-acl.181/",
+}</pre>
+            </div>
+        </div>
+
     </main>
 
     <div id="custom-tooltip" class="custom-tooltip">

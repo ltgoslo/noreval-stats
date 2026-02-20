@@ -179,28 +179,6 @@ main {
   box-shadow: 0 0 0 2px var(--accent-light);
 }
 
-/* Stderr toggle */
-.stderr-label {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--fg-muted);
-  cursor: pointer;
-  user-select: none;
-}
-
-.stderr-label input[type="checkbox"] {
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-#stderr-control.disabled,
-#prompt-dev-control.disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
 
 /* Task description */
 .task-description {
@@ -599,6 +577,92 @@ main {
 
 .modebar-btn.active path {
   fill: var(--accent) !important;
+}
+
+/* About tab */
+.about-content {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.about-section {
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+
+.about-section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 0.6rem;
+}
+
+.about-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 0.5rem;
+}
+
+.about-section p {
+  font-size: 0.9rem;
+  color: var(--fg);
+  line-height: 1.65;
+  margin-bottom: 0.5rem;
+}
+
+.about-section p:last-child {
+  margin-bottom: 0;
+}
+
+.about-section ul {
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.about-section ul:last-child {
+  margin-bottom: 0;
+}
+
+.about-section li {
+  font-size: 0.9rem;
+  color: var(--fg);
+  line-height: 1.65;
+  margin-bottom: 0.4rem;
+}
+
+.about-section a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about-section a:hover {
+  text-decoration: underline;
+}
+
+.about-formula {
+  font-family: "Courier New", monospace;
+  background: var(--bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  color: var(--fg);
+}
+
+.about-citation {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  background: var(--bg);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  overflow-x: auto;
+  color: var(--fg);
+  white-space: pre-wrap;
 }
 
 /* Footer */
