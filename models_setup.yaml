@@ -126,8 +126,20 @@ nb-gpt-j-6B:
   parameters: 6.1
   license: "Apache 2.0"
   fully_open: true
-  description: "Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models."
+  description: "Norwegian fine-tuned version of GPT-J. Part of the NB's effort to create Norwegian language models."
   huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B
+  default: true
+  color: "#40263f"
+
+nb-gpt-j-6B-v2:
+  display_name: "NB-GPT-J 6B v2"
+  category: norwegian
+  organization: Nasjonalbiblioteket
+  parameters: 6.1
+  license: "unknown"
+  fully_open: false
+  description: "An improved version of NB-GPT-J 6B by the National Library of Norway, but without any information about the model or the training data."
+  huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B-v2
   default: true
   color: "#40263f"
 
