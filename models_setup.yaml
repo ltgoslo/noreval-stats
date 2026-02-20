@@ -44,7 +44,7 @@ normistral-11b-warm:
   fully_open: false
   description: "Norwegian language model based on Mistral-Nemo-Base-2407, continually-trained on 250 billion tokens of Norwegian, Scandinavian, Sámi and code data. Trained by the Language Technology Group at the University of Oslo."
   huggingface_url: https://huggingface.co/norallm/normistral-11b-warm
-  default: true
+  default: false
   color: "#DD0000"
 
 normistral-11b-long:
@@ -84,7 +84,7 @@ NorGPT-3B:
   color: "#00509e"
 
 NorLlama-3B:
-  display_name: "NorwAI NorLlama 8B"
+  display_name: "NorwAI NorLlama 3B"
   category: norwegian
   organization: NorwAI/NTNU
   parameters: 2.8
@@ -92,7 +92,7 @@ NorLlama-3B:
   fully_open: false
   description: "Generative pretrained transformer for Norwegian based on LLaMA architecture. Part of the NorGLM suite."
   huggingface_url: https://huggingface.co/NorGLM/NorLlama-3B
-  default: true
+  default: false
   color: "#00509e"
 
 NorwAI-Mistral-7B:
@@ -321,7 +321,7 @@ Mistral-7B-v0.1:
   fully_open: false
   description: "Generative text model from Mistral AI that uses Grouped-Query Attention and Sliding-Window Attention."
   huggingface_url: https://huggingface.co/mistralai/Mistral-7B-v0.1
-  default: true
+  default: false
   color: "#ff8c00"
 
 Mistral-Nemo-Base-2407:
@@ -462,7 +462,7 @@ gpt-sw3-1.3b:
   organization: AI Sweden
   parameters: 1.4
   license: "Apache 2.0"
-  fully_open: false
+  fully_open: true
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-1.3b
   default: true
@@ -474,7 +474,7 @@ gpt-sw3-6.7b-v2:
   organization: AI Sweden
   parameters: 6.7
   license: "Modified RAIL License"
-  fully_open: false
+  fully_open: true
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-6.7b-v2
   default: true
@@ -486,7 +486,7 @@ gpt-sw3-20b:
   organization: AI Sweden
   parameters: 20.8
   license: "Modified RAIL License"
-  fully_open: false
+  fully_open: true
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-20b
   default: true
@@ -498,7 +498,7 @@ gpt-sw3-40b:
   organization: AI Sweden
   parameters: 40.0
   license: "Modified RAIL License"
-  fully_open: false
+  fully_open: true
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-40b
   default: true
@@ -549,7 +549,7 @@ Poro-34B:
   fully_open: true
   description: "Open language model for Finnish, English, and code, developed by SILO AI in collaboration with TurkuNLP and the University of Edinburgh."
   huggingface_url: https://huggingface.co/LumiOpen/Poro-34B
-  default: true
+  default: false
   color: "#08aa78"
 
 dfm-decoder-open-v0-7b-pt:
