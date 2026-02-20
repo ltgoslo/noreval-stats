@@ -204,6 +204,18 @@ Apertus-8B-2509:
   default: true
   color: "#7ac6dc"
 
+Apertus-8B-2509-stage4:
+  display_name: "Apertus 8B"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 8.1
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Stage-4 version (before final high-quality training & length extension) of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+  default: false
+  color: "#7ac6dc"
+
 Apertus-70B-2509:
   display_name: "Apertus 70B"
   category: multilingual
@@ -345,7 +357,7 @@ Mistral-Nemo-Base-2407:
   fully_open: false
   description: "Pretrained generative text model trained jointly by Mistral AI and NVIDIA. Features 128k context window and multilingual support."
   huggingface_url: https://huggingface.co/mistralai/Mistral-Nemo-Base-2407
-  default: true
+  default: false
   color: "#ff8c00"
 
 Ministral-3-3B-Base-2512-Llamafied-TextOnly:
@@ -381,6 +393,18 @@ Ministral-3-14B-Base-2512-Llamafied-TextOnly:
   fully_open: false
   description: "Text-only language model component of Mistral AI's Ministral 3 (14B) multimodal model, converted to Llama format."
   huggingface_url: https://huggingface.co/mistralai/Ministral-3-14B-Base-2512
+  default: true
+  color: "#ff8c00"
+
+Mistral-Small-24B-Base-2501:
+  display_name: "Mistral 24B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 23.6
+  license: "Apache 2.0"
+  fully_open: false
+  description: "Pretrained base language model from Mistral AI with 24B parameters. Supports multilingual text with a 32k context window."
+  huggingface_url: https://huggingface.co/mistralai/Mistral-Small-24B-Base-2501
   default: true
   color: "#ff8c00"
 
