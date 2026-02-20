@@ -102,7 +102,7 @@ NorwAI-Mixtral-8x7B:
 nb-gpt-j-6B:
   display_name: "NB-GPT-J 6B"
   category: norwegian
-  organization: NB
+  organization: Nasjonalbiblioteket
   parameters: 6
   description: "A 6B parameter Norwegian fine-tuned version of GPT-J. Part of the Norwegian National Library's effort to create Norwegian language models."
   huggingface_url: https://huggingface.co/NbAiLab/nb-gpt-j-6B
@@ -313,7 +313,7 @@ Ministral-3-14B-Base-2512-Llamafied-TextOnly:
 Qwen2.5-32B:
   display_name: "Qwen2.5 32B"
   category: multilingual
-  organization: Qwen
+  organization: Alibaba
   parameters: 32
   description: "A 32B parameter base language model from Qwen. Multilingual with 29 language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen2.5-32B
@@ -323,7 +323,7 @@ Qwen2.5-32B:
 Qwen2.5-72B:
   display_name: "Qwen2.5 72B"
   category: multilingual
-  organization: Qwen
+  organization: Alibaba
   parameters: 72
   description: "A 72B parameter base language model from Qwen. Multilingual with 29 language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen2.5-72B
@@ -333,7 +333,7 @@ Qwen2.5-72B:
 Qwen3-1.7B-Base:
   display_name: "Qwen3 1.7B"
   category: multilingual
-  organization: Qwen
+  organization: Alibaba
   parameters: 2
   description: "A 1.7B parameter base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-1.7B-Base
@@ -343,7 +343,7 @@ Qwen3-1.7B-Base:
 Qwen3-4B-Base:
   display_name: "Qwen3 4B"
   category: multilingual
-  organization: Qwen
+  organization: Alibaba
   parameters: 4
   description: "A 4B parameter base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-4B-Base
@@ -353,7 +353,7 @@ Qwen3-4B-Base:
 Qwen3-8B-Base:
   display_name: "Qwen3 8B"
   category: multilingual
-  organization: Qwen
+  organization: Alibaba
   parameters: 8
   description: "An 8B parameter base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-8B-Base
@@ -363,7 +363,7 @@ Qwen3-8B-Base:
 Qwen3-14B-Base:
   display_name: "Qwen3 14B"
   category: multilingual
-  organization: Qwen
+  organization: Alibaba
   parameters: 15
   description: "A 14.8B parameter base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-14B
