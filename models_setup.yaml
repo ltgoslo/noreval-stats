@@ -151,7 +151,7 @@ olmo-2-13b (stage 1):
   parameters: 13.7
   license: "Apache 2.0"
   fully_open: true
-  description: "Specific stage 1 checkpoint of OLMo 2, an open language model trained on 5 trillion tokens by the Allen Institute for AI."
+  description: "The last stage-1 checkpoint of OLMo 2, an open language model trained on 5 trillion tokens by the Allen Institute for AI."
   huggingface_url: https://huggingface.co/allenai/OLMo-2-1124-13B
   default: false
   color: "#f0529c"
@@ -180,6 +180,18 @@ Olmo-3-1025-7B:
   default: true
   color: "#f0529c"
 
+Olmo-3-1025-7B-stage1:
+  display_name: "OLMo3 7B (stage 1)"
+  category: multilingual
+  organization: Allen AI
+  parameters: 7.3
+  license: "Apache 2.0"
+  fully_open: true
+  description: "The last stage-1 checkpoint of OLMo3 7B, an open language model from the Allen Institute for AI trained on 5.93 trillion tokens with 65k context length."
+  huggingface_url: https://huggingface.co/allenai/Olmo-3-1025-7B
+  default: false
+  color: "#f0529c"
+
 Olmo-3-1125-32B:
   display_name: "OLMo3 32B"
   category: multilingual
@@ -205,7 +217,7 @@ Apertus-8B-2509:
   color: "#7ac6dc"
 
 Apertus-8B-2509-stage4:
-  display_name: "Apertus 8B"
+  display_name: "Apertus 8B (stage 4)"
   category: multilingual
   organization: Swiss AI
   parameters: 8.1
