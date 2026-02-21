@@ -143,6 +143,18 @@ nb-gpt-j-6B-v2:
   default: true
   color: "#40263f"
 
+OLMo-2-0425-1B:
+  display_name: "OLMo2 1B"
+  category: multilingual
+  organization: Allen AI
+  parameters: 1.5
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Open language model from the Allen Institute for AI trained on 4 trillion tokens."
+  huggingface_url: https://huggingface.co/allenai/OLMo-2-0425-1B
+  default: true
+  color: "#f0529c"
+
 # Multilingual models
 olmo-2-13b (stage 1):
   display_name: "OLMo2 13B (stage 1)"
@@ -489,7 +501,7 @@ Mistral-Small-24B-Base-2501:
   fully_open: false
   description: "Pretrained base language model from Mistral AI with 24B parameters. Supports multilingual text with a 32k context window."
   huggingface_url: https://huggingface.co/mistralai/Mistral-Small-24B-Base-2501
-  default: true
+  default: false
   color: "#ff8c00"
 
 Mistral-Small-3.1-24B-Base-2503-textonly:
