@@ -216,6 +216,42 @@ Apertus-8B-2509:
   default: true
   color: "#7ac6dc"
 
+Apertus-8B-2509-stage1:
+  display_name: "Apertus 8B (stage 1)"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 8.1
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Stage-1 version of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+  default: false
+  color: "#7ac6dc"
+
+Apertus-8B-2509-stage2:
+  display_name: "Apertus 8B (stage 2)"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 8.1
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Stage-2 version of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+  default: false
+  color: "#7ac6dc"
+
+Apertus-8B-2509-stage3:
+  display_name: "Apertus 8B (stage 3)"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 8.1
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Stage-3 version of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+  default: false
+  color: "#7ac6dc"
+
 Apertus-8B-2509-stage4:
   display_name: "Apertus 8B (stage 4)"
   category: multilingual
@@ -223,7 +259,19 @@ Apertus-8B-2509-stage4:
   parameters: 8.1
   license: "Apache 2.0"
   fully_open: true
-  description: "Stage-4 version (before final high-quality training & length extension) of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
+  description: "Stage-4 version (before final high-quality training) of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
+  huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
+  default: false
+  color: "#7ac6dc"
+
+Apertus-8B-2509-stage5:
+  display_name: "Apertus 8B (stage 5)"
+  category: multilingual
+  organization: Swiss AI
+  parameters: 8.1
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Stage-5 version (before length extension) of Apertus 8B. Multilingual model supporting over 1000 languages, designed for fully-open and transparent language modeling. Trained on 13.5T tokens."
   huggingface_url: https://huggingface.co/swiss-ai/Apertus-8B-2509
   default: false
   color: "#7ac6dc"
@@ -324,6 +372,30 @@ gemma-3-27b-pt:
   default: true
   color: "#3aab58"
 
+Llama-3.2-1B:
+  display_name: "Llama3.2 1B"
+  category: multilingual
+  organization: Meta
+  parameters: 1.2
+  license: "Llama 3.2 Community License"
+  fully_open: false
+  description: "Lightweight multilingual language model from Meta supporting 8 languages. Trained on up to 9T tokens with knowledge distillation from Llama 3.1 8B/70B. 128k context length."
+  huggingface_url: https://huggingface.co/meta-llama/Llama-3.2-1B
+  default: true
+  color: "#0a8af8"
+
+Llama-3.2-3B:
+  display_name: "Llama3.2 3B"
+  category: multilingual
+  organization: Meta
+  parameters: 3.2
+  license: "Llama 3.2 Community License"
+  fully_open: false
+  description: "Lightweight multilingual language model from Meta supporting 8 languages. Trained on up to 9T tokens with knowledge distillation from Llama 3.1 8B/70B. 128k context length."
+  huggingface_url: https://huggingface.co/meta-llama/Llama-3.2-3B
+  default: true
+  color: "#0a8af8"
+
 Llama-3.1-8B:
   display_name: "Llama3.1 8B"
   category: multilingual
@@ -409,7 +481,7 @@ Ministral-3-14B-Base-2512-Llamafied-TextOnly:
   color: "#ff8c00"
 
 Mistral-Small-24B-Base-2501:
-  display_name: "Mistral 24B"
+  display_name: "Mistral 24B (v2501)"
   category: multilingual
   organization: Mistral AI
   parameters: 23.6
@@ -417,6 +489,18 @@ Mistral-Small-24B-Base-2501:
   fully_open: false
   description: "Pretrained base language model from Mistral AI with 24B parameters. Supports multilingual text with a 32k context window."
   huggingface_url: https://huggingface.co/mistralai/Mistral-Small-24B-Base-2501
+  default: true
+  color: "#ff8c00"
+
+Mistral-Small-3.1-24B-Base-2503-textonly:
+  display_name: "Mistral 24B"
+  category: multilingual
+  organization: Mistral AI
+  parameters: 23.6
+  license: "Apache 2.0"
+  fully_open: false
+  description: "The improved v2503 of Mistral Small – a pretrained base language model from Mistral AI with 24B parameters. Supports multilingual text with a 32k context window."
+  huggingface_url: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Base-2503
   default: true
   color: "#ff8c00"
 
