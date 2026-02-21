@@ -13,7 +13,7 @@ let checkedModels = new Set();
 const showStderr = true;
 const showPromptDeviation = true;
 let currentSizeMin = 7;
-let currentSizeMax = 14;
+let currentSizeMax = 24;
 let fullyOpenOnly = false;
 
 // HPLT-E quality filter state
