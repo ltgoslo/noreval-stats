@@ -306,7 +306,7 @@ EuroLLM-1.7B:
   organization: EuroLLM
   parameters: 1.7
   license: "Apache 2.0"
-  fully_open: true
+  fully_open: false
   description: "Multilingual transformer supporting European languages."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-1.7B
   default: true
@@ -318,7 +318,7 @@ EuroLLM-9B-2512:
   organization: EuroLLM
   parameters: 9.2
   license: "Apache 2.0"
-  fully_open: true
+  fully_open: false
   description: "Multilingual transformer supporting 34 languages, an enhanced version of EuroLLM-9B with long-context extension."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-9B-2512
   default: true
@@ -330,7 +330,7 @@ EuroLLM-22B-2512:
   organization: EuroLLM
   parameters: 22.6
   license: "Apache 2.0"
-  fully_open: true
+  fully_open: false
   description: "Multilingual transformer trained on 4 trillion tokens across EU languages. Features Grouped Query Attention and 32k token context window."
   huggingface_url: https://huggingface.co/utter-project/EuroLLM-22B-2512
   default: true
@@ -606,7 +606,7 @@ gpt-sw3-1.3b:
   organization: AI Sweden
   parameters: 1.4
   license: "Apache 2.0"
-  fully_open: true
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-1.3b
   default: true
@@ -618,7 +618,7 @@ gpt-sw3-6.7b-v2:
   organization: AI Sweden
   parameters: 6.7
   license: "Modified RAIL License"
-  fully_open: true
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-6.7b-v2
   default: true
@@ -630,7 +630,7 @@ gpt-sw3-20b:
   organization: AI Sweden
   parameters: 20.8
   license: "Modified RAIL License"
-  fully_open: true
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-20b
   default: true
@@ -642,7 +642,7 @@ gpt-sw3-40b:
   organization: AI Sweden
   parameters: 40.0
   license: "Modified RAIL License"
-  fully_open: true
+  fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-40b
   default: true
