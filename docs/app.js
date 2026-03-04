@@ -1760,6 +1760,9 @@ function getModelLabel(modelDir) {
 }
 
 /** Compute the minimum tick angle needed so x-axis labels don't overlap.
+ *  Uses 2D rectangle collision: adjacent rotated labels are spaced apart
+ *  horizontally (by slotWidth) and staggered vertically, so they can share
+ *  horizontal extent without actually overlapping in 2D.
  *  Returns 0 (horizontal) when labels fit, or a negative angle up to -90. */
 function computeTickAngle(labels) {
   if (!labels || labels.length <= 1) return 0;
@@ -1767,21 +1770,45 @@ function computeTickAngle(labels) {
   const margins = 80;
   const plotWidth = (chartEl ? chartEl.clientWidth : 1200) - margins;
   const fontSize = 13;
-  const charWidth = fontSize * 0.62; // approximate width per character
-  const maxLabelLen = Math.max(...labels.map((l) => l.length));
-  const labelWidth = maxLabelLen * charWidth;
+  const fontHeight = fontSize * 1.2; // line-height ≈ 1.2× font size
+  // Measure max label width using a canvas for accuracy
+  let labelWidth;
+  try {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.font = fontSize + "px Inter, system-ui, sans-serif";
+    labelWidth = Math.max(...labels.map((l) => ctx.measureText(l).width));
+  } catch (_) {
+    labelWidth = Math.max(...labels.map((l) => l.length)) * fontSize * 0.55;
+  }
   const slotWidth = plotWidth / labels.length;
-  const gap = 6; // minimum gap between labels in px
+  const gap = 4; // minimum gap between labels in px
 
   if (labelWidth + gap <= slotWidth) return 0; // horizontal fits
 
-  // Find the smallest angle where labels fit:
-  // At angle θ, the horizontal footprint is labelWidth * cos(θ) + fontSize * sin(θ)
-  // (the font height contributes to horizontal extent when rotated)
-  for (let deg = 15; deg < 90; deg += 5) {
+  // For a label rotated by θ (anchored at top-center for negative Plotly angles):
+  //   horizontal extent = W·cos θ + H·sin θ
+  //   vertical extent   = W·sin θ + H·cos θ
+  // Two adjacent labels are separated by slotWidth horizontally. They overlap
+  // in 2D only if their bounding boxes overlap on BOTH axes. Along the
+  // horizontal axis the overlap is: (horizontal_extent - slotWidth). Along the
+  // vertical axis the available separation equals that horizontal overlap
+  // divided by tan θ (the diagonal runs at angle θ). Labels collide only when
+  // the vertical extent > vertical separation, i.e.:
+  //   H·cos θ > (W·cos θ + H·sin θ - slotWidth) / tan θ
+  // Simplifying, no collision when:
+  //   slotWidth >= W·cos θ + H·sin θ - H·cos θ·tan θ
+  //             =  W·cos θ + H·sin θ - H·sin θ  =  W·cos θ
+  // ...but that ignores the gap between the rectangles along the diagonal.
+  //
+  // More precisely: two adjacent rotated rectangles (same size, anchored at
+  // their top-center, separated by slotWidth along x) don't collide when the
+  // perpendicular distance between their long edges exceeds 0. The
+  // perpendicular distance is:  slotWidth · sin θ - fontHeight
+  // So labels fit when:  slotWidth · sin θ >= fontHeight + gap
+  for (let deg = 5; deg < 90; deg += 5) {
     const rad = (deg * Math.PI) / 180;
-    const footprint = labelWidth * Math.cos(rad) + fontSize * Math.sin(rad);
-    if (footprint + gap <= slotWidth) return -deg;
+    if (slotWidth * Math.sin(rad) >= fontHeight + gap) return -deg;
   }
   return -90;
 }
