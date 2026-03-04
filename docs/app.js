@@ -1759,6 +1759,33 @@ function getModelLabel(modelDir) {
   return DATA.model_display_names[modelDir] || modelDir;
 }
 
+/** Compute the minimum tick angle needed so x-axis labels don't overlap.
+ *  Returns 0 (horizontal) when labels fit, or a negative angle up to -90. */
+function computeTickAngle(labels) {
+  if (!labels || labels.length <= 1) return 0;
+  const chartEl = document.getElementById("chart");
+  const margins = 80;
+  const plotWidth = (chartEl ? chartEl.clientWidth : 1200) - margins;
+  const fontSize = 13;
+  const charWidth = fontSize * 0.62; // approximate width per character
+  const maxLabelLen = Math.max(...labels.map((l) => l.length));
+  const labelWidth = maxLabelLen * charWidth;
+  const slotWidth = plotWidth / labels.length;
+  const gap = 6; // minimum gap between labels in px
+
+  if (labelWidth + gap <= slotWidth) return 0; // horizontal fits
+
+  // Find the smallest angle where labels fit:
+  // At angle θ, the horizontal footprint is labelWidth * cos(θ) + fontSize * sin(θ)
+  // (the font height contributes to horizontal extent when rotated)
+  for (let deg = 15; deg < 90; deg += 5) {
+    const rad = (deg * Math.PI) / 180;
+    const footprint = labelWidth * Math.cos(rad) + fontSize * Math.sin(rad);
+    if (footprint + gap <= slotWidth) return -deg;
+  }
+  return -90;
+}
+
 function getPlotlyLayout(overrides) {
   const result = Object.assign({
     font: { family: "Inter, system-ui, sans-serif", size: 13 },
@@ -1899,7 +1926,7 @@ function renderAggregateBarChart() {
   const layoutOpts = {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
-    xaxis: { title: "" },
+    xaxis: { title: "", tickangle: computeTickAngle(labels) },
     showlegend: false,
     annotations: labels.map((label, i) => ({
       x: label, y: scores[i] + (wantSE ? (aggStderrs[i] || 0) : 0),
@@ -1997,6 +2024,7 @@ function renderGroupedBarChart(groupName) {
   const layoutOpts = {
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    xaxis: { tickangle: computeTickAngle(labels) },
     barmode: "group",
     legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
@@ -2049,6 +2077,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const layoutOpts = {
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    xaxis: { tickangle: computeTickAngle(labels) },
     showlegend: false,
     annotations: labels.map((label, i) => ({
       x: label, y: (values[i] || 0) + (wantSE && seArr ? (seArr[i] || 0) : 0),
