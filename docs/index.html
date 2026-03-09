@@ -27,10 +27,10 @@
             <div class="control-group">
                 <label for="task-select">Task:</label>
                 <select id="task-select">
-                    <option value="__all_macro__">All (macro-average)</option>
-                    <option value="__all__">All (micro-average)</option>
-                    <option value="__filtered__">All (signal-filtered)</option>
-                    <option value="__custom__" hidden>Custom (micro-average)</option>
+                    <option value="__all_macro__">All (category-average)</option>
+                    <option value="__all__">All (task-average)</option>
+                    <option value="__filtered__">Signal-filtered tasks</option>
+                    <option value="__custom__" hidden>Custom (task-average)</option>
                 </select>
             </div>
 
@@ -44,7 +44,7 @@
             </div>
 
             <div class="control-group">
-                <label for="prompt-agg-select">Prompts:</label>
+                <label for="prompt-agg-select">Prompt aggregation:</label>
                 <select id="prompt-agg-select" class="control-select">
                     <option value="max" selected>max</option>
                     <option value="mean">mean</option>

@@ -21,22 +21,22 @@ let filterCriteria = {
   monotonicity: { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Monotonicity",
     description: "Spearman \u03C1 (step vs. score)",
     tooltip: "Spearman rank correlation between checkpoint step number and benchmark score within the window. Measures whether performance improves monotonically during training. Higher values indicate more consistent improvement. In HPLT-E (multi-model), the median across models is used; here we compute it for a single model trajectory. Default threshold: \u2265 0.5." },
-  snr:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 3.0,  direction: ">=", label: "SNR",
+  snr:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 3.0,  direction: ">=", label: "Signal-to-noise ratio (SNR)",
     description: "Signal-to-noise ratio",
     tooltip: "Ratio of mean score to mean prompt standard deviation across checkpoints in the window. Measures whether the benchmark signal is distinguishable from prompt-induced noise. In HPLT-E (multi-model), the median SNR across models is used; here we compute it for a single model trajectory. Default threshold: \u2265 3." },
-  cv:           { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 15.0, direction: "<=", label: "CV",
+  cv:           { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 15.0, direction: "<=", label: "Stable pretraining (CV)",
     description: "Coefficient of variation (%)",
     tooltip: "Standard deviation divided by mean of scores across checkpoints in the window, expressed as a percentage. Measures score stability during training. In HPLT-E (multi-model), the median CV across models is used; here we compute it for a single model trajectory. Default threshold: \u2264 15%." },
-  mad:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: "<=", label: "Prompt Sensitivity",
+  mad:          { enabled: true,  minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: "<=", label: "Prompt sensitivity (MAD)",
     description: "Median MAD across prompts",
     tooltip: "Median Absolute Deviation of scores across prompt variants, computed per checkpoint and then taken as the median over all checkpoints in the window. Measures how sensitive the benchmark is to prompt phrasing. In HPLT-E (multi-model), the median across models is used; here we compute it for a single model trajectory. Default threshold: \u2264 5." },
-  ordering:     { enabled: false, minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Ordering Consistency",
+  ordering:     { enabled: false, minStep: 5000, maxStep: 33000, threshold: 0.5,  direction: ">=", label: "Ranking consistency",
     description: "N/A for single model",
     tooltip: "Kendall\u2019s Tau correlation of model rankings between consecutive checkpoints. In HPLT-E, this measures whether models maintain their relative ranking across checkpoints. Not applicable here as we track a single model. Disabled by default." },
-  promptSwitch: { enabled: false, minStep: 5000, maxStep: 33000, threshold: 20.0, direction: "<=", label: "Prompt Switch Rate",
+  promptSwitch: { enabled: false, minStep: 5000, maxStep: 33000, threshold: 20.0, direction: "<=", label: "Prompt switch rate",
     description: "Best-prompt change rate (%)",
     tooltip: "Fraction of checkpoints where the best-performing prompt variant changes, expressed as a percentage. Measures how stable the optimal prompt is across training. High values indicate that the benchmark\u2019s best prompt varies with the model checkpoint. In HPLT-E (multi-model), the median rate across models is used; here we compute it for a single model trajectory." },
-  nonRandom:    { enabled: false, minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: ">=", label: "Non-Randomness",
+  nonRandom:    { enabled: false, minStep: 5000, maxStep: 33000, threshold: 5.0,  direction: ">=", label: "Non-randomness",
     description: "Max score \u2212 random baseline",
     tooltip: "Difference between the maximum score in the window and the task\u2019s random baseline. Verifies that the model actually learned the task beyond chance. Higher is better. Default threshold: \u2265 5." },
 };
@@ -2713,7 +2713,7 @@ function renderFilterTable() {
   table.innerHTML = "";
 
   const criterionOrder = ["monotonicity", "snr", "cv", "mad", "promptSwitch", "nonRandom", "ordering"];
-  const criterionHeaders = ["Mono", "SNR", "CV", "MAD", "Switch", "Non-Rand", "Ordering"];
+  const criterionHeaders = ["Monotonicity", "SNR", "CV", "MAD", "Switch rate", "Non-Randomness", "Consistency"];
 
   // Build header with tooltips
   const thead = document.createElement("thead");
