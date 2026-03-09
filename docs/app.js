@@ -10,6 +10,7 @@ let currentNormalization = "baseline"; // auto-set based on view
 let currentMetric = null; // null = use main_metric; set for individual task views
 let checkedTasks = new Set();
 let checkedModels = new Set();
+let checkedInstructModels = new Set();
 const showStderr = true;
 const showPromptDeviation = true;
 let currentSizeMin = 7;
@@ -233,14 +234,48 @@ function hexToRgba(hex, alpha) {
 }
 
 function getModelColor(modelDir) {
+  // Check instruct colors first, then base model colors
+  if (DATA.instruct_model_colors && DATA.instruct_model_colors[modelDir]) {
+    return DATA.instruct_model_colors[modelDir];
+  }
   if (DATA.model_colors && DATA.model_colors[modelDir]) {
     return DATA.model_colors[modelDir];
   }
-  const assignedColors = new Set(Object.values(DATA.model_colors || {}));
+  const allColors = Object.assign({}, DATA.model_colors || {}, DATA.instruct_model_colors || {});
+  const assignedColors = new Set(Object.values(allColors));
   const availableColors = MODEL_COLORS.filter((c) => !assignedColors.has(c));
-  const unassignedModels = Object.keys(DATA.models).filter((m) => !(DATA.model_colors && DATA.model_colors[m]));
+  const modelsData = getModelsData();
+  const unassignedModels = Object.keys(modelsData).filter((m) => !allColors[m]);
   const idx = unassignedModels.indexOf(modelDir);
   return availableColors[idx % availableColors.length];
+}
+
+// ============================================================
+// Tab-aware data source helpers
+// ============================================================
+
+/** Return the models score data for the active comparison tab. */
+function getModelsData() {
+  return currentTab === "instruct" ? DATA.instruct_models : DATA.models;
+}
+
+/** Return the checked-models set for the active comparison tab. */
+function getCheckedModels() {
+  return currentTab === "instruct" ? checkedInstructModels : checkedModels;
+}
+
+/** Return the default-models list for the active comparison tab. */
+function getDefaultModels() {
+  if (currentTab === "instruct") return DATA.instruct_default_models || Object.keys(DATA.instruct_models);
+  return DATA.default_models || Object.keys(DATA.models);
+}
+
+/** Look up a model metadata field, checking instruct metadata first if on instruct tab. */
+function getModelMeta(field, modelDir) {
+  const instructKey = "instruct_" + field;
+  if (DATA[instructKey] && DATA[instructKey][modelDir] !== undefined) return DATA[instructKey][modelDir];
+  if (DATA[field] && DATA[field][modelDir] !== undefined) return DATA[field][modelDir];
+  return undefined;
 }
 
 // ============================================================
@@ -538,6 +573,12 @@ function buildUrlMaps() {
     _modelDirToAlias[dir] = alias;
     _modelAliasToDir[alias] = dir;
   }
+  // Also build aliases for instruct models
+  for (const dir of Object.keys(DATA.instruct_models || {})) {
+    const alias = slugify(getModelLabel(dir));
+    _modelDirToAlias[dir] = alias;
+    _modelAliasToDir[alias] = dir;
+  }
 
   // Aliases for aggregate selection types
   _taskSelToAlias["__all__"] = "all-micro";
@@ -605,13 +646,15 @@ function stateToUrl() {
   if (currentNormalization !== autoNorm) params.set("norm", currentNormalization);
 
   // Models: omit for defaults, "all" for all, aliases otherwise
-  const allModelSet = new Set(Object.keys(DATA.models));
-  const defaultModelSet = new Set((DATA.default_models || Object.keys(DATA.models)).filter((m) => m in DATA.models));
-  if (!setsEqual(checkedModels, defaultModelSet)) {
-    if (setsEqual(checkedModels, allModelSet)) {
+  const modelsData = getModelsData();
+  const checked = getCheckedModels();
+  const allModelSet = new Set(Object.keys(modelsData));
+  const defaultModelSet = new Set(getDefaultModels().filter((m) => m in modelsData));
+  if (!setsEqual(checked, defaultModelSet)) {
+    if (setsEqual(checked, allModelSet)) {
       params.set("models", "all");
     } else {
-      params.set("models", [...checkedModels].map((d) => _modelDirToAlias[d] || d).sort().join(","));
+      params.set("models", [...checked].map((d) => _modelDirToAlias[d] || d).sort().join(","));
     }
   }
 
@@ -665,13 +708,12 @@ function loadStateFromHash() {
 
   if (params.has("models")) {
     const val = params.get("models");
-    if (val === "all") {
-      checkedModels = new Set(Object.keys(DATA.models));
-    } else {
-      checkedModels = val
-        ? new Set(val.split(",").map((a) => _modelAliasToDir[a] || a).filter((m) => m in DATA.models))
-        : new Set();
-    }
+    const modelsData = getModelsData();
+    const parsed = val === "all"
+      ? new Set(Object.keys(modelsData))
+      : (val ? new Set(val.split(",").map((a) => _modelAliasToDir[a] || a).filter((m) => m in modelsData)) : new Set());
+    if (currentTab === "instruct") checkedInstructModels = parsed;
+    else checkedModels = parsed;
     loaded = true;
   }
 
@@ -704,6 +746,8 @@ async function init() {
   // Set defaults — use default_models if available, otherwise all models
   const defaultModels = DATA.default_models || Object.keys(DATA.models);
   checkedModels = new Set(defaultModels.filter((m) => m in DATA.models));
+  const defaultInstructModels = DATA.instruct_default_models || Object.keys(DATA.instruct_models || {});
+  checkedInstructModels = new Set(defaultInstructModels.filter((m) => m in (DATA.instruct_models || {})));
   checkedTasks = new Set(Object.keys(DATA.metrics_setup));
 
   // Build URL alias maps, then restore state from URL hash
@@ -835,10 +879,18 @@ function updateFilteredOptionVisibility() {
 function bindEventListeners() {
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
+      const prevTab = currentTab;
       document.querySelector(".tab-btn.active").classList.remove("active");
       btn.classList.add("active");
       currentTab = btn.dataset.tab;
       updateFilteredOptionVisibility();
+      // Rebuild model checkboxes when switching between comparison and instruct tabs
+      const prevIsComparison = prevTab === "comparison" || prevTab === "instruct";
+      const nowIsComparison = currentTab === "comparison" || currentTab === "instruct";
+      if (nowIsComparison && prevTab !== currentTab) {
+        buildModelCheckboxes();
+        updateRangeSliderUI();
+      }
       renderChart();
     });
   });
@@ -922,10 +974,11 @@ function bindEventListeners() {
   document.querySelectorAll(".model-select-all").forEach((btn) => {
     btn.addEventListener("click", () => {
       const cat = btn.dataset.category;
-      const categories = DATA.model_categories || {};
-      for (const m of Object.keys(DATA.models)) {
-        if ((categories[m] || "multilingual") === cat) {
-          checkedModels.add(m);
+      const modelsData = getModelsData();
+      const checked = getCheckedModels();
+      for (const m of Object.keys(modelsData)) {
+        if ((getModelMeta("model_categories", m) || "multilingual") === cat) {
+          checked.add(m);
         }
       }
       syncModelCheckboxStates();
@@ -935,10 +988,11 @@ function bindEventListeners() {
   document.querySelectorAll(".model-select-none").forEach((btn) => {
     btn.addEventListener("click", () => {
       const cat = btn.dataset.category;
-      const categories = DATA.model_categories || {};
-      for (const m of Object.keys(DATA.models)) {
-        if ((categories[m] || "multilingual") === cat) {
-          checkedModels.delete(m);
+      const modelsData = getModelsData();
+      const checked = getCheckedModels();
+      for (const m of Object.keys(modelsData)) {
+        if ((getModelMeta("model_categories", m) || "multilingual") === cat) {
+          checked.delete(m);
         }
       }
       syncModelCheckboxStates();
@@ -1336,13 +1390,12 @@ function initRangeSlider() {
 // ============================================================
 
 function isModelInSizeRange(modelDir) {
-  const params = DATA.model_parameters || {};
-  const size = params[modelDir];
+  const size = getModelMeta("model_parameters", modelDir);
   if (size !== undefined && size !== 0) {
     if (size < currentSizeMin || size > currentSizeMax) return false;
   }
   if (fullyOpenOnly) {
-    const fo = (DATA.model_fully_open || {})[modelDir];
+    const fo = getModelMeta("model_fully_open", modelDir);
     if (!fo) return false;
   }
   return true;
@@ -1353,14 +1406,14 @@ function applySizeFilter() {
 }
 
 function buildModelCheckboxes() {
-  const categories = DATA.model_categories || {};
-  const organizations = DATA.model_organizations || {};
+  const modelsData = getModelsData();
+  const checked = getCheckedModels();
 
   // Group models by category, then by organization
   const catModels = { norwegian: {}, multilingual: {} };
-  for (const modelDir of Object.keys(DATA.models)) {
-    const cat = categories[modelDir] || "multilingual";
-    const org = organizations[modelDir] || "Other";
+  for (const modelDir of Object.keys(modelsData)) {
+    const cat = getModelMeta("model_categories", modelDir) || "multilingual";
+    const org = getModelMeta("model_organizations", modelDir) || "Other";
     if (!catModels[cat]) catModels[cat] = {};
     if (!catModels[cat][org]) catModels[cat][org] = [];
     catModels[cat][org].push(modelDir);
@@ -1379,8 +1432,7 @@ function buildModelCheckboxes() {
     for (const org of orgNames) {
       const models = orgMap[org];
       models.sort((a, b) => {
-        const params = DATA.model_parameters || {};
-        const sizeCmp = (params[a] || 0) - (params[b] || 0);
+        const sizeCmp = (getModelMeta("model_parameters", a) || 0) - (getModelMeta("model_parameters", b) || 0);
         if (sizeCmp !== 0) return sizeCmp;
         return getModelLabel(a).localeCompare(getModelLabel(b));
       });
@@ -1396,13 +1448,14 @@ function buildModelCheckboxes() {
       groupCheckbox.className = "model-group-checkbox";
       groupCheckbox.dataset.org = org;
       groupCheckbox.dataset.cat = catKey;
-      const initAllChecked = models.length > 0 && models.every((m) => checkedModels.has(m));
-      const initSomeChecked = models.some((m) => checkedModels.has(m));
+      const initAllChecked = models.length > 0 && models.every((m) => checked.has(m));
+      const initSomeChecked = models.some((m) => checked.has(m));
       groupCheckbox.checked = initAllChecked;
       groupCheckbox.indeterminate = !initAllChecked && initSomeChecked;
       groupCheckbox.addEventListener("change", () => {
+        const activeChecked = getCheckedModels();
         for (const m of models) {
-          if (groupCheckbox.checked) checkedModels.add(m); else checkedModels.delete(m);
+          if (groupCheckbox.checked) activeChecked.add(m); else activeChecked.delete(m);
         }
         syncModelCheckboxStates();
         renderChart();
@@ -1424,11 +1477,12 @@ function buildModelCheckboxes() {
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        checkbox.checked = checkedModels.has(modelDir);
+        checkbox.checked = checked.has(modelDir);
         checkbox.dataset.model = modelDir;
         checkbox.addEventListener("change", () => {
-          if (checkbox.checked) checkedModels.add(modelDir);
-          else checkedModels.delete(modelDir);
+          const activeChecked = getCheckedModels();
+          if (checkbox.checked) activeChecked.add(modelDir);
+          else activeChecked.delete(modelDir);
           syncModelCheckboxStates();
           renderChart();
         });
@@ -1449,19 +1503,19 @@ function buildModelCheckboxes() {
 }
 
 function syncModelCheckboxStates() {
+  const checked = getCheckedModels();
   document.querySelectorAll(".model-checkbox-grid input[data-model]").forEach((cb) => {
-    cb.checked = checkedModels.has(cb.dataset.model);
+    cb.checked = checked.has(cb.dataset.model);
   });
-  const categories = DATA.model_categories || {};
-  const organizations = DATA.model_organizations || {};
+  const modelsData = getModelsData();
   document.querySelectorAll(".model-group-checkbox").forEach((gcb) => {
     const org = gcb.dataset.org;
     const cat = gcb.dataset.cat;
-    const models = Object.keys(DATA.models).filter(
-      (m) => (categories[m] || "multilingual") === cat && (organizations[m] || "Other") === org
+    const models = Object.keys(modelsData).filter(
+      (m) => (getModelMeta("model_categories", m) || "multilingual") === cat && (getModelMeta("model_organizations", m) || "Other") === org
     );
-    const allChecked = models.length > 0 && models.every((m) => checkedModels.has(m));
-    const someChecked = models.some((m) => checkedModels.has(m));
+    const allChecked = models.length > 0 && models.every((m) => checked.has(m));
+    const someChecked = models.some((m) => checked.has(m));
     gcb.checked = allChecked;
     gcb.indeterminate = !allChecked && someChecked;
   });
@@ -1522,15 +1576,15 @@ function attachTooltip(element, contentFn) {
 }
 
 function getModelOpenLabel(modelDir) {
-  const fo = (DATA.model_fully_open || {})[modelDir];
+  const fo = getModelMeta("model_fully_open", modelDir);
   return fo ? "fully-open" : "open weights";
 }
 
 function attachModelTooltip(element, modelDir) {
   attachTooltip(element, () => {
-    const info = (DATA.model_info || {})[modelDir];
+    const info = getModelMeta("model_info", modelDir);
     if (!info) return null;
-    const params = (DATA.model_parameters || {})[modelDir];
+    const params = getModelMeta("model_parameters", modelDir);
     let paramsPart = "";
     if (params) {
       paramsPart = params < 1 ? `${Math.round(params * 1000)}M parameters` : `${params}B parameters`;
@@ -1560,6 +1614,7 @@ function attachTaskTooltip(element, bench) {
 function renderChart() {
   const isAbout = currentTab === "about";
   const isProgress = currentTab === "progress";
+  const isComparison = currentTab === "comparison" || currentTab === "instruct";
 
   // Show/hide About content vs dashboard
   const aboutEl = document.getElementById("about-content");
@@ -1615,7 +1670,7 @@ function renderChart() {
   if (sizeSlider) sizeSlider.style.display = isProgress ? "none" : "";
   const fullyOpenContainer = document.getElementById("fully-open-container");
   if (fullyOpenContainer) fullyOpenContainer.style.display = isProgress ? "none" : "";
-  if (currentTab === "comparison") renderComparisonChart();
+  if (isComparison) renderComparisonChart();
   else renderProgressChart();
   stateToUrl();
 }
@@ -1743,20 +1798,23 @@ function renderComparisonChart() {
 }
 
 function getModelList() {
-  const orgs = DATA.model_organizations || {};
-  const params = DATA.model_parameters || {};
-  return Object.keys(DATA.models).filter((m) => checkedModels.has(m) && isModelInSizeRange(m))
+  const modelsData = getModelsData();
+  const checked = getCheckedModels();
+  return Object.keys(modelsData).filter((m) => checked.has(m) && isModelInSizeRange(m))
     .sort((a, b) => {
-      const orgCmp = (orgs[a] || "").localeCompare(orgs[b] || "");
+      const orgA = getModelMeta("model_organizations", a) || "";
+      const orgB = getModelMeta("model_organizations", b) || "";
+      const orgCmp = orgA.localeCompare(orgB);
       if (orgCmp !== 0) return orgCmp;
-      const sizeCmp = (params[a] || 0) - (params[b] || 0);
+      const sizeCmp = (getModelMeta("model_parameters", a) || 0) - (getModelMeta("model_parameters", b) || 0);
       if (sizeCmp !== 0) return sizeCmp;
       return getModelLabel(a).localeCompare(getModelLabel(b));
     });
 }
 
 function getModelLabel(modelDir) {
-  return DATA.model_display_names[modelDir] || modelDir;
+  return (DATA.instruct_model_display_names && DATA.instruct_model_display_names[modelDir])
+    || DATA.model_display_names[modelDir] || modelDir;
 }
 
 /** Compute the minimum tick angle needed so x-axis labels don't overlap.
@@ -1890,9 +1948,9 @@ function onChartHover(data) {
   if (!isProgress) {
     const modelDir = cd && typeof cd === "object" ? cd.modelDir : null;
     if (modelDir) {
-      const info = (DATA.model_info || {})[modelDir];
+      const info = getModelMeta("model_info", modelDir);
       if (info && info.description) {
-        const params = (DATA.model_parameters || {})[modelDir];
+        const params = getModelMeta("model_parameters", modelDir);
         const paramsPart = params ? (params < 1 ? `${Math.round(params * 1000)}M parameters` : `${params}B parameters`) : "";
         const licensePart = info.license ? `License: ${info.license}` : "";
         const openPart = getModelOpenLabel(modelDir);
@@ -1907,6 +1965,7 @@ function onChartHover(data) {
 }
 
 function renderAggregateBarChart() {
+  const modelsData = getModelsData();
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const scores = [];
@@ -1919,13 +1978,13 @@ function renderAggregateBarChart() {
   const macro = isMacroSelection();
   for (const m of modelNames) {
     const result = aggregateScores(checkedTasks, (bench) => {
-      const raw = getScore(DATA.models, m, bench, currentShot);
+      const raw = getScore(modelsData, m, bench, currentShot);
       if (raw === undefined) return undefined;
       const allRaw = needAllRaw
-        ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot)).filter((v) => v !== undefined)
+        ? modelNames.map((mm) => getScore(modelsData, mm, bench, currentShot)).filter((v) => v !== undefined)
         : null;
       const score = applyNorm(raw, bench, allRaw);
-      const se = wantSE ? scaleStderr(getCombinedSE(DATA.models, m, bench, currentShot), bench, undefined, allRaw) : undefined;
+      const se = wantSE ? scaleStderr(getCombinedSE(modelsData, m, bench, currentShot), bench, undefined, allRaw) : undefined;
       return { score, stderr: se };
     }, macro);
     scores.push(result ? result.score : 0);
@@ -1949,7 +2008,7 @@ function renderAggregateBarChart() {
   }
 
   const avgLabel = macro ? "macro-avg" : "micro-avg";
-  const yRange = computeAggregateYRange(DATA.models, checkedTasks);
+  const yRange = computeAggregateYRange(modelsData, checkedTasks);
   const layoutOpts = {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
@@ -1968,6 +2027,7 @@ function renderAggregateBarChart() {
 function renderGroupedBarChart(groupName) {
   const group = DATA.task_groups[groupName];
   if (!group) return;
+  const modelsData = getModelsData();
   const metric = getEffectiveMetric(group.benchmarks[0]);
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
@@ -1981,15 +2041,15 @@ function renderGroupedBarChart(groupName) {
   const groupSeArrs = [];     // per-group SE arrays for annotations
   const dataTraces = group.benchmarks.map((bench, i) => {
     const allRaw = needAllRaw
-      ? modelNames.map((mm) => getScore(DATA.models, mm, bench, currentShot, metric)).filter((v) => v !== undefined)
+      ? modelNames.map((mm) => getScore(modelsData, mm, bench, currentShot, metric)).filter((v) => v !== undefined)
       : null;
     const values = modelNames.map((m) => {
-      const raw = getScore(DATA.models, m, bench, currentShot, metric);
+      const raw = getScore(modelsData, m, bench, currentShot, metric);
       if (raw == null) return null;
       return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
     });
     const seValues = wantSE ? modelNames.map((m) => {
-      const se = getCombinedSE(DATA.models, m, bench, currentShot, metric);
+      const se = getCombinedSE(modelsData, m, bench, currentShot, metric);
       return scaleStderr(se, bench, metric, allRaw);
     }) : null;
     const barColors = modelNames.map((m) => {
@@ -2023,13 +2083,13 @@ function renderGroupedBarChart(groupName) {
     const vals = [];
     for (const shot of ALL_SHOTS) {
       for (const bench of group.benchmarks) {
-        const raws = modelNames.map((m) => getScore(DATA.models, m, bench, shot, metric)).filter((v) => v !== undefined);
+        const raws = modelNames.map((m) => getScore(modelsData, m, bench, shot, metric)).filter((v) => v !== undefined);
         for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null, metric));
       }
     }
     yRange = computeYRange(vals);
   } else {
-    yRange = [0, computeRawYMax_display(DATA.models, group.benchmarks, metric)];
+    yRange = [0, computeRawYMax_display(modelsData, group.benchmarks, metric)];
   }
   const nGroups = groupValuesArr.length;
   const barWidth = 0.8 / nGroups; // (1 - default bargap 0.2) / nGroups
@@ -2063,15 +2123,16 @@ function renderGroupedBarChart(groupName) {
 function renderSingleBenchmarkBarChart(benchmark) {
   const info = DATA.metrics_setup[benchmark];
   if (!info) return;
+  const modelsData = getModelsData();
   const metric = getEffectiveMetric(benchmark);
   const modelNames = getModelList();
   const labels = modelNames.map(getModelLabel);
   const colors = modelNames.map(getModelColor);
   const allRaw = (currentNormalization !== "none")
-    ? modelNames.map((mm) => getScore(DATA.models, mm, benchmark, currentShot, metric)).filter((v) => v !== undefined)
+    ? modelNames.map((mm) => getScore(modelsData, mm, benchmark, currentShot, metric)).filter((v) => v !== undefined)
     : null;
   const values = modelNames.map((m) => {
-    const raw = getScore(DATA.models, m, benchmark, currentShot, metric);
+    const raw = getScore(modelsData, m, benchmark, currentShot, metric);
     if (raw == null) return null;
     if (currentNormalization === "none") return toDisplayScale(raw, benchmark, metric);
     return applyNorm(raw, benchmark, allRaw, metric);
@@ -2079,11 +2140,11 @@ function renderSingleBenchmarkBarChart(benchmark) {
 
   const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
   const seValues = wantSE ? modelNames.map((m) => {
-    const se = getCombinedSE(DATA.models, m, benchmark, currentShot, metric);
+    const se = getCombinedSE(modelsData, m, benchmark, currentShot, metric);
     return scaleStderr(se, benchmark, metric, allRaw);
   }) : null;
 
-  const yRange = computeSingleYRange(DATA.models, benchmark, metric);
+  const yRange = computeSingleYRange(modelsData, benchmark, metric);
   const yLabel = currentNormalization === "none" ? getMetricYLabel(benchmark, metric) : getNormYLabel();
   const fmt = currentNormalization === "zscore" ? 2 : 1;
 
@@ -2318,10 +2379,11 @@ function computeAggregateYRange(dataSource, benchmarks) {
   const entities = Object.keys(dataSource);
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   const macro = isMacroSelection();
+  const isComparisonData = dataSource === DATA.models || dataSource === DATA.instruct_models;
   for (const shot of ALL_SHOTS) {
-    const modelNames = dataSource === DATA.models ? getModelList() : null;
+    const modelNames = isComparisonData ? getModelList() : null;
     for (const entity of entities) {
-      if (dataSource === DATA.models && (!checkedModels.has(entity) || !isModelInSizeRange(entity))) continue;
+      if (isComparisonData && (!getCheckedModels().has(entity) || !isModelInSizeRange(entity))) continue;
       const result = aggregateScores(benchmarks, (bench) => {
         const raw = getScore(dataSource, entity, bench, shot);
         if (raw === undefined) return undefined;
@@ -2338,9 +2400,10 @@ function computeAggregateYRange(dataSource, benchmarks) {
 }
 
 function computeRawYMax_display(dataSource, benchmarks, metric) {
+  const isComparisonData = dataSource === DATA.models || dataSource === DATA.instruct_models;
   const vals = [];
   for (const entity of Object.keys(dataSource)) {
-    if (dataSource === DATA.models && (!checkedModels.has(entity) || !isModelInSizeRange(entity))) continue;
+    if (isComparisonData && (!getCheckedModels().has(entity) || !isModelInSizeRange(entity))) continue;
     for (const shot of ALL_SHOTS)
       for (const bench of benchmarks) {
         const v = getScore(dataSource, entity, bench, shot, metric);
@@ -2353,8 +2416,9 @@ function computeRawYMax_display(dataSource, benchmarks, metric) {
 }
 
 function computeSingleYRange(dataSource, benchmark, metric) {
+  const isComparisonData = dataSource === DATA.models || dataSource === DATA.instruct_models;
   const vals = [];
-  const entities = Object.keys(dataSource).filter((e) => dataSource !== DATA.models || (checkedModels.has(e) && isModelInSizeRange(e)));
+  const entities = Object.keys(dataSource).filter((e) => !isComparisonData || (getCheckedModels().has(e) && isModelInSizeRange(e)));
   for (const shot of ALL_SHOTS) {
     const raws = entities.map((e) => getScore(dataSource, e, benchmark, shot, metric)).filter((v) => v !== undefined);
     for (const raw of raws) {

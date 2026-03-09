@@ -19,6 +19,7 @@
     <main>
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="comparison">Base Model Comparison</button>
+            <button class="tab-btn" data-tab="instruct">Instruct Model Comparison</button>
             <button class="tab-btn" data-tab="progress">NorOLMo Progress</button>
             <button class="tab-btn" data-tab="about">About</button>
         </nav>
@@ -202,7 +203,8 @@
             <div class="about-section">
                 <h3>Dashboard features</h3>
                 <ul>
-                    <li><strong>Base Model Comparison.</strong> Compares final-checkpoint scores across models. Filter by model size or restrict to fully open models. Select/deselect individual models and tasks.</li>
+                    <li><strong>Base Model Comparison.</strong> Compares final-checkpoint scores across base (pretrained) models. Filter by model size or restrict to fully open models. Select/deselect individual models and tasks.</li>
+                    <li><strong>Instruct Model Comparison.</strong> Compares scores across instruction-tuned models, including Norwegian fine-tunes and multilingual instruct models.</li>
                     <li><strong>NorOLMo Progress.</strong> Tracks NorOLMo 13B performance across 33 training checkpoints (steps 1k&ndash;33k) to visualize learning dynamics.</li>
                     <li><strong>Task grouping.</strong> Related benchmarks (e.g., Bokm&aring;l/Nynorsk pairs, translation direction pairs) are shown as grouped bar charts for easy comparison.</li>
                     <li><strong>Metric selector.</strong> Individual task views offer a dropdown to switch between all available metrics for that benchmark.</li>

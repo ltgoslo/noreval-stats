@@ -19,6 +19,7 @@ import yaml
 
 BASE_DIR = Path(__file__).parent
 RESULTS_DIR = BASE_DIR / "results"
+RESULTS_INSTRUCT_DIR = BASE_DIR / "results-instruct"
 PROGRESS_DIR = BASE_DIR / "NorOLMo_progress"
 OUTPUT_FILE = BASE_DIR / "docs" / "data.json"
 
@@ -68,6 +69,48 @@ def load_models_setup():
 
     return (display_names, categories, organizations, parameters,
             default_models, color_map, model_info, fully_open)
+
+
+def load_instruct_models_setup():
+    """Load instruct model metadata from models_instruct_setup.yaml."""
+    yaml_path = BASE_DIR / "models_instruct_setup.yaml"
+    if not yaml_path.exists():
+        return {}, {}, {}, {}, [], {}, {}, {}
+    with open(yaml_path) as f:
+        raw = yaml.safe_load(f)
+
+    display_names = {}
+    categories = {}
+    organizations = {}
+    parameters = {}
+    default_models = []
+    color_map = {}
+    model_info = {}
+    fully_open = {}
+
+    for model_dir, cfg in raw.items():
+        display_names[model_dir] = cfg.get("display_name", model_dir)
+        categories[model_dir] = cfg.get("category", "multilingual")
+        organizations[model_dir] = cfg.get("organization", "")
+        parameters[model_dir] = cfg.get("parameters", 0)
+        fully_open[model_dir] = bool(cfg.get("fully_open", False))
+        if cfg.get("default"):
+            default_models.append(model_dir)
+        if cfg.get("color"):
+            color_map[model_dir] = cfg["color"]
+        desc = cfg.get("description", "")
+        url = cfg.get("huggingface_url", "")
+        license_ = cfg.get("license", "")
+        if desc or url or license_:
+            model_info[model_dir] = {
+                "description": desc,
+                "huggingface_url": url,
+                "license": license_,
+            }
+
+    return (display_names, categories, organizations, parameters,
+            default_models, color_map, model_info, fully_open)
+
 
 # Task groups for visual pairing (two bars/lines per model)
 TASK_GROUPS = {
@@ -402,6 +445,9 @@ def main():
     (MODEL_DISPLAY_NAMES, MODEL_CATEGORIES, MODEL_ORGANIZATIONS,
      MODEL_PARAMETERS, DEFAULT_MODELS, MODEL_COLOR_MAP,
      MODEL_INFO, MODEL_FULLY_OPEN) = load_models_setup()
+    (INSTRUCT_DISPLAY_NAMES, INSTRUCT_CATEGORIES, INSTRUCT_ORGANIZATIONS,
+     INSTRUCT_PARAMETERS, INSTRUCT_DEFAULT_MODELS, INSTRUCT_COLOR_MAP,
+     INSTRUCT_INFO, INSTRUCT_FULLY_OPEN) = load_instruct_models_setup()
 
     os.makedirs(OUTPUT_FILE.parent, exist_ok=True)
 
@@ -416,6 +462,21 @@ def main():
             print(f"Processing model: {model_dir}")
             scores, disc = process_model_dir(str(model_path), metrics_setup)
             models[model_dir] = scores
+            for bench, mset in disc.items():
+                if bench not in all_discovered_metrics:
+                    all_discovered_metrics[bench] = set()
+                all_discovered_metrics[bench].update(mset)
+
+    # Process instruct models in results-instruct/
+    instruct_models = {}
+    if RESULTS_INSTRUCT_DIR.is_dir():
+        for model_dir in sorted(os.listdir(RESULTS_INSTRUCT_DIR)):
+            model_path = RESULTS_INSTRUCT_DIR / model_dir
+            if not model_path.is_dir():
+                continue
+            print(f"Processing instruct model: {model_dir}")
+            scores, disc = process_model_dir(str(model_path), metrics_setup)
+            instruct_models[model_dir] = scores
             for bench, mset in disc.items():
                 if bench not in all_discovered_metrics:
                     all_discovered_metrics[bench] = set()
@@ -470,6 +531,15 @@ def main():
         "model_info": MODEL_INFO,
         "default_models": DEFAULT_MODELS,
         "models": models,
+        "instruct_model_display_names": INSTRUCT_DISPLAY_NAMES,
+        "instruct_model_categories": INSTRUCT_CATEGORIES,
+        "instruct_model_organizations": INSTRUCT_ORGANIZATIONS,
+        "instruct_model_parameters": INSTRUCT_PARAMETERS,
+        "instruct_model_colors": INSTRUCT_COLOR_MAP,
+        "instruct_model_fully_open": INSTRUCT_FULLY_OPEN,
+        "instruct_model_info": INSTRUCT_INFO,
+        "instruct_default_models": INSTRUCT_DEFAULT_MODELS,
+        "instruct_models": instruct_models,
         "progress": progress,
     }
 
@@ -479,6 +549,7 @@ def main():
     size_kb = os.path.getsize(OUTPUT_FILE) / 1024
     print(f"\nWritten {OUTPUT_FILE} ({size_kb:.1f} KB)")
     print(f"  Models: {list(models.keys())}")
+    print(f"  Instruct models: {list(instruct_models.keys())}")
     print(f"  Checkpoints: {sorted(progress.keys())}")
     print(f"  Benchmarks per model: {len(metrics_setup)}")
 
