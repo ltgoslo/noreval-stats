@@ -109,9 +109,7 @@ const METRIC_DESCRIPTIONS = {
   errant_f05: "Grammar error correction metric emphasizing precision (F0.5) over recall.",
 };
 
-const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
 const ABLATION_COLOR = "#e63946"; // red
-const ABLATION_PAIR_COLORS = ["#e63946", "#c1121f"]; // red, dark red
 const PROGRESS_LEGEND = { x: 0.98, y: 0.02, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.7)", borderwidth: 0 };
 
 const JSON_DOWNLOAD_ICON = {
@@ -1786,10 +1784,10 @@ function getAggregateDescription() {
   let scope = "";
   if (sel === "__all_macro__") {
     const groups = getMacroGroups(checkedTasks);
-    scope = "all " + count + " tasks (" + groups.length + " categories, macro-averaged)";
-  } else if (sel === "__all__") scope = "all " + count + " tasks (micro-averaged)";
-  else if (sel === "__filtered__") scope = count + " signal-filtered tasks (micro-averaged, HPLT-E criteria)";
-  else if (sel === "__custom__") scope = count + " selected tasks (micro-averaged)";
+    scope = "all " + count + " tasks (" + groups.length + " categories, category average)";
+  } else if (sel === "__all__") scope = "all " + count + " tasks (task average)";
+  else if (sel === "__filtered__") scope = count + " signal-filtered tasks (task average, HPLT-E criteria)";
+  else if (sel === "__custom__") scope = count + " selected tasks (task average)";
   else if (sel.startsWith("__cat__")) scope = count + " tasks in the \"" + sel.slice(7) + "\" category";
   else if (sel.startsWith("__eval__")) scope = count + " " + sel.slice(8) + " tasks";
   else if (sel === "__lang__nob") scope = count + " Bokm\u00e5l tasks";
@@ -2040,7 +2038,7 @@ function renderAggregateBarChart() {
     };
   }
 
-  const avgLabel = macro ? "macro-avg" : "micro-avg";
+  const avgLabel = macro ? "category avg" : "task avg";
   const yRange = computeAggregateYRange(modelsData, checkedTasks);
   const layoutOpts = {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
@@ -2333,7 +2331,7 @@ function renderAggregateProgressChart() {
     });
   }
 
-  const avgLabel = macro ? "macro-avg" : "micro-avg";
+  const avgLabel = macro ? "category avg" : "task avg";
   const yRange = computeProgressAggregateYRange();
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
@@ -2373,7 +2371,8 @@ function renderGroupProgressChart(groupName) {
       const se = getCombinedSE(DATA.progress, s, bench, currentShot, metric);
       return scaleStderr(se, bench, metric, allRaw);
     }) : null;
-    const lineColor = PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length];
+    const baseColor = MODEL_COLORS[0];
+    const lineColor = i === 0 ? baseColor : darkenColor(baseColor, 0.3);
     if (wantSE && ses) {
       const band = makeBandTrace(tokens, ys, ses, lineColor);
       if (band) traces.push(band);
@@ -2407,7 +2406,7 @@ function renderGroupProgressChart(groupName) {
         const se = getCombinedSE(DATA.ablations[ablName], s, bench, currentShot, metric);
         return scaleStderr(se, bench, metric, allRaw);
       }) : null;
-      const lineColor = ABLATION_PAIR_COLORS[i % ABLATION_PAIR_COLORS.length];
+      const lineColor = i === 0 ? ABLATION_COLOR : darkenColor(ABLATION_COLOR, 0.3);
       if (wantSE && ses) {
         const band = makeBandTrace(ablTokens, ys, ses, lineColor);
         if (band) traces.push(band);
