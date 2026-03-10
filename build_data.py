@@ -502,6 +502,38 @@ def main():
                     all_discovered_metrics[bench] = set()
                 all_discovered_metrics[bench].update(mset)
 
+    # Process ablation studies in NorOLMo_progress/
+    # Ablation dirs match pattern: NorOLMo-{ablation_name}-step-{N}
+    # where ablation_name is everything between "NorOLMo-" and the final "-step-{N}"
+    ablations = {}  # {ablation_name: {step: scores}}
+    ABLATION_DISPLAY_NAMES = {}
+    if PROGRESS_DIR.is_dir():
+        for ckpt_dir in sorted(os.listdir(PROGRESS_DIR)):
+            ckpt_path = PROGRESS_DIR / ckpt_dir
+            if not ckpt_path.is_dir():
+                continue
+            # Skip non-ablation dirs (already handled as regular progress)
+            if not ckpt_dir.startswith("NorOLMo-") or ckpt_dir.startswith("NorOLMo-step-"):
+                continue
+            parts = ckpt_dir.split("-")
+            step_str = parts[-1] if parts else ""
+            if not step_str.isdigit():
+                continue
+            step = int(step_str)
+            # Extract ablation name: everything between "NorOLMo-" and "-step-{N}"
+            suffix = ckpt_dir[len("NorOLMo-"):]  # e.g. "stage2-ablation-no-len-ext-stage1-data-step-29000"
+            ablation_name = suffix[:suffix.rfind("-step-")]  # e.g. "stage2-ablation-no-len-ext-stage1-data"
+            if ablation_name not in ablations:
+                ablations[ablation_name] = {}
+                ABLATION_DISPLAY_NAMES[ablation_name] = ablation_name.replace("-", " ").title()
+            print(f"Processing ablation {ablation_name}: step {step}")
+            scores, disc = process_model_dir(str(ckpt_path), metrics_setup)
+            ablations[ablation_name][step] = scores
+            for bench, mset in disc.items():
+                if bench not in all_discovered_metrics:
+                    all_discovered_metrics[bench] = set()
+                all_discovered_metrics[bench].update(mset)
+
     # Language benchmark lists
     nno_benchmarks = [b for b in metrics_setup if "_nno" in b]
     sme_benchmarks = [b for b in metrics_setup if "_sme" in b] + ["noreval_multiblimp"]
@@ -541,6 +573,8 @@ def main():
         "instruct_default_models": INSTRUCT_DEFAULT_MODELS,
         "instruct_models": instruct_models,
         "progress": progress,
+        "ablations": ablations,
+        "ablation_display_names": ABLATION_DISPLAY_NAMES,
     }
 
     with open(OUTPUT_FILE, "w") as f:
@@ -551,6 +585,9 @@ def main():
     print(f"  Models: {list(models.keys())}")
     print(f"  Instruct models: {list(instruct_models.keys())}")
     print(f"  Checkpoints: {sorted(progress.keys())}")
+    print(f"  Ablations: {list(ablations.keys())}")
+    for abl_name, abl_data in ablations.items():
+        print(f"    {abl_name}: steps {sorted(abl_data.keys())}")
     print(f"  Benchmarks per model: {len(metrics_setup)}")
 
 

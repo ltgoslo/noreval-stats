@@ -3,27 +3,32 @@
     "ask_gec_p0": {
       "alias": "ask_gec_p0",
       "exact_match,none": 0.09823306689103913,
-      "exact_match_stderr,none": 0.0043170998892617185
+      "exact_match_stderr,none": 0.0043170998892617185,
+      "errant_f05,none": 0.0016
     },
     "ask_gec_p1": {
       "alias": "ask_gec_p1",
       "exact_match,none": 0.12831299957930165,
-      "exact_match_stderr,none": 0.004851004822115984
+      "exact_match_stderr,none": 0.004851004822115984,
+      "errant_f05,none": 0.0019
     },
     "ask_gec_p2": {
       "alias": "ask_gec_p2",
       "exact_match,none": 0.1503996634413126,
-      "exact_match_stderr,none": 0.005184977342647907
+      "exact_match_stderr,none": 0.005184977342647907,
+      "errant_f05,none": 0.0026
     },
     "ask_gec_p3": {
       "alias": "ask_gec_p3",
       "exact_match,none": 0.11632309633992427,
-      "exact_match_stderr,none": 0.004650459021837065
+      "exact_match_stderr,none": 0.004650459021837065,
+      "errant_f05,none": 0.001
     },
     "ask_gec_p4": {
       "alias": "ask_gec_p4",
       "exact_match,none": 0.13336137989061841,
-      "exact_match_stderr,none": 0.004931172015527884
+      "exact_match_stderr,none": 0.004931172015527884,
+      "errant_f05,none": 0.0022
     }
   },
   "group_subtasks": {
@@ -135,7 +140,7 @@
       "training_split": "train",
       "validation_split": "validation",
       "test_split": "test",
-      "doc_to_text": "Skriv om følgende tekst slik at den blir grammatisk korrekt: {{source}}\nKorreksjon:",
+      "doc_to_text": "Skriv om f\u00f8lgende tekst slik at den blir grammatisk korrekt: {{source}}\nKorreksjon:",
       "doc_to_target": "correction",
       "unsafe_code": false,
       "description": "",
@@ -147,7 +152,7 @@
         "process_docs": null,
         "fewshot_indices": null,
         "samples": null,
-        "doc_to_text": "Skriv om følgende tekst slik at den blir grammatisk korrekt: {{source}}\nKorreksjon:",
+        "doc_to_text": "Skriv om f\u00f8lgende tekst slik at den blir grammatisk korrekt: {{source}}\nKorreksjon:",
         "doc_to_choice": null,
         "doc_to_target": "correction",
         "gen_prefix": null,
@@ -286,19 +291,24 @@
   },
   "higher_is_better": {
     "ask_gec_p0": {
-      "exact_match": true
+      "exact_match": true,
+      "errant_f05": true
     },
     "ask_gec_p1": {
-      "exact_match": true
+      "exact_match": true,
+      "errant_f05": true
     },
     "ask_gec_p2": {
-      "exact_match": true
+      "exact_match": true,
+      "errant_f05": true
     },
     "ask_gec_p3": {
-      "exact_match": true
+      "exact_match": true,
+      "errant_f05": true
     },
     "ask_gec_p4": {
-      "exact_match": true
+      "exact_match": true,
+      "errant_f05": true
     }
   },
   "n-samples": {

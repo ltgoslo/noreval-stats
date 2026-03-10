@@ -110,6 +110,8 @@ const METRIC_DESCRIPTIONS = {
 };
 
 const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
+const ABLATION_COLOR = "#f59e0b"; // amber
+const ABLATION_PAIR_COLORS = ["#f59e0b", "#d946ef"]; // amber, fuchsia
 
 const JSON_DOWNLOAD_ICON = {
   width: 24,
@@ -860,9 +862,9 @@ function updateFilteredOptionVisibility() {
   const opt = document.querySelector('option[value="__filtered__"]');
   if (!opt) return;
   const isProgress = currentTab === "progress";
-  opt.hidden = !isProgress;
-  // If switching away from progress while filtered is selected, reset to macro
-  if (!isProgress && currentTaskSelection === "__filtered__") {
+  opt.hidden = true;  // signal-filtered view disabled for now
+  // If filtered is selected but hidden, reset to macro
+  if (currentTaskSelection === "__filtered__") {
     currentTaskSelection = "__all_macro__";
     document.getElementById("task-select").value = "__all_macro__";
     hideFilterUI();
@@ -2193,6 +2195,19 @@ function getSteps() {
   return Object.keys(DATA.progress).map(Number).sort((a, b) => a - b);
 }
 
+function getAblations() {
+  return DATA.ablations ? Object.keys(DATA.ablations) : [];
+}
+
+function getAblationSteps(ablationName) {
+  if (!DATA.ablations || !DATA.ablations[ablationName]) return [];
+  return Object.keys(DATA.ablations[ablationName]).map(Number).sort((a, b) => a - b);
+}
+
+function getAblationDisplayName(ablationName) {
+  return DATA.ablation_display_names?.[ablationName] || ablationName;
+}
+
 /** Create a shaded band trace around a line trace for SE visualization. */
 function makeBandTrace(xValues, yValues, seValues, color) {
   const upper = [], lower = [], xs = [];
@@ -2247,13 +2262,46 @@ function renderAggregateProgressChart() {
     customdata: aggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
     hoverinfo: "none",
   });
+
+  // Add ablation traces
+  for (const ablName of getAblations()) {
+    const ablSteps = getAblationSteps(ablName);
+    if (!ablSteps.length) continue;
+    const ablAllStepEntities = ablSteps.map(String);
+    const ablAggResults = ablSteps.map((step) => {
+      return aggregateScores(checkedTasks, (bench) => {
+        const raw = getScore(DATA.ablations[ablName], step, bench, currentShot);
+        if (raw === undefined) return undefined;
+        const allRaw = needAllRaw
+          ? ablAllStepEntities.map((s) => getScore(DATA.ablations[ablName], s, bench, currentShot)).filter((v) => v !== undefined)
+          : null;
+        const score = applyNorm(raw, bench, allRaw);
+        const se = wantSE ? scaleStderr(getCombinedSE(DATA.ablations[ablName], step, bench, currentShot), bench, undefined, allRaw) : undefined;
+        return { score, stderr: se };
+      }, macro);
+    });
+    const ablScores = ablAggResults.map((r) => r ? r.score : null);
+    const ablSes = ablAggResults.map((r) => r ? r.stderr : null);
+    if (wantSE) {
+      const band = makeBandTrace(ablSteps, ablScores, ablSes, ABLATION_COLOR);
+      if (band) traces.push(band);
+    }
+    traces.push({
+      x: ablSteps, y: ablScores, mode: "lines+markers", name: getAblationDisplayName(ablName),
+      line: { color: ABLATION_COLOR, width: 2.5, dash: "dash" }, marker: { size: 5 },
+      customdata: ablAggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
+      hoverinfo: "none",
+    });
+  }
+
   const avgLabel = macro ? "macro-avg" : "micro-avg";
   const yRange = computeProgressAggregateYRange();
+  const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
-    showlegend: false,
+    showlegend: hasAblations,
   });
   plotChart(traces, layout);
 }
@@ -2298,6 +2346,40 @@ function renderGroupProgressChart(groupName) {
     });
   });
 
+  // Add ablation traces for grouped benchmarks
+  for (const ablName of getAblations()) {
+    const ablSteps = getAblationSteps(ablName);
+    if (!ablSteps.length) continue;
+    const ablAllStepEntities = ablSteps.map(String);
+    const ablDisplayName = getAblationDisplayName(ablName);
+    group.benchmarks.forEach((bench, i) => {
+      const allRaw = needAllRaw
+        ? ablAllStepEntities.map((s) => getScore(DATA.ablations[ablName], s, bench, currentShot, metric)).filter((v) => v !== undefined)
+        : null;
+      const ys = ablSteps.map((s) => {
+        const raw = getScore(DATA.ablations[ablName], s, bench, currentShot, metric);
+        if (raw == null) return null;
+        return useNorm ? applyNorm(raw, bench, allRaw, metric) : toDisplayScale(raw, bench, metric);
+      });
+      const ses = wantSE ? ablSteps.map((s) => {
+        const se = getCombinedSE(DATA.ablations[ablName], s, bench, currentShot, metric);
+        return scaleStderr(se, bench, metric, allRaw);
+      }) : null;
+      const lineColor = ABLATION_PAIR_COLORS[i % ABLATION_PAIR_COLORS.length];
+      if (wantSE && ses) {
+        const band = makeBandTrace(ablSteps, ys, ses, lineColor);
+        if (band) traces.push(band);
+      }
+      traces.push({
+        x: ablSteps, y: ys, mode: "lines+markers", name: ablDisplayName + " — " + group.labels[i],
+        line: { color: lineColor, width: 2.5, dash: "dash" },
+        marker: { size: 5 },
+        customdata: ses || ys.map(() => null),
+        hoverinfo: "none",
+      });
+    });
+  }
+
   const yLabel = useNorm ? getNormYLabel() : getMetricYLabel(bench0, metric);
   let yRange;
   if (useNorm) {
@@ -2341,16 +2423,42 @@ function renderSingleProgressChart(benchmark) {
     if (band) traces.push(band);
   }
   traces.push({
-    x: steps, y: ys, mode: "lines+markers", name: info.pretty_name,
+    x: steps, y: ys, mode: "lines+markers", name: "NorOLMo",
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
     customdata: ses || ys.map(() => null),
     hoverinfo: "none",
   });
+
+  // Add ablation traces for single benchmark
+  for (const ablName of getAblations()) {
+    const ablSteps = getAblationSteps(ablName);
+    if (!ablSteps.length) continue;
+    const ablYs = ablSteps.map((s) => {
+      const raw = getScore(DATA.ablations[ablName], s, benchmark, currentShot, metric);
+      return raw != null ? toDisplayScale(raw, benchmark, metric) : null;
+    });
+    const ablSes = wantSE ? ablSteps.map((s) => {
+      const se = getCombinedSE(DATA.ablations[ablName], s, benchmark, currentShot, metric);
+      return scaleStderr(se, benchmark, metric);
+    }) : null;
+    if (wantSE && ablSes) {
+      const band = makeBandTrace(ablSteps, ablYs, ablSes, ABLATION_COLOR);
+      if (band) traces.push(band);
+    }
+    traces.push({
+      x: ablSteps, y: ablYs, mode: "lines+markers", name: getAblationDisplayName(ablName),
+      line: { color: ABLATION_COLOR, width: 2.5, dash: "dash" }, marker: { size: 5 },
+      customdata: ablSes || ablYs.map(() => null),
+      hoverinfo: "none",
+    });
+  }
+
+  const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getMetricYLabel(benchmark, metric), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
-    showlegend: false,
+    showlegend: hasAblations,
   });
   plotChart(traces, layout);
 }
@@ -2445,6 +2553,21 @@ function computeProgressAggregateYRange() {
         return applyNorm(raw, bench, allRaw);
       }, macro);
       if (result) allAvgs.push(result.score);
+    }
+    // Include ablation data in Y-range computation
+    for (const ablName of getAblations()) {
+      const ablStepEntities = Object.keys(DATA.ablations[ablName]);
+      for (const step of ablStepEntities) {
+        const result = aggregateScores(checkedTasks, (bench) => {
+          const raw = getScore(DATA.ablations[ablName], step, bench, shot);
+          if (raw === undefined) return undefined;
+          const allRaw = needAllRaw
+            ? ablStepEntities.map((s) => getScore(DATA.ablations[ablName], s, bench, shot)).filter((v) => v !== undefined)
+            : null;
+          return applyNorm(raw, bench, allRaw);
+        }, macro);
+        if (result) allAvgs.push(result.score);
+      }
     }
   }
   return computeYRange(allAvgs);
