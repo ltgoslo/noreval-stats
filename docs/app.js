@@ -522,7 +522,7 @@ function populateMetricSelector(benchmarks) {
       for (const cat of Object.keys(byCategory).sort()) {
         const group = document.createElement("optgroup");
         const baseLabel = METRIC_DISPLAY[base] || base;
-        group.label = baseLabel + " \u2014 " + cat;
+        group.label = baseLabel + " \u2013 " + cat;
         for (const m of byCategory[cat]) {
           const opt = document.createElement("option");
           opt.value = m;
@@ -2038,10 +2038,10 @@ function renderAggregateBarChart() {
     };
   }
 
-  const avgLabel = macro ? "category avg" : "task avg";
+  const avgLabel = macro ? "category average" : "task average";
   const yRange = computeAggregateYRange(modelsData, checkedTasks);
   const layoutOpts = {
-    title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: getAggregateLabel() + " \u2013 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
     xaxis: { title: "", tickangle: computeTickAngle(labels), showgrid: false },
     showlegend: false,
@@ -2331,11 +2331,11 @@ function renderAggregateProgressChart() {
     });
   }
 
-  const avgLabel = macro ? "category avg" : "task avg";
+  const avgLabel = macro ? "category average" : "task average";
   const yRange = computeProgressAggregateYRange();
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
-    title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2013 " + getAggregateLabel() + " \u2013 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "tokens" },
     yaxis: { title: getNormYLabel(), range: yRange, zeroline: currentNormalization === "zscore" },
     showlegend: hasAblations,
@@ -2434,7 +2434,7 @@ function renderGroupProgressChart(groupName) {
     yRange = computeProgressRawYRange(group.benchmarks, metric);
   }
   const layout = getPlotlyLayout({
-    title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2013 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "tokens" },
     yaxis: { title: yLabel, range: yRange, zeroline: currentNormalization === "zscore" },
     legend: PROGRESS_LEGEND,
@@ -2497,7 +2497,7 @@ function renderSingleProgressChart(benchmark) {
 
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
-    title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
+    title: { text: "NorOLMo progress \u2013 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "tokens" },
     yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, zeroline: false },
     showlegend: hasAblations,
