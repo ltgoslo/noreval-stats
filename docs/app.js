@@ -1969,7 +1969,14 @@ function onChartHover(data) {
   }
 
   // Enrich with model info on the comparison tab
-  let title = isProgress ? "Step " + pt.x : String(pt.x);
+  let title;
+  if (isProgress) {
+    const step = Math.round(pt.x / TOKENS_PER_STEP);
+    const tokensB = (pt.x / 1e9).toFixed(1);
+    title = tokensB + "B tokens (step " + step.toLocaleString() + ")";
+  } else {
+    title = String(pt.x);
+  }
   let meta = "", body = scoreBody, footer = "";
   if (!isProgress) {
     const modelDir = cd && typeof cd === "object" ? cd.modelDir : null;
@@ -2215,8 +2222,14 @@ function renderProgressChart() {
   else renderSingleProgressChart(sel);
 }
 
+const TOKENS_PER_STEP = 8192 * 1024; // 8,388,608 tokens per training step
+
 function getSteps() {
   return Object.keys(DATA.progress).map(Number).sort((a, b) => a - b);
+}
+
+function stepsToTokens(steps) {
+  return steps.map((s) => s * TOKENS_PER_STEP);
 }
 
 function getAblations() {
@@ -2275,13 +2288,14 @@ function renderAggregateProgressChart() {
   const scores = aggResults.map((r) => r ? r.score : null);
   const aggSes = aggResults.map((r) => r ? r.stderr : null);
 
+  const tokens = stepsToTokens(steps);
   const traces = [];
   if (wantSE) {
-    const band = makeBandTrace(steps, scores, aggSes, MODEL_COLORS[0]);
+    const band = makeBandTrace(tokens, scores, aggSes, MODEL_COLORS[0]);
     if (band) traces.push(band);
   }
   traces.push({
-    x: steps, y: scores, mode: "lines+markers", name: "NorOLMo",
+    x: tokens, y: scores, mode: "lines+markers", name: "NorOLMo",
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
     customdata: aggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
     hoverinfo: "none",
@@ -2291,6 +2305,7 @@ function renderAggregateProgressChart() {
   for (const ablName of getAblations()) {
     const ablSteps = getAblationSteps(ablName);
     if (!ablSteps.length) continue;
+    const ablTokens = stepsToTokens(ablSteps);
     const ablAllStepEntities = ablSteps.map(String);
     const ablAggResults = ablSteps.map((step) => {
       return aggregateScores(checkedTasks, (bench) => {
@@ -2307,11 +2322,11 @@ function renderAggregateProgressChart() {
     const ablScores = ablAggResults.map((r) => r ? r.score : null);
     const ablSes = ablAggResults.map((r) => r ? r.stderr : null);
     if (wantSE) {
-      const band = makeBandTrace(ablSteps, ablScores, ablSes, ABLATION_COLOR);
+      const band = makeBandTrace(ablTokens, ablScores, ablSes, ABLATION_COLOR);
       if (band) traces.push(band);
     }
     traces.push({
-      x: ablSteps, y: ablScores, mode: "lines+markers", name: getAblationDisplayName(ablName),
+      x: ablTokens, y: ablScores, mode: "lines+markers", name: getAblationDisplayName(ablName),
       line: { color: ABLATION_COLOR, width: 2.5 }, marker: { size: 5 },
       customdata: ablAggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
       hoverinfo: "none",
@@ -2323,7 +2338,7 @@ function renderAggregateProgressChart() {
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000 },
+    xaxis: { title: "tokens" },
     yaxis: { title: getNormYLabel(), range: yRange, zeroline: currentNormalization === "zscore" },
     showlegend: hasAblations,
     legend: PROGRESS_LEGEND,
@@ -2343,6 +2358,7 @@ function renderGroupProgressChart(groupName) {
   const fmt = currentNormalization === "zscore" ? 2 : 1;
 
   const wantSE = (showStderr || showPromptDeviation) && isStderrCompatible();
+  const tokens = stepsToTokens(steps);
   const traces = [];
   group.benchmarks.forEach((bench, i) => {
     const allRaw = needAllRaw
@@ -2359,11 +2375,11 @@ function renderGroupProgressChart(groupName) {
     }) : null;
     const lineColor = PROGRESS_PAIR_COLORS[i % PROGRESS_PAIR_COLORS.length];
     if (wantSE && ses) {
-      const band = makeBandTrace(steps, ys, ses, lineColor);
+      const band = makeBandTrace(tokens, ys, ses, lineColor);
       if (band) traces.push(band);
     }
     traces.push({
-      x: steps, y: ys, mode: "lines+markers", name: group.labels[i],
+      x: tokens, y: ys, mode: "lines+markers", name: group.labels[i],
       line: { color: lineColor, width: 2.5 },
       marker: { size: 5 },
       customdata: ses || ys.map(() => null),
@@ -2375,6 +2391,7 @@ function renderGroupProgressChart(groupName) {
   for (const ablName of getAblations()) {
     const ablSteps = getAblationSteps(ablName);
     if (!ablSteps.length) continue;
+    const ablTokens = stepsToTokens(ablSteps);
     const ablAllStepEntities = ablSteps.map(String);
     const ablDisplayName = getAblationDisplayName(ablName);
     group.benchmarks.forEach((bench, i) => {
@@ -2392,11 +2409,11 @@ function renderGroupProgressChart(groupName) {
       }) : null;
       const lineColor = ABLATION_PAIR_COLORS[i % ABLATION_PAIR_COLORS.length];
       if (wantSE && ses) {
-        const band = makeBandTrace(ablSteps, ys, ses, lineColor);
+        const band = makeBandTrace(ablTokens, ys, ses, lineColor);
         if (band) traces.push(band);
       }
       traces.push({
-        x: ablSteps, y: ys, mode: "lines+markers", name: ablDisplayName + " — " + group.labels[i],
+        x: ablTokens, y: ys, mode: "lines+markers", name: ablDisplayName + " — " + group.labels[i],
         line: { color: lineColor, width: 2.5 },
         marker: { size: 5 },
         customdata: ses || ys.map(() => null),
@@ -2419,7 +2436,7 @@ function renderGroupProgressChart(groupName) {
   }
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000 },
+    xaxis: { title: "tokens" },
     yaxis: { title: yLabel, range: yRange, zeroline: currentNormalization === "zscore" },
     legend: PROGRESS_LEGEND,
   });
@@ -2441,13 +2458,14 @@ function renderSingleProgressChart(benchmark) {
     return scaleStderr(se, benchmark, metric);
   }) : null;
   const yRange = computeProgressRawYRange([benchmark], metric);
+  const tokens = stepsToTokens(steps);
   const traces = [];
   if (wantSE && ses) {
-    const band = makeBandTrace(steps, ys, ses, MODEL_COLORS[0]);
+    const band = makeBandTrace(tokens, ys, ses, MODEL_COLORS[0]);
     if (band) traces.push(band);
   }
   traces.push({
-    x: steps, y: ys, mode: "lines+markers", name: "NorOLMo",
+    x: tokens, y: ys, mode: "lines+markers", name: "NorOLMo",
     line: { color: MODEL_COLORS[0], width: 2.5 }, marker: { size: 5 },
     customdata: ses || ys.map(() => null),
     hoverinfo: "none",
@@ -2457,6 +2475,7 @@ function renderSingleProgressChart(benchmark) {
   for (const ablName of getAblations()) {
     const ablSteps = getAblationSteps(ablName);
     if (!ablSteps.length) continue;
+    const ablTokens = stepsToTokens(ablSteps);
     const ablYs = ablSteps.map((s) => {
       const raw = getScore(DATA.ablations[ablName], s, benchmark, currentShot, metric);
       return raw != null ? toDisplayScale(raw, benchmark, metric) : null;
@@ -2466,11 +2485,11 @@ function renderSingleProgressChart(benchmark) {
       return scaleStderr(se, benchmark, metric);
     }) : null;
     if (wantSE && ablSes) {
-      const band = makeBandTrace(ablSteps, ablYs, ablSes, ABLATION_COLOR);
+      const band = makeBandTrace(ablTokens, ablYs, ablSes, ABLATION_COLOR);
       if (band) traces.push(band);
     }
     traces.push({
-      x: ablSteps, y: ablYs, mode: "lines+markers", name: getAblationDisplayName(ablName),
+      x: ablTokens, y: ablYs, mode: "lines+markers", name: getAblationDisplayName(ablName),
       line: { color: ABLATION_COLOR, width: 2.5 }, marker: { size: 5 },
       customdata: ablSes || ablYs.map(() => null),
       hoverinfo: "none",
@@ -2480,7 +2499,7 @@ function renderSingleProgressChart(benchmark) {
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000 },
+    xaxis: { title: "tokens" },
     yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, zeroline: false },
     showlegend: hasAblations,
     legend: PROGRESS_LEGEND,
