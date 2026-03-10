@@ -757,6 +757,13 @@ async function init() {
   buildUrlMaps();
   const hasUrlState = loadStateFromHash();
 
+  // Apply instruct-tab defaults when loaded via URL without explicit shot/size
+  if (currentTab === "instruct") {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    if (!params.has("shot")) currentShot = "0";
+    if (!params.has("size")) { currentSizeMin = RANGE_MIN; currentSizeMax = RANGE_MAX; }
+  }
+
   // Build UI
   populateTaskDropdown();
   bindEventListeners();
@@ -887,6 +894,20 @@ function bindEventListeners() {
       btn.classList.add("active");
       currentTab = btn.dataset.tab;
       updateFilteredOptionVisibility();
+      // Apply instruct-tab defaults when entering/leaving instruct tab
+      if (currentTab === "instruct" && prevTab !== "instruct") {
+        currentShot = "0";
+        currentSizeMin = RANGE_MIN;
+        currentSizeMax = RANGE_MAX;
+        document.querySelectorAll(".shot-btn").forEach((b) =>
+          b.classList.toggle("active", b.dataset.shot === currentShot));
+      } else if (prevTab === "instruct" && currentTab !== "instruct") {
+        currentShot = "5";
+        currentSizeMin = 7;
+        currentSizeMax = 24;
+        document.querySelectorAll(".shot-btn").forEach((b) =>
+          b.classList.toggle("active", b.dataset.shot === currentShot));
+      }
       // Rebuild model checkboxes when switching between comparison and instruct tabs
       const prevIsComparison = prevTab === "comparison" || prevTab === "instruct";
       const nowIsComparison = currentTab === "comparison" || currentTab === "instruct";
