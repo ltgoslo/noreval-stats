@@ -2044,7 +2044,7 @@ function renderAggregateBarChart() {
   const yRange = computeAggregateYRange(modelsData, checkedTasks);
   const layoutOpts = {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
-    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    yaxis: { title: getNormYLabel(), range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
     xaxis: { title: "", tickangle: computeTickAngle(labels) },
     showlegend: false,
     annotations: labels.map((label, i) => ({
@@ -2143,7 +2143,7 @@ function renderGroupedBarChart(groupName) {
   });
   const layoutOpts = {
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
-    yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    yaxis: { title: yLabel, range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
     xaxis: { tickangle: computeTickAngle(labels) },
     barmode: "group",
     legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
@@ -2197,7 +2197,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
   }
   const layoutOpts = {
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
-    yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    yaxis: { title: yLabel, range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
     xaxis: { tickangle: computeTickAngle(labels) },
     showlegend: false,
     annotations: labels.map((label, i) => ({
