@@ -2300,8 +2300,8 @@ function renderAggregateProgressChart() {
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false },
+    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#d9d9d9", showline: false, zeroline: currentNormalization === "zscore" },
     showlegend: hasAblations,
     legend: PROGRESS_LEGEND,
   });
@@ -2386,11 +2386,9 @@ function renderGroupProgressChart(groupName) {
   let yRange;
   if (useNorm) {
     const vals = [];
-    for (const shot of ALL_SHOTS) {
-      for (const bench of group.benchmarks) {
-        const raws = allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot, metric)).filter((v) => v !== undefined);
-        for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null, metric));
-      }
+    for (const bench of group.benchmarks) {
+      const raws = allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot, metric)).filter((v) => v !== undefined);
+      for (const raw of raws) vals.push(applyNorm(raw, bench, needAllRaw ? raws : null, metric));
     }
     yRange = computeYRange(vals);
   } else {
@@ -2398,8 +2396,8 @@ function renderGroupProgressChart(groupName) {
   }
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false },
+    yaxis: { title: yLabel, range: yRange, gridcolor: "#d9d9d9", showline: false, zeroline: currentNormalization === "zscore" },
     legend: PROGRESS_LEGEND,
   });
   plotChart(traces, layout);
@@ -2459,8 +2457,8 @@ function renderSingleProgressChart(benchmark) {
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, gridcolor: "#f0f0f0", zeroline: false },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false },
+    yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, gridcolor: "#d9d9d9", showline: false, zeroline: false },
     showlegend: hasAblations,
     legend: PROGRESS_LEGEND,
   });
@@ -2527,18 +2525,17 @@ function computeRawYMax_display(dataSource, benchmarks, metric) {
   return Math.min(mx + Math.max(mx * 0.15, 2), 115);
 }
 
-/** Collect all raw display-scale values across progress + ablation data sources for given benchmarks/metric. */
+/** Collect all raw display-scale values across progress + ablation data sources for given benchmarks/metric.
+ *  Uses currentShot only (Y-limits are per-shot). */
 function collectProgressVals(benchmarks, metric) {
   const vals = [];
   const sources = [DATA.progress];
   for (const ablName of getAblations()) sources.push(DATA.ablations[ablName]);
   for (const ds of sources) {
     for (const entity of Object.keys(ds)) {
-      for (const shot of ALL_SHOTS) {
-        for (const bench of benchmarks) {
-          const v = getScore(ds, entity, bench, shot, metric);
-          if (v != null) vals.push(toDisplayScale(v, bench, metric));
-        }
+      for (const bench of benchmarks) {
+        const v = getScore(ds, entity, bench, currentShot, metric);
+        if (v != null) vals.push(toDisplayScale(v, bench, metric));
       }
     }
   }
@@ -2576,32 +2573,30 @@ function computeProgressAggregateYRange() {
   const allStepEntities = Object.keys(DATA.progress);
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   const macro = isMacroSelection();
-  for (const shot of ALL_SHOTS) {
-    for (const step of allStepEntities) {
+  for (const step of allStepEntities) {
+    const result = aggregateScores(checkedTasks, (bench) => {
+      const raw = getScore(DATA.progress, step, bench, currentShot);
+      if (raw === undefined) return undefined;
+      const allRaw = needAllRaw
+        ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, currentShot)).filter((v) => v !== undefined)
+        : null;
+      return applyNorm(raw, bench, allRaw);
+    }, macro);
+    if (result) allAvgs.push(result.score);
+  }
+  // Include ablation data in Y-range computation
+  for (const ablName of getAblations()) {
+    const ablStepEntities = Object.keys(DATA.ablations[ablName]);
+    for (const step of ablStepEntities) {
       const result = aggregateScores(checkedTasks, (bench) => {
-        const raw = getScore(DATA.progress, step, bench, shot);
+        const raw = getScore(DATA.ablations[ablName], step, bench, currentShot);
         if (raw === undefined) return undefined;
         const allRaw = needAllRaw
-          ? allStepEntities.map((s) => getScore(DATA.progress, s, bench, shot)).filter((v) => v !== undefined)
+          ? ablStepEntities.map((s) => getScore(DATA.ablations[ablName], s, bench, currentShot)).filter((v) => v !== undefined)
           : null;
         return applyNorm(raw, bench, allRaw);
       }, macro);
       if (result) allAvgs.push(result.score);
-    }
-    // Include ablation data in Y-range computation
-    for (const ablName of getAblations()) {
-      const ablStepEntities = Object.keys(DATA.ablations[ablName]);
-      for (const step of ablStepEntities) {
-        const result = aggregateScores(checkedTasks, (bench) => {
-          const raw = getScore(DATA.ablations[ablName], step, bench, shot);
-          if (raw === undefined) return undefined;
-          const allRaw = needAllRaw
-            ? ablStepEntities.map((s) => getScore(DATA.ablations[ablName], s, bench, shot)).filter((v) => v !== undefined)
-            : null;
-          return applyNorm(raw, bench, allRaw);
-        }, macro);
-        if (result) allAvgs.push(result.score);
-      }
     }
   }
   if (!allAvgs.length) return currentNormalization === "zscore" ? [-2, 2] : [0, 100];
