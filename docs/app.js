@@ -112,7 +112,7 @@ const METRIC_DESCRIPTIONS = {
 const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
 const ABLATION_COLOR = "#e63946"; // red
 const ABLATION_PAIR_COLORS = ["#e63946", "#c1121f"]; // red, dark red
-const PROGRESS_LEGEND = { x: 0.02, y: 0.98, xanchor: "left", yanchor: "top", bgcolor: "rgba(255,255,255,0.7)", borderwidth: 0 };
+const PROGRESS_LEGEND = { x: 0.98, y: 0.02, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.7)", borderwidth: 0 };
 
 const JSON_DOWNLOAD_ICON = {
   width: 24,
@@ -2045,7 +2045,7 @@ function renderAggregateBarChart() {
   const layoutOpts = {
     title: { text: getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: getNormYLabel(), range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
-    xaxis: { title: "", tickangle: computeTickAngle(labels) },
+    xaxis: { title: "", tickangle: computeTickAngle(labels), showgrid: false },
     showlegend: false,
     annotations: labels.map((label, i) => ({
       x: label, y: scores[i] + (wantSE ? (aggStderrs[i] || 0) : 0),
@@ -2144,7 +2144,7 @@ function renderGroupedBarChart(groupName) {
   const layoutOpts = {
     title: { text: groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
-    xaxis: { tickangle: computeTickAngle(labels) },
+    xaxis: { tickangle: computeTickAngle(labels), showgrid: false },
     barmode: "group",
     legend: { orientation: "h", x: 0.01, y: 0.99, xanchor: "left", yanchor: "bottom",
               bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#e2e8f0", borderwidth: 1 },
@@ -2198,7 +2198,7 @@ function renderSingleBenchmarkBarChart(benchmark) {
   const layoutOpts = {
     title: { text: info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     yaxis: { title: yLabel, range: yRange, showgrid: false, zeroline: currentNormalization === "zscore" },
-    xaxis: { tickangle: computeTickAngle(labels) },
+    xaxis: { tickangle: computeTickAngle(labels), showgrid: false },
     showlegend: false,
     annotations: labels.map((label, i) => ({
       x: label, y: (values[i] || 0) + (wantSE && seArr ? (seArr[i] || 0) : 0),
