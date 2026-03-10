@@ -502,6 +502,10 @@ def main():
                     all_discovered_metrics[bench] = set()
                 all_discovered_metrics[bench].update(mset)
 
+    ABLATION_NAME_MAP = {
+        "stage2-ablation-no-len-ext-stage1-data": "Stage 2 ablation (lr decay only)",
+    }
+
     # Process ablation studies in NorOLMo_progress/
     # Ablation dirs match pattern: NorOLMo-{ablation_name}-step-{N}
     # where ablation_name is everything between "NorOLMo-" and the final "-step-{N}"
@@ -525,7 +529,9 @@ def main():
             ablation_name = suffix[:suffix.rfind("-step-")]  # e.g. "stage2-ablation-no-len-ext-stage1-data"
             if ablation_name not in ablations:
                 ablations[ablation_name] = {}
-                ABLATION_DISPLAY_NAMES[ablation_name] = ablation_name.replace("-", " ").title()
+                ABLATION_DISPLAY_NAMES[ablation_name] = ABLATION_NAME_MAP.get(
+                    ablation_name, ablation_name.replace("-", " ").title()
+                )
             print(f"Processing ablation {ablation_name}: step {step}")
             scores, disc = process_model_dir(str(ckpt_path), metrics_setup)
             ablations[ablation_name][step] = scores

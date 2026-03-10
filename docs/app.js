@@ -110,8 +110,9 @@ const METRIC_DESCRIPTIONS = {
 };
 
 const PROGRESS_PAIR_COLORS = ["#3b82f6", "#ef4444"]; // blue, red
-const ABLATION_COLOR = "#f59e0b"; // amber
-const ABLATION_PAIR_COLORS = ["#f59e0b", "#d946ef"]; // amber, fuchsia
+const ABLATION_COLOR = "#e63946"; // red
+const ABLATION_PAIR_COLORS = ["#e63946", "#c1121f"]; // red, dark red
+const PROGRESS_LEGEND = { x: 0.02, y: 0.98, xanchor: "left", yanchor: "top", bgcolor: "rgba(255,255,255,0.7)", borderwidth: 0 };
 
 const JSON_DOWNLOAD_ICON = {
   width: 24,
@@ -2288,7 +2289,7 @@ function renderAggregateProgressChart() {
     }
     traces.push({
       x: ablSteps, y: ablScores, mode: "lines+markers", name: getAblationDisplayName(ablName),
-      line: { color: ABLATION_COLOR, width: 2.5, dash: "dash" }, marker: { size: 5 },
+      line: { color: ABLATION_COLOR, width: 2.5 }, marker: { size: 5 },
       customdata: ablAggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
       hoverinfo: "none",
     });
@@ -2302,6 +2303,7 @@ function renderAggregateProgressChart() {
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
     showlegend: hasAblations,
+    legend: PROGRESS_LEGEND,
   });
   plotChart(traces, layout);
 }
@@ -2372,7 +2374,7 @@ function renderGroupProgressChart(groupName) {
       }
       traces.push({
         x: ablSteps, y: ys, mode: "lines+markers", name: ablDisplayName + " — " + group.labels[i],
-        line: { color: lineColor, width: 2.5, dash: "dash" },
+        line: { color: lineColor, width: 2.5 },
         marker: { size: 5 },
         customdata: ses || ys.map(() => null),
         hoverinfo: "none",
@@ -2392,12 +2394,13 @@ function renderGroupProgressChart(groupName) {
     }
     yRange = computeYRange(vals);
   } else {
-    yRange = [0, computeRawYMax_display(DATA.progress, group.benchmarks, metric)];
+    yRange = computeProgressRawYRange(group.benchmarks, metric);
   }
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
     yaxis: { title: yLabel, range: yRange, gridcolor: "#f0f0f0", zeroline: currentNormalization === "zscore" },
+    legend: PROGRESS_LEGEND,
   });
   plotChart(traces, layout);
 }
@@ -2416,7 +2419,7 @@ function renderSingleProgressChart(benchmark) {
     const se = getCombinedSE(DATA.progress, s, benchmark, currentShot, metric);
     return scaleStderr(se, benchmark, metric);
   }) : null;
-  const yMax = computeRawYMax_display(DATA.progress, [benchmark], metric);
+  const yRange = computeProgressRawYRange([benchmark], metric);
   const traces = [];
   if (wantSE && ses) {
     const band = makeBandTrace(steps, ys, ses, MODEL_COLORS[0]);
@@ -2447,7 +2450,7 @@ function renderSingleProgressChart(benchmark) {
     }
     traces.push({
       x: ablSteps, y: ablYs, mode: "lines+markers", name: getAblationDisplayName(ablName),
-      line: { color: ABLATION_COLOR, width: 2.5, dash: "dash" }, marker: { size: 5 },
+      line: { color: ABLATION_COLOR, width: 2.5 }, marker: { size: 5 },
       customdata: ablSes || ablYs.map(() => null),
       hoverinfo: "none",
     });
@@ -2457,8 +2460,9 @@ function renderSingleProgressChart(benchmark) {
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
     xaxis: { title: "training step", dtick: 5000, gridcolor: "#f0f0f0" },
-    yaxis: { title: getMetricYLabel(benchmark, metric), range: [0, yMax], gridcolor: "#f0f0f0", zeroline: false },
+    yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, gridcolor: "#f0f0f0", zeroline: false },
     showlegend: hasAblations,
+    legend: PROGRESS_LEGEND,
   });
   plotChart(traces, layout);
 }
@@ -2523,6 +2527,36 @@ function computeRawYMax_display(dataSource, benchmarks, metric) {
   return Math.min(mx + Math.max(mx * 0.15, 2), 115);
 }
 
+/** Collect all raw display-scale values across progress + ablation data sources for given benchmarks/metric. */
+function collectProgressVals(benchmarks, metric) {
+  const vals = [];
+  const sources = [DATA.progress];
+  for (const ablName of getAblations()) sources.push(DATA.ablations[ablName]);
+  for (const ds of sources) {
+    for (const entity of Object.keys(ds)) {
+      for (const shot of ALL_SHOTS) {
+        for (const bench of benchmarks) {
+          const v = getScore(ds, entity, bench, shot, metric);
+          if (v != null) vals.push(toDisplayScale(v, bench, metric));
+        }
+      }
+    }
+  }
+  return vals;
+}
+
+/** Compute [yMin, yMax] range for progress charts (raw, non-normalized). */
+function computeProgressRawYRange(benchmarks, metric) {
+  const vals = collectProgressVals(benchmarks, metric);
+  if (!vals.length) return [0, 100];
+  const mx = Math.max(...vals);
+  const mn = Math.min(...vals);
+  const pad = Math.max((mx - mn) * 0.15, 2);
+  const yMax = Math.min(mx + pad, 115);
+  const yMin = Math.max(mn - pad, 0);
+  return [yMin, yMax];
+}
+
 function computeSingleYRange(dataSource, benchmark, metric) {
   const isComparisonData = dataSource === DATA.models || dataSource === DATA.instruct_models;
   const vals = [];
@@ -2570,7 +2604,15 @@ function computeProgressAggregateYRange() {
       }
     }
   }
-  return computeYRange(allAvgs);
+  if (!allAvgs.length) return currentNormalization === "zscore" ? [-2, 2] : [0, 100];
+  const mx = Math.max(...allAvgs);
+  const mn = Math.min(...allAvgs);
+  if (currentNormalization === "zscore") {
+    const pad = Math.max((mx - mn) * 0.15, 0.3);
+    return [mn - pad, mx + pad];
+  }
+  const pad = Math.max((mx - mn) * 0.15, 2);
+  return [Math.max(mn - pad, 0), Math.min(mx + pad, 115)];
 }
 
 function getAggregateLabel() {
