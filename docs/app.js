@@ -2300,8 +2300,8 @@ function renderAggregateProgressChart() {
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + getAggregateLabel() + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false },
-    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#d9d9d9", showline: false, zeroline: currentNormalization === "zscore" },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false, mirror: false },
+    yaxis: { title: getNormYLabel(), range: yRange, gridcolor: "#d9d9d9", showline: false, mirror: false, zeroline: currentNormalization === "zscore" },
     showlegend: hasAblations,
     legend: PROGRESS_LEGEND,
   });
@@ -2396,8 +2396,8 @@ function renderGroupProgressChart(groupName) {
   }
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + groupName + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false },
-    yaxis: { title: yLabel, range: yRange, gridcolor: "#d9d9d9", showline: false, zeroline: currentNormalization === "zscore" },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false, mirror: false },
+    yaxis: { title: yLabel, range: yRange, gridcolor: "#d9d9d9", showline: false, mirror: false, zeroline: currentNormalization === "zscore" },
     legend: PROGRESS_LEGEND,
   });
   plotChart(traces, layout);
@@ -2457,8 +2457,8 @@ function renderSingleProgressChart(benchmark) {
   const hasAblations = getAblations().length > 0;
   const layout = getPlotlyLayout({
     title: { text: "NorOLMo progress \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false },
-    yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, gridcolor: "#d9d9d9", showline: false, zeroline: false },
+    xaxis: { title: "training step", dtick: 5000, gridcolor: "#d9d9d9", showline: false, mirror: false },
+    yaxis: { title: getMetricYLabel(benchmark, metric), range: yRange, gridcolor: "#d9d9d9", showline: false, mirror: false, zeroline: false },
     showlegend: hasAblations,
     legend: PROGRESS_LEGEND,
   });
