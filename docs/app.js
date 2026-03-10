@@ -2532,21 +2532,19 @@ function computeAggregateYRange(dataSource, benchmarks) {
   const needAllRaw = currentNormalization === "minmax" || currentNormalization === "zscore" || currentNormalization === "percentile";
   const macro = isMacroSelection();
   const isComparisonData = dataSource === DATA.models || dataSource === DATA.instruct_models;
-  for (const shot of ALL_SHOTS) {
-    const modelNames = isComparisonData ? getModelList() : null;
-    for (const entity of entities) {
-      if (isComparisonData && (!getCheckedModels().has(entity) || !isModelInSizeRange(entity))) continue;
-      const result = aggregateScores(benchmarks, (bench) => {
-        const raw = getScore(dataSource, entity, bench, shot);
-        if (raw === undefined) return undefined;
-        if (needAllRaw && modelNames) {
-          const allRaw = modelNames.map((mm) => getScore(dataSource, mm, bench, shot)).filter((v) => v !== undefined);
-          return applyNorm(raw, bench, allRaw);
-        }
-        return applyNorm(raw, bench, null);
-      }, macro);
-      if (result) allAvgs.push(result.score);
-    }
+  const modelNames = isComparisonData ? getModelList() : null;
+  for (const entity of entities) {
+    if (isComparisonData && (!getCheckedModels().has(entity) || !isModelInSizeRange(entity))) continue;
+    const result = aggregateScores(benchmarks, (bench) => {
+      const raw = getScore(dataSource, entity, bench, currentShot);
+      if (raw === undefined) return undefined;
+      if (needAllRaw && modelNames) {
+        const allRaw = modelNames.map((mm) => getScore(dataSource, mm, bench, currentShot)).filter((v) => v !== undefined);
+        return applyNorm(raw, bench, allRaw);
+      }
+      return applyNorm(raw, bench, null);
+    }, macro);
+    if (result) allAvgs.push(result.score);
   }
   return computeYRange(allAvgs);
 }
@@ -2556,11 +2554,10 @@ function computeRawYMax_display(dataSource, benchmarks, metric) {
   const vals = [];
   for (const entity of Object.keys(dataSource)) {
     if (isComparisonData && (!getCheckedModels().has(entity) || !isModelInSizeRange(entity))) continue;
-    for (const shot of ALL_SHOTS)
-      for (const bench of benchmarks) {
-        const v = getScore(dataSource, entity, bench, shot, metric);
-        if (v != null) vals.push(toDisplayScale(v, bench, metric));
-      }
+    for (const bench of benchmarks) {
+      const v = getScore(dataSource, entity, bench, currentShot, metric);
+      if (v != null) vals.push(toDisplayScale(v, bench, metric));
+    }
   }
   if (!vals.length) return 100;
   const mx = Math.max(...vals);
@@ -2600,12 +2597,10 @@ function computeSingleYRange(dataSource, benchmark, metric) {
   const isComparisonData = dataSource === DATA.models || dataSource === DATA.instruct_models;
   const vals = [];
   const entities = Object.keys(dataSource).filter((e) => !isComparisonData || (getCheckedModels().has(e) && isModelInSizeRange(e)));
-  for (const shot of ALL_SHOTS) {
-    const raws = entities.map((e) => getScore(dataSource, e, benchmark, shot, metric)).filter((v) => v !== undefined);
-    for (const raw of raws) {
-      if (currentNormalization === "none") vals.push(toDisplayScale(raw, benchmark, metric));
-      else vals.push(applyNorm(raw, benchmark, raws, metric));
-    }
+  const raws = entities.map((e) => getScore(dataSource, e, benchmark, currentShot, metric)).filter((v) => v !== undefined);
+  for (const raw of raws) {
+    if (currentNormalization === "none") vals.push(toDisplayScale(raw, benchmark, metric));
+    else vals.push(applyNorm(raw, benchmark, raws, metric));
   }
   return computeYRange(vals);
 }
