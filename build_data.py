@@ -493,6 +493,9 @@ def main():
             ckpt_path = PROGRESS_DIR / ckpt_dir
             if not ckpt_path.is_dir():
                 continue
+            # Only process NorOLMo-step-N dirs (skip ablation dirs)
+            if not ckpt_dir.startswith("NorOLMo-step-"):
+                continue
             parts = ckpt_dir.split("-")
             step_str = parts[-1] if parts else ""
             if not step_str.isdigit():
@@ -532,7 +535,7 @@ def main():
             ckpt_path = PROGRESS_DIR / ckpt_dir
             if not ckpt_path.is_dir():
                 continue
-            # Skip non-ablation dirs (already handled as regular progress)
+            # Skip regular progress dirs (already handled above)
             if not ckpt_dir.startswith("NorOLMo-") or ckpt_dir.startswith("NorOLMo-step-"):
                 continue
             parts = ckpt_dir.split("-")
