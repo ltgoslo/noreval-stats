@@ -243,8 +243,12 @@ def extract_benchmark_scores(
                                  "max_stderr": ..., ...}, ...}
     or None if no metrics found.
     """
-    with open(results_json_path) as f:
-        data = json.load(f)
+    try:
+        with open(results_json_path) as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        print(f"  WARNING: corrupt JSON, skipping: {results_json_path}")
+        return None
 
     results = data.get("results", {})
     n_samples_dict = data.get("n-samples", {})
@@ -503,7 +507,19 @@ def main():
                 all_discovered_metrics[bench].update(mset)
 
     ABLATION_NAME_MAP = {
-        "stage2-ablation-no-len-ext-stage1-data": "Stage 2 ablation (lr decay only)",
+        "stage2-ablation-no-len-ext-stage1-data": "Stage 2 (lr decay only)",
+        "stage2-no-len-ext-stage1-data-half-decay": "Stage 2 (stage 1 data, ½ decay)",
+        "stage2-no-len-ext-stage2-data-half-decay": "Stage 2 (stage 2 data, ½ decay)",
+        "stage3-no-rope-scaling": "Stage 3 (no RoPE scaling)",
+        "stage3-rope-scaling": "Stage 3 (RoPE scaling)",
+    }
+
+    ABLATION_COLOR_MAP = {
+        "stage2-ablation-no-len-ext-stage1-data": "#e63946",  # red
+        "stage2-no-len-ext-stage1-data-half-decay": "#ff7f0e",  # orange
+        "stage2-no-len-ext-stage2-data-half-decay": "#2ca02c",  # green
+        "stage3-no-rope-scaling": "#9467bd",  # purple
+        "stage3-rope-scaling": "#17becf",  # cyan
     }
 
     # Process ablation studies in NorOLMo_progress/
@@ -581,6 +597,7 @@ def main():
         "progress": progress,
         "ablations": ablations,
         "ablation_display_names": ABLATION_DISPLAY_NAMES,
+        "ablation_colors": {k: ABLATION_COLOR_MAP.get(k, "") for k in ablations},
     }
 
     with open(OUTPUT_FILE, "w") as f:

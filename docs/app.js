@@ -109,7 +109,11 @@ const METRIC_DESCRIPTIONS = {
   errant_f05: "Grammar error correction metric emphasizing precision (F0.5) over recall.",
 };
 
-const ABLATION_COLOR = "#e63946"; // red
+const ABLATION_COLORS_FALLBACK = ["#e63946", "#ff7f0e", "#2ca02c", "#9467bd", "#17becf", "#d62728", "#8c564b"];
+
+function getAblationColor(ablName) {
+  return DATA.ablation_colors?.[ablName] || ABLATION_COLORS_FALLBACK[getAblations().indexOf(ablName) % ABLATION_COLORS_FALLBACK.length];
+}
 const PROGRESS_LEGEND = { x: 0.98, y: 0.02, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.7)", borderwidth: 0 };
 
 const JSON_DOWNLOAD_ICON = {
@@ -2320,12 +2324,12 @@ function renderAggregateProgressChart() {
     const ablScores = ablAggResults.map((r) => r ? r.score : null);
     const ablSes = ablAggResults.map((r) => r ? r.stderr : null);
     if (wantSE) {
-      const band = makeBandTrace(ablTokens, ablScores, ablSes, ABLATION_COLOR);
+      const band = makeBandTrace(ablTokens, ablScores, ablSes, getAblationColor(ablName));
       if (band) traces.push(band);
     }
     traces.push({
       x: ablTokens, y: ablScores, mode: "lines+markers", name: getAblationDisplayName(ablName),
-      line: { color: ABLATION_COLOR, width: 2.5 }, marker: { size: 5 },
+      line: { color: getAblationColor(ablName), width: 2.5 }, marker: { size: 5 },
       customdata: ablAggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
       hoverinfo: "none",
     });
@@ -2406,7 +2410,8 @@ function renderGroupProgressChart(groupName) {
         const se = getCombinedSE(DATA.ablations[ablName], s, bench, currentShot, metric);
         return scaleStderr(se, bench, metric, allRaw);
       }) : null;
-      const lineColor = i === 0 ? ABLATION_COLOR : darkenColor(ABLATION_COLOR, 0.3);
+      const ablColor = getAblationColor(ablName);
+      const lineColor = i === 0 ? ablColor : darkenColor(ablColor, 0.3);
       if (wantSE && ses) {
         const band = makeBandTrace(ablTokens, ys, ses, lineColor);
         if (band) traces.push(band);
@@ -2484,12 +2489,12 @@ function renderSingleProgressChart(benchmark) {
       return scaleStderr(se, benchmark, metric);
     }) : null;
     if (wantSE && ablSes) {
-      const band = makeBandTrace(ablTokens, ablYs, ablSes, ABLATION_COLOR);
+      const band = makeBandTrace(ablTokens, ablYs, ablSes, getAblationColor(ablName));
       if (band) traces.push(band);
     }
     traces.push({
       x: ablTokens, y: ablYs, mode: "lines+markers", name: getAblationDisplayName(ablName),
-      line: { color: ABLATION_COLOR, width: 2.5 }, marker: { size: 5 },
+      line: { color: getAblationColor(ablName), width: 2.5 }, marker: { size: 5 },
       customdata: ablSes || ablYs.map(() => null),
       hoverinfo: "none",
     });
