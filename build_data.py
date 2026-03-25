@@ -510,7 +510,7 @@ def main():
                 all_discovered_metrics[bench].update(mset)
 
     ABLATION_NAME_MAP = {
-        "stage2-ablation-no-len-ext-stage1-data": "Stage 2 (lr decay only)",
+        "stage2-ablation-no-len-ext-stage1-data": "Stage 2 (stage 1 data, full decay)",
         "stage2-no-len-ext-stage1-data-half-decay": "Stage 2 (stage 1 data, ½ decay)",
         "stage2-no-len-ext-stage2-data-half-decay": "Stage 2 (stage 2 data, ½ decay)",
         "stage3-no-rope-scaling": "Stage 3 (no RoPE scaling)",
