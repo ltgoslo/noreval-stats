@@ -35,6 +35,18 @@ normistral-7b-warm:
   default: true
   color: "#DD0000"
 
+normistral-7b-scratch:
+  display_name: "NorMistral 7B (scratch)"
+  category: norwegian
+  organization: LTG/UiO
+  parameters: 7.0
+  license: "Apache 2.0"
+  fully_open: true
+  description: "Norwegian language model pretrained from scratch on 260 billion subword tokens of open Norwegian text. Based on the Mistral architecture with 2k context length. Trained by the Language Technology Group at the University of Oslo."
+  huggingface_url: https://huggingface.co/norallm/normistral-7b-scratch
+  default: true
+  color: "#DD0000"
+
 normistral-11b-warm:
   display_name: "NorMistral 11B"
   category: norwegian
@@ -381,7 +393,7 @@ gemma-3-27b-pt:
   fully_open: false
   description: "Multimodal model from Google trained on 14 trillion tokens. Supports text and image understanding with 128k context window."
   huggingface_url: https://huggingface.co/google/gemma-3-27b-pt
-  default: true
+  default: false
   color: "#3aab58"
 
 gemma-4-E2B:
@@ -393,7 +405,7 @@ gemma-4-E2B:
   fully_open: false
   description: "Lightweight multimodal model from Google's Gemma 4 family with 2.3B effective parameters (5.1B total). Features Per-Layer Embeddings for efficient on-device deployment with 128k context window."
   huggingface_url: https://huggingface.co/google/gemma-4-E2B
-  default: true
+  default: false
   color: "#3aab58"
 
 gemma-4-E4B:
@@ -412,7 +424,7 @@ gemma-4-26B-A4B:
   display_name: "Gemma4 26B (4B active)"
   category: multilingual
   organization: Google
-  parameters: 26.0
+  parameters: 26.5
   license: "Apache 2.0"
   fully_open: false
   description: "Mixture-of-Experts multimodal model from Google's Gemma 4 family with 26B total and 4B active parameters per token. Features 256k context window."
@@ -573,7 +585,7 @@ Qwen2.5-32B:
   fully_open: false
   description: "Base language model from Qwen. Multilingual with 29 language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen2.5-32B
-  default: true
+  default: false
   color: "#9391fe"
 
 Qwen2.5-72B:
@@ -585,7 +597,7 @@ Qwen2.5-72B:
   fully_open: false
   description: "Base language model from Qwen. Multilingual with 29 language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen2.5-72B
-  default: true
+  default: false
   color: "#9391fe"
 
 Qwen3-1.7B-Base:
@@ -597,7 +609,7 @@ Qwen3-1.7B-Base:
   fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-1.7B-Base
-  default: true
+  default: false
   color: "#9391fe"
 
 Qwen3-4B-Base:
@@ -621,7 +633,7 @@ Qwen3-8B-Base:
   fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-8B-Base
-  default: true
+  default: false
   color: "#9391fe"
 
 Qwen3-14B-Base:
@@ -633,7 +645,7 @@ Qwen3-14B-Base:
   fully_open: false
   description: "Base language model from Qwen. Multilingual with 100+ language support."
   huggingface_url: https://huggingface.co/Qwen/Qwen3-14B
-  default: true
+  default: false
   color: "#9391fe"
 
 qwen3.5-0.8b-base:
@@ -652,7 +664,7 @@ qwen3.5-2b-base:
   display_name: "Qwen3.5 2B"
   category: multilingual
   organization: Alibaba
-  parameters: 2.0
+  parameters: 2.3
   license: "Apache 2.0"
   fully_open: false
   description: "Multimodal causal language model from Qwen 3.5 series with efficient hybrid architecture using Gated Delta Networks. Supports 201 languages with 262k context window."
@@ -664,7 +676,7 @@ qwen3.5-9b-base:
   display_name: "Qwen3.5 9B"
   category: multilingual
   organization: Alibaba
-  parameters: 10.0
+  parameters: 9.7
   license: "Apache 2.0"
   fully_open: false
   description: "Multimodal causal language model from Qwen 3.5 series with efficient hybrid architecture using Gated Delta Networks. Supports 201 languages with 262k context window."
