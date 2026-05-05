@@ -741,7 +741,7 @@ gpt-sw3-20b:
   fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-20b
-  default: true
+  default: false
   color: "#fecd08"
 
 gpt-sw3-40b:
@@ -753,7 +753,7 @@ gpt-sw3-40b:
   fully_open: false
   description: "Autoregressive language model trained on Swedish, Norwegian, Danish, Icelandic, English, and programming code. Developed by AI Sweden and RISE."
   huggingface_url: https://huggingface.co/AI-Sweden-Models/gpt-sw3-40b
-  default: true
+  default: false
   color: "#fecd08"
 
 Viking-7B:
